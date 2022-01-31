@@ -16,18 +16,98 @@
 
 \maketitle
 
-\input{sections/abstract.tex}
+\begin{abstract}
+\end{abstract}
 
-\input{sections/introduction.tex}
-\input{sections/related-work.tex}
-\input{sections/approach.tex}
-\input{sections/experimental-design.tex}
-\input{sections/evaluation.tex}
-\input{sections/conclusion.tex}
+\section{Introduction}
+\label{sec:introduction}
+
+\paragraph{Motivation}
+
+\paragraph{Problem statement}
+
+\paragraph{Related work}
+
+\paragraph{Contributions}
+
+\paragraph{Results}
+
+We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
+
+\paragraph{Outline}
+
+Section~\ref{sec:related-work} reviews related work.
+Section~\ref{sec:approach} introduces our approach.
+Section~\ref{sec:experimental-design} describes our experimental design.
+Section~\ref{sec:evaluation} presents the experimental results.
+Section~\ref{sec:conclusion} concludes.
+
+\section{Related Work}
+\label{sec:related-work}
+
+COALA \cite{bae2006coala}
+Alternate Clustering \cite{bailey2014alternative}
+alternative features for clustering \cite{tao2012novel}
+features relevant global and in clusters \cite{guan2011unified}
+integer problem to find alternative clusters \cite{bae2010clustering}
+penalize overlap \cite{mueller2009relevant}
+
+GMD \cite{trittenbach2019dimension}
+Edouard \cite{fouche2021efficient}
+combining subspaces \cite{nguyen20134s}
+
+subgroup set discovery \cite{leeuwen2012diverse}
+
+statistical equivalent subsets \cite{lagani2017feature, borboudakis2021extending, tsamardinos2003towards, dougherty2006number}
+feature clustering \cite{mueller2021feature}
+combining feature selection results \cite{woznica2012model}
+genetic algo multi feature sets \cite{siddiqi2020genetic}
+
+counterfactual surveys \cite{verma2020counterfactual, stepin2021survey}
+MIP for counterfactuals \cite{mohammadi2021scaling}
+SMT for counterfactuals \cite{karimi2020model}
+
+constraint data mining \cite{grossi2017survey}
+
+\section{Approach}
+\label{sec:approach}
+
+FS survey \cite{li2017feature, chandrashekar2014survey, guyon2003introduction}
+interpretability \cite{carvalho2019machine}
+SMT \cite{barrett2018satisfiability}
+wrapper \cite{kohavi1997wrappers}
+
+FCBF \cite{yu2003feature}
+CFS \cite{hall1999correlation}
+mRMR \cite{peng2005feature}
+Relief \cite{kira1992feature}
+
+can be combined with domain constraints \cite{groves2015toward}, group constraints \cite{yuan2006model}, cost constraints \cite{paclik2002feature}
+
+focus on alternatives of sets as a whole - not 1-of-x for individual features (which requires user to define feature groups first, is similar to statistically equivalent signatures)
+
+can be combined with any feature importance score, e.g., also post-hoc local explanations like (absolute value of) LIME \cite{ribeiro2016should} or SHAP \cite{lundberg2017unified}
+
+\section{Experimental Design}
+\label{sec:experimental-design}
+
+\subsection{Implementation}
+
+We implement our experimental pipeline in Python.
+For machine learning, we use \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
+To express and solve the constraint optimization problems, we use \emph{Z3}~\cite{deMoura2008z3}.
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+\section{Conclusions and Future Work}
+\label{sec:conclusion}
 
 \printbibliography
 
 \appendix
-\input{sections/appendix.tex}
+
+\section{Appendix}
+\label{sec:appendix}
 
 \end{document}
