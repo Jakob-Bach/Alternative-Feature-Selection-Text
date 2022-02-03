@@ -75,21 +75,53 @@ constraint data mining \cite{grossi2017survey}
 
 \subsection{Notation}
 
-\subsection{Measuring Feature Quality}
+Let $X \in \mathbb{R}^{m \times n}$ be a dataset represented as a matrix.
+Each row is a data object, and each column is a feature.
+Let $F = \{f_1, \dots, f_n\}$ denote the set of feature names.
+We assume categorical features have already been made numeric, e.g., via one-hot encoding.
+Further, let $y \in \mathbb{R}^m$ represent the prediction target.
+The actual domain of the target might also be smaller, e.g., $\{0,1\}$ for binary classification.
 
-filter, wrapper, embedded, importance/explanations
+With feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
+The vector $s \in \{0,1\}^n$ combines all these selection decisions.
+The selected feature set is $F_s = \{f_j|~s_j=1\}$.
+Let function $Q(s,X,y)$ returns the quality of a such feature set.
+Without loss of generality, we assume this function should be maximized.
 
-FS survey \cite{li2017feature, chandrashekar2014survey, guyon2003introduction}
-interpretability \cite{carvalho2019machine}
-SMT \cite{barrett2018satisfiability}
-wrapper \cite{kohavi1997wrappers}
+\subsection{Measuring Feature (Set) Quality}
 
-FCBF \cite{yu2003feature}
-CFS \cite{hall1999correlation}
-mRMR \cite{peng2005feature}
-Relief \cite{kira1992feature}
+There are different ways to evaluate feature-set quality $Q(s,X,y)$.
+Note that we only give a short overview here, and focus on techniques that we use in our evaluation.
+See \cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
+A typical categorization of feature selection is into filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
-can be combined with any feature importance score, e.g., also post-hoc local explanations like (absolute value of) LIME \cite{ribeiro2016should} or SHAP \cite{lundberg2017unified}
+\paragraph{Filter methods}
+
+Filter methods evaluate feature sets without training a prediction model.
+Univariate filters assess each feature on its own, often assigning a numeric score ot each feature, while multivariate filters evaluate feature sets.
+Examples for univariate filters are the absolute Pearson correlation or the mutual information between a feature and the prediction target.
+Such approaches ignore potential interaction between features, e.g., if they are redundant to each other.
+Multivariate methods often combine a measure of feature relevance with a measure of feature redundancy.
+Examples for such an approach include CFS \cite{hall1999correlation}, FCBF \cite{yu2003feature}, and mRMR \cite{peng2005feature}.
+Another interesting filter method is Relief~\cite{kira1992feature}, for which multiple extensions exist.
+While Relief assigns quality to individual features rather than feature sets, it still uses other features indirectly via nearest-neighbor computations between data objects.
+
+\paragraph{Wrapper methods}
+
+Wrapper methods~\cite{kohavi1997wrappers} employ a search strategy over feature sets and evaluate each of these feature set by training a prediction model.
+Various black-box optimization techniques can serve as search strategy, e.g., genetic algorithms.
+
+\paragraph{Embedded methods}
+
+Embedded methods train prediction models with built-in feature selection, e.g., decision trees or random forests~\cite{breiman2001random}.
+
+\paragraph{Post-hoc feature importance}
+
+Apart from traditional feature selection, there are various approaches that assess feature importance after training a model.
+These methods range from classical global methods like permutation importance~\cite{breiman2001random} to local explanation methods like LIME \cite{ribeiro2016should} or SHAP \cite{lundberg2017unified}.
+In particular, assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
+Mathematically, having a post-hoc importance score for each feature is not different from the output of univariate filter methods.
+Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
 \section{Alternative Feature Selection (AFS) -- Approach}
 \label{sec:approach}
