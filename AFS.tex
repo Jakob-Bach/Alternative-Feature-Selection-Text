@@ -176,11 +176,21 @@ focus on alternatives of sets as a whole - not 1-of-x for individual features (w
 
 \subsection{Approaches}
 
-feature selection
-finding alternatives
-prediction
+\paragraph{Feature selection}
+
+\paragraph{Finding alternatives}
+
+\paragraph{Prediction models}
+
+As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
+Both types of models ae popular and allow to learn complex, non-linear dependencies from the data.
+We leave the hyperparameters of the models at their defaults.
 
 \subsection{Evaluation Metrics}
+
+We conduct 10-fold cross-validation.
+Not only model training, but also the search for alternative feature sets is limited to the training data.
+In contrast, when we report prediction performance, we describe results on the test data only.
 
 \subsection{Datasets}
 
