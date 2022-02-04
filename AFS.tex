@@ -128,6 +128,27 @@ Thus, our approach for finding alternative feature sets works for outputs of suc
 
 \subsection{Quantifying Alternatives}
 
+We consider a feature set to be a valid alternative to another feature set if it differs sufficiently.
+Mathematically, we express this with a set-distance measure.
+A simple and well-known set-distance measure is the Jaccard distance.
+We use this distance in our article, but one could choose another measure~\cite{egghe2009new} as well.
+Given two feature sets $F_1$, $F_2$, the Jaccard distance is
+%
+\[
+	d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+\]
+%
+We deem feature set $F_2$ a valid alternative to $F_1$ if $d_{Jacc}(F_1,F_2) \geq \tau$ for a distance threshold $\tau$.
+Depending on the preferences of the user, different values of $\tau$ might be appropriate.
+This depends on how alternative the new feature set should be.
+Also, a feature set that differs strongly might also yield large changes in prediction performance.
+Thus, we leave $\tau$ as a parameter of our approach.
+If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
+Setting $\tau$ is made easier by the fact that the Jaccard distance is normalized to $[0,1]$.
+A value of $0$ allows the alternative feature set to be identical to the original feature set.
+A value of $1$ requires the two feature sets to have no overlap.
+If the feature sets sizes $|F_1|$ and $|F_2|$ are known, one can also specify the maximum number of overlapping features $|F_1 \cap F_2|$ instead of $\tau$, because one can compute $\tau$ from $|F_1 \cap F_2|$.
+
 \subsection{Finding Alternatives}
 
 can be combined with domain constraints \cite{groves2015toward}, group constraints \cite{yuan2006model}, cost constraints \cite{paclik2002feature}
