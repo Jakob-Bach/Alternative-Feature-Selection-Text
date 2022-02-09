@@ -77,7 +77,10 @@ constraint data mining \cite{grossi2017survey}
 \section{Fundamentals}
 \label{sec:fundamentals}
 
+In this section, we introduce basic notation and review different methods to measure quality of feature sets.
+
 \subsection{Notation}
+\label{sec:fundamentals:notation}
 
 Let $X \in \mathbb{R}^{m \times n}$ be a dataset represented as a matrix.
 Each row is a data object, and each column is a feature.
@@ -93,6 +96,7 @@ Let function $Q(s,X,y)$ returns the quality of a such feature set.
 Without loss of generality, we assume this function should be maximized.
 
 \subsection{Measuring Feature (Set) Quality}
+\label{sec:fundamentals:quality}
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
 Note that we only give a short overview here, and focus on techniques that we use in our evaluation.
@@ -122,15 +126,20 @@ Embedded methods train prediction models with built-in feature selection, e.g., 
 \paragraph{Post-hoc feature importance}
 
 Apart from traditional feature selection, there are various approaches that assess feature importance after training a model.
-These methods range from classical global methods like permutation importance~\cite{breiman2001random} to local explanation methods like LIME \cite{ribeiro2016should} or SHAP \cite{lundberg2017unified}.
+These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
 In particular, assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
 Mathematically, having a post-hoc importance score for each feature is not different from the output of univariate filter methods.
 Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
-\section{Alternative Feature Selection (AFS) -- Approach}
+\section{AFS -- Approach}
 \label{sec:approach}
 
+In this section, we introduce our approach for alternative feature selection.
+First, we define how to quantify alternative feature sets.
+Second, we present approaches to find such alternatives for different feature-set quality measures.
+
 \subsection{Quantifying Alternatives}
+\label{sec:approach:quantifying}
 
 We consider a feature set to be a valid alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-distance measure.
@@ -143,7 +152,7 @@ Given two feature sets $F_1$, $F_2$, the Jaccard distance is
 \end{equation}
 %
 \begin{definition}
-	A feature set $F_2$ a valid alternative to $F_1$ (and vice versa) if $d_{Jacc}(F_1,F_2) \geq \tau$ for a distance threshold $\tau \in [0,1]$.
+	A feature set $F_2$ a valid alternative to feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
 \end{definition}
 %
 Depending on the preferences of the user, different values of $\tau$ might be appropriate.
@@ -164,13 +173,59 @@ Computing feature-set sizes based on the binary feature-selection vector $s$ is 
 \end{align}
 %
 \subsection{Finding Alternatives}
+\label{sec:approach:finding}
+
+In this section, we discuss how to find alternatives for the different types of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+Next, we describe how to obtain multiple alternatives for one feature set.
+
+\subsubsection{Handling Different Measures for Feature (Set) Quality}
+
+write something general about constraints
 
 can be combined with domain constraints \cite{groves2015toward}, group constraints \cite{yuan2006model}, cost constraints \cite{paclik2002feature}
+SMT \cite{barrett2018satisfiability}
 
 focus on alternatives of sets as a whole - not 1-of-x for individual features (which requires user to define feature groups first, is similar to statistically equivalent signatures)
 
+\paragraph{White-box optimization}
+
+univariate filter, importance scores, multivariate filters that can be encoded
+however, note that importance scores loose information (e.g., SHAP scores rate features in context of other features, which white-box approach might simply drop, so theoretically a re-computation is necessary)
+
+\paragraph{Black-box optimization}
+
+wrapper
+- use approaches from software engineering (e.g., fix invalid solutions in search heuristic)
+- baseline: let solver enumerate all valid solutions (e.g., for fixed number of iterations)
+- even with search heuristics, might use solver to start with valid solution, since many searches slightly modify existing solutions, and goal here is to find a solution that significantly differs from existing one
+
+\paragraph{Embedding alternatives}
+
+embedded FS
+no general solution -> need to push notion of alternativeness into model training, i.e., would get a rather customized solution
+
+\subsubsection{Handling Multiple Alternatives}
+
+If the user desires multiple alternative feature sets rather than just one, we can compute these alternatives either sequentially or simultaneously.
+
+\paragraph{Sequential Approach}
+%
+\begin{definition}
+	A feature set $F_2$ a valid alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
+\end{definition}
+%
+\paragraph{Simultaneous Approach}
+%
+\begin{definition}
+	A set of feature sets $\mathbb{F}$ contains pairwise valid alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
+\end{definition}
+%
 \section{Experimental Design}
 \label{sec:experimental-design}
+
+In this section, we describe our experimental design.
+First, we pose the research questions.
+Next, we elaborate on different components of the design.
 
 \subsection{Research Questions}
 
