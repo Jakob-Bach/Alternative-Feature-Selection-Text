@@ -25,8 +25,8 @@ Feature-selection techniques are popular to obtain small, interpretable, yet hig
 Existing feature-selection techniques typically yield either a fixed set of features or a ranking of features.
 However, obtaining just one feature set might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction performance, offering alternative explanations of the data.
-In this article, we formalize the optimization problem of alternative feature selection (AFS).
-Next, we propose several approaches to solve this problem exactly or heuristically.
+In this article, we formalize alternative feature selection with optimization problems.
+Next, we propose several approaches to solve these problems.
 In particular, we integrate various kinds of feature-selection techniques.
 Finally, we evaluate these approaches in a study with 100 classification datasets.
 In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction performance.
@@ -45,15 +45,31 @@ In our experiments, we find that most datasets give way to finding alternative f
 
 \paragraph{Contributions}
 
+Our contribution is threefold.
+First, we define optimization problems that formalize alternative feature selection.
+In particular, we consider finding multiple alternatives sequentially and simultaneously.
+Second, we propose approaches to solve these optimization problems.
+To that end, we discuss how to integrate different kinds of feature-selection techniques.
+Depending on the feature-selection technique, we present an exact or a heuristic solution approach.
+Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
+We use xxx classification dataset from PMLB\cite{olson2017pmlb, romano2021pmlb}.
+For feature selection, we consider x, y, and z.
+We focus on the question if one can find alternative feature sets with similar prediction quality as the original ones.
+
 \paragraph{Results}
 
+We find that most datasets allow finding alternative feature sets with similar prediction quality.
+This presents the user with alternative explanations for prediction performance.
+For the different feature-selection techniques, we note \dots
+Comparing sequential and simultaneous search for alternatives, we find \dots
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
 
 \paragraph{Outline}
 
 Section~\ref{sec:related-work} reviews related work.
 Section~\ref{sec:fundamentals} explains fundamentals of feature selection.
-Section~\ref{sec:approach} introduces our approach for alternative feature sets.
+Section~\ref{sec:problems} defines the optimization problems of alternative feature selection.
+Section~\ref{sec:approaches} discusses approaches to find alternative feature sets.
 Section~\ref{sec:experimental-design} describes our experimental design.
 Section~\ref{sec:evaluation} presents the experimental results.
 Section~\ref{sec:conclusion} concludes.
@@ -102,7 +118,7 @@ The actual domain of the target might also be smaller, e.g., $\{0,1\}$ for binar
 
 With feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
 The vector $s \in \{0,1\}^n$ combines all these selection decisions.
-The selected feature set is $F_s = \{f_j|~s_j=1\}$.
+The selected feature set is $F_s = \{f_j \mid s_j=1\}$.
 Let function $Q(s,X,y)$ returns the quality of a such feature set.
 Without loss of generality, we assume this function should be maximized.
 
@@ -142,15 +158,14 @@ In particular, assessing feature importance plays a crucial role in the emerging
 Mathematically, having a post-hoc importance score for each feature is not different from the output of univariate filter methods.
 Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
-\section{Approaches for Alternative Feature Selection}
-\label{sec:approach}
+\section{The Optimization Problems of Alternative Feature Selection}
+\label{sec:problems}
 
-In this section, we introduce our approaches for alternative feature selection.
-First, we define how to quantify alternative feature sets.
-Second, we present approaches to find such alternatives for different feature-set quality measures.
+In this section, we formalize alternative feature selection as optimization problems.
+As a first step, we define when an individual feature set is an alternative to another one.
+Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
 
-\subsection{Quantifying Alternatives}
-\label{sec:approach:quantifying}
+\subsection{Individual Alternatives}
 
 We consider a feature set to be a valid alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-distance measure.
@@ -183,13 +198,27 @@ Computing feature-set sizes based on the binary feature-selection vector $s$ is 
 	|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j} = \sum_{j=1}^n s_{1,j} \land s_{2,j}
 \end{align}
 %
-\subsection{Finding Alternatives}
-\label{sec:approach:finding}
+\subsection{Multiple Alternatives}
 
-In this section, we discuss how to find alternatives for the different types of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
-Next, we describe how to obtain multiple alternatives for one feature set.
+If the user desires multiple alternative feature sets rather than just one, we can compute these alternatives either sequentially or simultaneously.
 
-\subsubsection{Handling Different Measures for Feature (Set) Quality}
+\subsubsection{Sequential Alternatives}
+%
+\begin{definition}
+	A feature set $F_2$ a valid alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
+\end{definition}
+%
+\subsubsection{Simultaneous Alternatives}
+%
+\begin{definition}
+	A set of feature sets $\mathbb{F}$ contains pairwise valid alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
+\end{definition}
+%
+\section{Approaches for Alternative Feature Selection}
+\label{sec:approaches}
+
+In this section, we introduce our approaches to find alternative feature sets.
+In particular, we discuss how to address the optimization problems from Section~\ref{sec:problems} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 
 write something general about constraints
 
@@ -215,22 +244,6 @@ wrapper
 embedded FS
 no general solution -> need to push notion of alternativeness into model training, i.e., would get a rather customized solution
 
-\subsubsection{Handling Multiple Alternatives}
-
-If the user desires multiple alternative feature sets rather than just one, we can compute these alternatives either sequentially or simultaneously.
-
-\paragraph{Sequential Approach}
-%
-\begin{definition}
-	A feature set $F_2$ a valid alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
-\end{definition}
-%
-\paragraph{Simultaneous Approach}
-%
-\begin{definition}
-	A set of feature sets $\mathbb{F}$ contains pairwise valid alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
-\end{definition}
-%
 \section{Experimental Design}
 \label{sec:experimental-design}
 
@@ -257,6 +270,8 @@ We leave the hyperparameters of the models at their defaults.
 We conduct 10-fold cross-validation.
 Not only model training, but also the search for alternative feature sets is limited to the training data.
 In contrast, when we report prediction performance, we describe results on the test data only.
+
+number of interesting alternatives: valid alternative and quality within a threshold of the original solution
 
 \subsection{Datasets}
 
