@@ -43,6 +43,15 @@ In our experiments, we find that most datasets give way to finding alternative f
 
 \paragraph{Related work}
 
+In machine learning, finding alternative solution has already been addressed extensively in clustering~\cite{bae2006coala}.
+However, there is a lack of such approaches and corresponding experimental evaluation for feature selection.
+The concept of statistically equivalent feature subsets~\cite{lagani2017feature} groups features such that one obtains alternatives for each individual feature.
+However, there might not be such an alternative for some features.
+Also, our approaches consider alternatives to feature sets as a whole.
+In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{verma2020counterfactual, stepin2021survey}.
+Such explanations involve data objects with similar feature values, but a different prediction.
+In contrast, we target at different feature sets with similar prediction performance.
+
 \paragraph{Contributions}
 
 Our contribution is threefold.
