@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\title{Alternative Feature Selection}
+\title{Finding Optimal Solutions for Alternative Feature Selection}
 \author{Jakob Bach}
 
 \usepackage[style=ieee, backend=bibtex]{biblatex}
@@ -21,7 +21,18 @@
 \maketitle
 
 \begin{abstract}
+Feature-selection techniques are popular to obtain small, interpretable, yet highly accurate prediction models.
+Existing feature-selection techniques typically yield either a fixed set of features or a ranking of features.
+However, obtaining just one feature set might not be sufficient in some cases.
+For example, users might be interested in finding different feature sets with similar prediction performance, offering alternative explanations of the data.
+In this article, we formalize the optimization problem of alternative feature selection (AFS).
+Next, we propose several approaches to solve this problem exactly or heuristically.
+In particular, we integrate various kinds of feature-selection techniques.
+Finally, we evaluate these approaches in a study with 100 classification datasets.
+In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction performance.
 \end{abstract}
+
+\textbf{Keywords:} feature selection, alternatives, constraints, explainability
 
 \section{Introduction}
 \label{sec:introduction}
@@ -131,10 +142,10 @@ In particular, assessing feature importance plays a crucial role in the emerging
 Mathematically, having a post-hoc importance score for each feature is not different from the output of univariate filter methods.
 Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
-\section{AFS -- Approach}
+\section{Approaches for Alternative Feature Selection}
 \label{sec:approach}
 
-In this section, we introduce our approach for alternative feature selection.
+In this section, we introduce our approaches for alternative feature selection.
 First, we define how to quantify alternative feature sets.
 Second, we present approaches to find such alternatives for different feature-set quality measures.
 
