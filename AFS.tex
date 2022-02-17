@@ -24,12 +24,12 @@
 Feature-selection techniques are popular to obtain small, interpretable, yet highly accurate prediction models.
 Existing feature-selection techniques typically yield either a fixed set of features or a ranking of features.
 However, obtaining just one feature set might not be sufficient in some cases.
-For example, users might be interested in finding different feature sets with similar prediction performance, offering alternative explanations of the data.
-In this article, we formalize alternative feature selection with optimization problems.
+For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
+In this article, we formalize alternative feature selection as optimization problem.
 Next, we propose several approaches to solve these problems.
-In particular, we integrate various kinds of feature-selection techniques.
+In particular, we integrate various kinds of existing feature-selection techniques.
 Finally, we evaluate these approaches in a study with 100 classification datasets.
-In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction performance.
+In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction quality as the optimal ones.
 \end{abstract}
 
 \textbf{Keywords:} feature selection, alternatives, constraints, explainability
@@ -39,36 +39,62 @@ In our experiments, we find that most datasets give way to finding alternative f
 
 \paragraph{Motivation}
 
+Feature-selection techniques are ubiquitous for a variety of reasons.
+By reducing the dimensionality of the dataset, they lower computational and memory requirements of prediction models.
+Next, models might generalize better if irrelevant and spurious predictors are removed.
+Finally, prediction models might be smaller and more comprehensive due to feature selection~\cite{li2017feature}, improving interpretability.
+
+Traditional feature-selection techniques either select a feature set or assign a score to each feature.
+One can derive a feature set from the latter by only selecting the top-ranked features.
+In any case, existing techniques focus on optimizing a criterion of feature-set quality, e.g., prediction performance.
+However, besides the optimal feature set, there might be multiple, differently composed feature sets with similar quality.
+For the user, these other feature sets might be interesting alternatives for multiple reasons.
+First, some of the originally selected features might be costly to obtain, so the user would prefer cheaper alternatives, while maintaining prediction quality.
+Second, some of the originally selected features might contain sensitive information that should not be used in predictions.
+Third, the user might be interested in explaining the prediction target, rather than just making good predictions.
+In such a situation, knowing alternatives allows for formulating multiple hypotheses and broadens the understanding.
+
 \paragraph{Problem statement}
+
+This article addresses the problem of alternative feature selection:
+Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
+In particular, if the original feature set had high quality, the alternative feature set should have a similar quality.
+Depending on how different the alternative feature set should be, one might have to compromise on quality.
+E.g., if there are only a few highly predictive features and most of them are part of the original feature set, the alternative feature set might have significantly lower prediction quality.
+
+Two points are essential for alternative feature selection.
+First, one needs to formalize and quantify what an alternative feature sets is.
+Second, one needs an approach to efficiently find alternative feature sets.
+We address both these points in this article.
 
 \paragraph{Related work}
 
-In machine learning, finding alternative solution has already been addressed extensively in clustering~\cite{bae2006coala}.
+In machine learning, finding alternative solutions has already been addressed extensively in clustering~\cite{bae2006coala}.
 However, there is a lack of such approaches and corresponding experimental evaluation for feature selection.
 The concept of statistically equivalent feature subsets~\cite{lagani2017feature} groups features such that one obtains alternatives for each individual feature.
 However, there might not be such an alternative for some features.
 Also, our approaches consider alternatives to feature sets as a whole.
 In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{verma2020counterfactual, stepin2021survey}.
 Such explanations involve data objects with similar feature values, but a different prediction.
-In contrast, we target at different feature sets with similar prediction performance.
+In contrast, we target at different feature sets with similar feature-set quality, e.g., prediction performance.
 
 \paragraph{Contributions}
 
 Our contribution is threefold.
-First, we define optimization problems that formalize alternative feature selection.
+First, we define an optimization problem that formalizes alternative feature selection.
 In particular, we consider finding multiple alternatives sequentially and simultaneously.
-Second, we propose approaches to solve these optimization problems.
+Second, we propose approaches to solve this optimization problem.
 To that end, we discuss how to integrate different kinds of feature-selection techniques.
 Depending on the feature-selection technique, we present an exact or a heuristic solution approach.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
 We use xxx classification dataset from PMLB\cite{olson2017pmlb, romano2021pmlb}.
 For feature selection, we consider x, y, and z.
-We focus on the question if one can find alternative feature sets with similar prediction quality as the original ones.
+We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 \paragraph{Results}
 
-We find that most datasets allow finding alternative feature sets with similar prediction quality.
-This presents the user with alternative explanations for prediction performance.
+We find that most datasets allow finding alternative feature sets with similar quality as the optimal ones.
+This presents the user with alternative explanations for high-quality predictions.
 For the different feature-selection techniques, we note \dots
 Comparing sequential and simultaneous search for alternatives, we find \dots
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
@@ -77,7 +103,7 @@ We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our ex
 
 Section~\ref{sec:related-work} reviews related work.
 Section~\ref{sec:fundamentals} explains fundamentals of feature selection.
-Section~\ref{sec:problems} defines the optimization problems of alternative feature selection.
+Section~\ref{sec:problems} defines the optimization problem of alternative feature selection.
 Section~\ref{sec:approaches} discusses approaches to find alternative feature sets.
 Section~\ref{sec:experimental-design} describes our experimental design.
 Section~\ref{sec:evaluation} presents the experimental results.
