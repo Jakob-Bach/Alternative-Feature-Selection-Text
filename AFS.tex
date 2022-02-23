@@ -103,7 +103,7 @@ We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our ex
 \paragraph{Outline}
 
 Section~\ref{sec:fundamentals} explains fundamentals of feature selection.
-Section~\ref{sec:problems} defines the optimization problem of alternative feature selection.
+Section~\ref{sec:problem} defines the optimization problem of alternative feature selection.
 Section~\ref{sec:approaches} discusses approaches to find alternative feature sets.
 Section~\ref{sec:related-work} reviews related work.
 Section~\ref{sec:experimental-design} describes our experimental design.
@@ -168,7 +168,7 @@ Mathematically, having a post-hoc importance score for each feature is not diffe
 Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
 \section{The Optimization Problem of Alternative Feature Selection}
-\label{sec:problems}
+\label{sec:problem}
 
 In this section, we formalize alternative feature selection as an optimization problem.
 As a first step, we define the structure of the problem, i.e., objective and constraints.
@@ -218,6 +218,7 @@ We leverage this distance measure for the following definition:
 %
 \begin{definition}
 	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
+	\label{def:single-alternative}
 \end{definition}
 %
 Depending on the preferences of the user, different values of $\tau$ might be appropriate.
@@ -228,12 +229,20 @@ If the choice of $\tau$ is unclear a priori, users can try out different values 
 Setting $\tau$ is made easier by the fact that the Jaccard distance is normalized to $[0,1]$.
 A value of $0$ allows the alternative feature set to be identical to the original feature set.
 A value of $1$ requires the two feature sets to have no overlap.
-If the feature sets sizes $|F_1|$ and $|F_2|$ are known, one can also specify the maximum number of overlapping features $|F_1 \cap F_2|$ instead of $\tau$, because one can compute $\tau$ by re-arranging Equation~\ref{eq:jaccard}.
+If the feature sets sizes $|F_1|$ and $|F_2|$ are known, one can also specify the maximum number of overlapping features $|F_1 \cap F_2|$ instead of $\tau$ by re-arranging Equation~\ref{eq:jaccard} and adapting Definition~\ref{def:single-alternative} accordingly:
+%
+\begin{align}
+	& & d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \nonumber \\
+	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+	\label{eq:jaccard-rearranged}
+\end{align}
+%
 Expressing the feature-set sizes in terms of the binary feature-selection vector $s$ is straightforward as well:
 %
 \begin{align}
-	|F_s| =& \sum_{j=1}^n s_j\\
+	|F_s| =& \sum_{j=1}^n s_j \nonumber \\
 	|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j} = \sum_{j=1}^n s_{1,j} \land s_{2,j}
+	\label{eq:feature-set-size}
 \end{align}
 %
 \subsection{Multiple Alternatives}
@@ -263,6 +272,7 @@ This entails pairwise distance constraints:
 %
 \begin{definition}
 	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
+	\label{def:simultaneous-alternative}
 \end{definition}
 %
 Again, one could resort to less strict constraints, e.g., based on the average distance between alternatives.
@@ -278,11 +288,8 @@ Also, we expect the qualities of the alternatives to be more evenly distributed.
 \label{sec:approaches}
 
 In this section, we introduce our approaches to find alternative feature sets.
-In particular, we discuss how to address the optimization problems from Section~\ref{sec:problems} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+In particular, we discuss how to solve the optimization problems from Section~\ref{sec:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 
-write something general about constraints
-
-can be combined with domain constraints \cite{groves2015toward}, group constraints \cite{yuan2006model}, cost constraints \cite{paclik2002feature}
 SMT \cite{barrett2018satisfiability}
 
 focus on alternatives of sets as a whole - not 1-of-x for individual features (which requires user to define feature groups first, is similar to statistically equivalent signatures)
@@ -331,7 +338,8 @@ MIP for counterfactuals \cite{mohammadi2021scaling}
 SMT for counterfactuals \cite{karimi2020model}
 
 constraint data mining \cite{grossi2017survey}
-feature selection: domain constraints \cite{groves2015toward}, group constraints \cite{yuan2006model}, cost constraints \cite{paclik2002feature}
+There is existing work on considering specific kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward}.
+These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
 
 \section{Experimental Design}
 \label{sec:experimental-design}
