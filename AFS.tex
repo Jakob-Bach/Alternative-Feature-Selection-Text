@@ -25,7 +25,7 @@ Feature-selection techniques are popular to obtain small, interpretable, yet hig
 Existing feature-selection techniques typically yield either a fixed set of features or a ranking of features.
 However, obtaining just one feature set might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
-In this article, we formalize alternative feature selection as optimization problem.
+In this article, we formalize alternative feature selection as optimization problem first.
 Next, we propose several approaches to solve these problems.
 In particular, we integrate various kinds of existing feature-selection techniques.
 Finally, we evaluate these approaches in a study with 100 classification datasets.
@@ -56,7 +56,7 @@ In such a situation, knowing alternatives allows for formulating multiple hypoth
 
 \paragraph{Problem statement}
 
-This article addresses the problem of alternative feature selection:
+This article addresses the problem of alternative feature selection, which we informally define as follows:
 Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
 In particular, if the original feature set had high quality, the alternative feature set should have a similar quality.
 Depending on how different the alternative feature set should be, one might have to compromise on quality.
@@ -66,6 +66,7 @@ Two points are essential for alternative feature selection.
 First, one needs to formalize and quantify what an alternative feature sets is.
 Second, one needs an approach to efficiently find alternative feature sets.
 We address both these points in this article.
+Also, we consider finding multiple alternatives rather than just one.
 
 \paragraph{Related work}
 
@@ -154,7 +155,7 @@ The actual domain of the target might also be smaller, e.g., $\{0,1\}$ for binar
 With feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
 The vector $s \in \{0,1\}^n$ combines all these selection decisions.
 The selected feature set is $F_s = \{f_j \mid s_j=1\}$.
-Let function $Q(s,X,y)$ returns the quality of a such feature set.
+Let the function $Q(s,X,y)$ return the quality of a such feature set.
 Without loss of generality, we assume this function should be maximized.
 
 \subsection{Measuring Feature (Set) Quality}
@@ -193,16 +194,43 @@ In particular, assessing feature importance plays a crucial role in the emerging
 Mathematically, having a post-hoc importance score for each feature is not different from the output of univariate filter methods.
 Thus, our approach for finding alternative feature sets works for outputs of such feature-importance methods as well.
 
-\section{The Optimization Problems of Alternative Feature Selection}
+\section{The Optimization Problem of Alternative Feature Selection}
 \label{sec:problems}
 
-In this section, we formalize alternative feature selection as optimization problems.
-As a first step, we define when an individual feature set is an alternative to another one.
-Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
+In this section, we formalize alternative feature selection as an optimization problem.
+As a first step, we define the structure of the problem, i.e., objective and constraints.
+Second, we discuss the base case where an individual feature set is an alternative to another one.
+Third, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
 
-\subsection{Individual Alternatives}
+\subsection{Problem Structure}
 
-We consider a feature set to be a valid alternative to another feature set if it differs sufficiently.
+In alternative feature selection, there are two goals.
+First, the quality of the alternative feature set should be high.
+Second, the next alternative feature sets should be different to an existing feature set.
+There are different ways to combine these two goals in an optimization problem:
+
+First, one can consider both goals as objectives, obtaining an unconstrained multi-objective problem.
+Second, one can treat feature-set quality as objective and being alternative as one or multiple constraints.
+Third, one can consider being alternative as objective and introduce a constraint on feature-set quality, e.g., a lower bound.
+Fourth, one can define constraints for both feature-set quality and being alternative, searching for any feasible solution instead of optimizing.
+Depending on the use case, any of these four formulations might be appropriate.
+
+In accordance with our problem statement in Section~\ref{sec:introduction}, we stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
+This option has the advantage of keeping the original objective function of feature selection.
+Consequently, one does not need to specify a range or a threshold on quality.
+Instead, the user can decide how alternative the feature set should be.
+This yields the following optimization problem:
+%
+\begin{align}
+	\max_s &\quad Q(s,X,y) \nonumber \\
+	\text{subject to:} &\quad F_s~\text{being alternative}
+\end{align}
+%
+In the following, we formalize \emph{being alternative}.
+
+\subsection{Single Alternatives}
+
+We consider a feature set to be an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-distance measure.
 A simple and well-known set-distance measure is the Jaccard distance.
 We use this distance in our article, but one could choose another measure~\cite{egghe2009new} as well.
@@ -210,23 +238,25 @@ Given two feature sets $F_1$, $F_2$, the Jaccard distance is
 %
 \begin{equation}
 	d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+	\label{eq:jaccard}
 \end{equation}
 %
+We leverage this distance measure for the following definition:
+%
 \begin{definition}
-	A feature set $F_2$ a valid alternative to feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
+	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
 \end{definition}
 %
 Depending on the preferences of the user, different values of $\tau$ might be appropriate.
 This depends on how alternative the new feature set should be.
-Also, a feature set that differs strongly might also yield large changes in prediction performance.
+Also, a feature set that differs strongly might also yield large changes in feature-set quality.
 Thus, we leave $\tau$ as a parameter of our approach.
 If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
 Setting $\tau$ is made easier by the fact that the Jaccard distance is normalized to $[0,1]$.
 A value of $0$ allows the alternative feature set to be identical to the original feature set.
 A value of $1$ requires the two feature sets to have no overlap.
-If the feature sets sizes $|F_1|$ and $|F_2|$ are known, one can also specify the maximum number of overlapping features $|F_1 \cap F_2|$ instead of $\tau$, because one can compute $\tau$ from $|F_1 \cap F_2|$.
-
-Computing feature-set sizes based on the binary feature-selection vector $s$ is straightforward:
+If the feature sets sizes $|F_1|$ and $|F_2|$ are known, one can also specify the maximum number of overlapping features $|F_1 \cap F_2|$ instead of $\tau$, because one can compute $\tau$ by re-arranging Equation~\ref{eq:jaccard}.
+Expressing the feature-set sizes in terms of the binary feature-selection vector $s$ is straightforward as well:
 %
 \begin{align}
 	|F_s| =& \sum_{j=1}^n s_j\\
@@ -235,20 +265,42 @@ Computing feature-set sizes based on the binary feature-selection vector $s$ is 
 %
 \subsection{Multiple Alternatives}
 
-If the user desires multiple alternative feature sets rather than just one, we can compute these alternatives either sequentially or simultaneously.
+If the user desires multiple alternative feature sets rather than just one, one can compute these alternatives either sequentially or simultaneously.
 
 \subsubsection{Sequential Alternatives}
+
+In the sequential case, the user gets several alternatives iteratively.
+In each iteration, we determine one alternative feature set.
+We constrain the new feature set to be alternative to all previously found feature sets:
 %
 \begin{definition}
-	A feature set $F_2$ a valid alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
+	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
+	\label{def:sequential-alternative}
 \end{definition}
 %
+The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
+As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
+The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
+Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average distance to all existing feature sets to pass the threshold.
+
 \subsubsection{Simultaneous Alternatives}
+
+In the simultaneous case, we directly obtain several alternatives.
+This entails pairwise distance constraints:
 %
 \begin{definition}
-	A set of feature sets $\mathbb{F}$ contains pairwise valid alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
+	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
 \end{definition}
 %
+Again, one could resort to less strict constraints, e.g., based on the average distance between alternatives.
+In contrast to the sequential case, we need to modify the objective function here, as we optimize multiple feature sets at once.
+In this paper, we consider the average quality of all alternatives as objective.
+The number of alternatives is a parameter for the user.
+
+In contrast to the greedy procedure of the sequential approach, the simultaneous approach optimizes alternatives globally.
+Thus, for the same number of alternatives, the simultaneous approach should be better in terms of average feature-set quality.
+Also, we expect the qualities of the alternatives to be more evenly distributed.
+
 \section{Approaches for Alternative Feature Selection}
 \label{sec:approaches}
 
