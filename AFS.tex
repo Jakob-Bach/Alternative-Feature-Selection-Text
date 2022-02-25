@@ -199,7 +199,8 @@ This yields the following optimization problem:
 	\text{subject to:} &\quad F_s~\text{being alternative}
 \end{align}
 %
-In the following, we formalize \emph{being alternative}.
+In the following, we formalize the notion of \emph{being alternative} in the form of constraints.
+We discuss different objective functions and their consequences on solving the problem in Section~\ref{sec:approaches}.
 
 \subsection{Single Alternatives}
 
@@ -245,6 +246,20 @@ Expressing the feature-set sizes in terms of the binary feature-selection vector
 	\label{eq:feature-set-size}
 \end{align}
 %
+Combining Equation~\ref{eq:jaccard-rearranged} and Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
+In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2021modeling}:
+%
+\begin{align}
+	t_j \leq& s_{1,j} \nonumber \\
+	t_j \leq& s_{2,j} \nonumber \\
+	1 + t_j \geq& s_{1,j} + s_{2,j} \nonumber \\
+	t_j \in& \{0,1\}
+	\label{eq:product-linear}
+\end{align}
+%
+Thus, one can express alternative features sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
+If there is an existing feature set, i.e., one either knows $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without applying Equation~\ref{eq:product-linear}.
+
 \subsection{Multiple Alternatives}
 
 If the user desires multiple alternative feature sets rather than just one, one can compute these alternatives either sequentially or simultaneously.
@@ -260,7 +275,8 @@ We constrain the new feature set to be alternative to all previously found featu
 	\label{def:sequential-alternative}
 \end{definition}
 %
-The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
+This definition effectively just duplicates the constraint from the base case and instantiates it for different existing feature sets.
+Also, the objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
 As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
 The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
 Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average distance to all existing feature sets to pass the threshold.
@@ -276,9 +292,10 @@ This entails pairwise distance constraints:
 \end{definition}
 %
 Again, one could resort to less strict constraints, e.g., based on the average distance between alternatives.
-In contrast to the sequential case, we need to modify the objective function here, as we optimize multiple feature sets at once.
+In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
 In this paper, we consider the average quality of all alternatives as objective.
-The number of alternatives is a parameter for the user.
+The constraints remain as simple as in the base case, only their number increases, i.e., quadratically in the number of alternatives.
+The actual number of alternatives is a parameter for the user.
 
 In contrast to the greedy procedure of the sequential approach, the simultaneous approach optimizes alternatives globally.
 Thus, for the same number of alternatives, the simultaneous approach should be better in terms of average feature-set quality.
