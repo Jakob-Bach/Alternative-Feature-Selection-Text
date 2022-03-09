@@ -4,10 +4,10 @@
 \author{Jakob Bach}
 
 \usepackage[style=ieee, backend=bibtex]{biblatex}
+\usepackage[ruled,linesnumbered,vlined]{algorithm2e} % pseudo-code
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
 \usepackage{amsthm} % theorems, definitions etc.
-\usepackage{enumitem} % nicely formatted enumerations
 \usepackage{graphicx} % plots
 \usepackage{subcaption} % figures with multiple sub-figures and sub-captions
 \usepackage{hyperref} % links and URLs
@@ -162,7 +162,7 @@ Embedded methods train prediction models with built-in feature selection, e.g., 
 Thus, the criterion to evaluate the quality of features or feature sets is model-specific.
 For example, tree-based models often use information gain or the Gini index to select features during training.
 
-\paragraph{Post-hoc feature importance}
+\paragraph{Post-hoc feature-importance methods}
 
 Apart from traditional feature selection, there are various methods that assess feature importance after training a model.
 These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
@@ -333,7 +333,7 @@ In this section, we present white-box optimization objectives for different feat
 
 \paragraph{Univariate filter feature selection}
 
-For univariate filter feature selection, the objective function is linear as well.
+For univariate filter feature selection, the objective function is linear.
 This makes the optimization problem of alternative feature selection an integer linear problem.
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
@@ -342,7 +342,7 @@ In particular, univariate filter methods decompose the quality of a feature set 
 	\label{eq:univariate-filter}
 \end{equation}
 %
-Here, $q$ typically is a bivariate dependency measure, e.g., mutual information or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
+Here, $q$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
 
 \paragraph{Post-hoc feature importance}
 
@@ -391,7 +391,8 @@ While the original FCBF algorithm uses a heuristic search, we propose a formulat
 %
 \begin{align}
 	\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \nonumber \\
-	\text{subject to:} &\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y) \quad\forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2
+	\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \nonumber \\
+	&\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y)
 	\label{eq:fcbf}
 \end{align}
 %
@@ -434,6 +435,11 @@ Again, the naive way is sampling from all feature sets, but removing those sampl
 If the number of valid alternatives is low to the total number of feature sets, this approach might need a lot of samples.
 In fact, uniform sampling from a constrained space is a computationally hard problem, believed to be harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
 
+\paragraph{Multi-objective optimization}
+
+If one considers alternative feature selection as multi-objective problem, as mentioned in Section~\ref{sec:approach:problem}, there are no hard constraints any more.
+Given a suitable multi-objective search procedure, the decision on trading off being alternative against feature-set quality might be postponed till after the search.
+
 \paragraph{Adapting search}
 
 One can adapt a search heuristic to consider the constraints for being alternative.
@@ -442,10 +448,38 @@ Another idea is to `repair' feature sets proposed by the search that are not alt
 For example, one can replace a feature set violating the constraint with the most similar feature set satisfying the constraints.
 Such solver-assisted search approaches are common in search procedure for software configuration~\cite{white2010automated,henard2015combining,guo2018preserve}.
 
-\paragraph{Multi-objective optimization}
+For our experiments, we adopt a greedy hill-climbing strategy.
+Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only proposes and evaluates feature sets that satisfy the constraints for alternatives.
+First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
+Next, it tries swapping one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
+The algorithm applies the solver again to find a solution $s'$ containing this change and satisfying the other constraints.
+If such a solution exists and its quality $Q(s',X,y)$ improves on the current solution, the algorithm continuous from the new solution.
+Else, it attempts to swap the next feature.
+The algorithm terminates if no swap of a feature leads to an improvement or a fixed amount of iterations $max\_iter$ is reached.
 
-If one considers alternative feature selection as multi-objective problem, as mentioned in Section~\ref{sec:approach:problem}, there are no hard constraints any more.
-Given a suitable multi-objective search procedure, the decision on trading off being alternative against feature-set quality might be postponed till after the search.
+\begin{algorithm}[htb]
+	\DontPrintSemicolon
+	\KwIn{Dataset $X$, Prediction target $y$, Feature-set quality function $Q(\cdot)$, Constraints for alternatives $Cons$, Maximum number of iterations $max\_iters$}
+	\KwOut{Feature-selection decision vector $s$}
+	\BlankLine
+	$iters \leftarrow 0$ \tcp*{Number of feature sets evaluated}
+	$j \leftarrow 1$ \tcp*{Index of feature to be swapped}
+	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
+	\While{$iters < max\_iters$ \textbf{and} $j < |s|$}{
+		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Try swapping one feature}
+		\If(\tcp*[f]{Swap if improved}){$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
+			$s \leftarrow s'$\;
+			$j \leftarrow 1$\;
+		}
+		\Else(\tcp*[f]{Try next feature}){
+			$j \leftarrow j + 1$\;
+		}
+		$iters \leftarrow iters + 1$\;
+	}
+	\Return{$s$}
+	\caption{Constraint-aware greedy wrapper feature selection.}
+	\label{al:greedy-wrapper}
+\end{algorithm}
 
 \subsubsection{Embedding Alternatives}
 \label{sec:approach:objectives:embedding}
@@ -490,36 +524,93 @@ These approaches are orthogonal to our work, as such constraints can be added to
 \label{sec:experimental-design}
 
 In this section, we describe our experimental design.
-First, we pose the research questions.
-Next, we elaborate on different components of the design.
+First, we give a brief overview of its goal and components.
+Next, we elaborate on different components of the design in detail.
 
-\subsection{Research Questions}
+\subsection{Overview}
+
+With our experiments, we mainly focus on the trade-off between feature-set quality and obtaining alternative solutions.
+We compare four feature selection techniques, representing different notions of feature-set quality.
+Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
+To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
+We systematically vary the number of alternatives and the distance threshold for being alternative.
 
 \subsection{Approaches}
 
-\paragraph{Feature selection}
+Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
 
-\paragraph{Finding alternatives}
+\subsubsection{Feature Selection}
 
+We search for alternatives under different notions of feature-set quality as objective function.
+To represent a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
+We choose four feature selection-methods that are both well-known and either parameter-free or easy to parameterize.
+
+\paragraph{Univariate filter}
+
+As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
+This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
+We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
+
+\paragraph{Multivariate filter}
+
+As multivariate filter method, we use our constraint formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
+As bivariate quality measure within FCBF, we rely on mutual information again.
+
+\paragraph{Wrapper}
+
+As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
+We set $max\_iter$ to 1000.
+Like all wrapper methods, the search algorithm uses the performance of a prediction model to evaluate feature-set quality.
+In particular, we choose Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
+Also, we apply a 80:20 holdout split to test generalization performance.
+Thus, $Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
+
+\paragraph{Embedded}
+
+For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
+
+\paragraph{Post-hoc feature importance}
+
+As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
+For the tree models we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which is Gini impurity.
+We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat the importances like univariate filter scores.
+
+\subsubsection{Alternatives}
+
+- see section
+- constraints
 - baseline: let solver enumerate or sample
+- white vs black
+- simultaneous vs sequential
+- different numbers of alternatives
+- distance thresholds
 
-\paragraph{Prediction models}
+\subsubsection{Prediction}
 
 As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
-Both types of models ae popular and allow to learn complex, non-linear dependencies from the data.
+Both types of models allow to learn complex, non-linear dependencies from the data.
 We leave the hyperparameters of the models at their defaults.
+
+- use mututal info are similar, as we do in filters
+- are embedded (i.e., might not use all features we provide), but of course still depend on the feature sets we feed into them
 
 \subsection{Evaluation Metrics}
 
 We conduct 10-fold cross-validation.
 Not only model training, but also the search for alternative feature sets is limited to the training data.
-In contrast, when we report prediction performance, we describe results on the test data only.
+In contrast, when we report feature-set quality, we describe results on the test data only.
 
+MCC~\cite{matthews1975comparison}
 number of interesting alternatives (being alternative enough and satisfying a quality threshold)
 
 \subsection{Datasets}
 
-PMLB \cite{olson2017pmlb, romano2021pmlb}
+PMLB \cite{olson2017pmlb,romano2021pmlb}
+- categorical?
+- missing?
+- classification? balance?
+- min/max data objects?
+- min/max features?
 
 \subsection{Implementation}
 
