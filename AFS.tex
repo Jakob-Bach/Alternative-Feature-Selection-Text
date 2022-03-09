@@ -103,8 +103,7 @@ We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our ex
 \paragraph{Outline}
 
 Section~\ref{sec:fundamentals} explains fundamentals of feature selection.
-Section~\ref{sec:problem} defines the optimization problem of alternative feature selection.
-Section~\ref{sec:approaches} discusses approaches to find alternative feature sets.
+Section~\ref{sec:approach} defines the optimization problem of alternative feature selection and discusses approaches to solve it.
 Section~\ref{sec:related-work} reviews related work.
 Section~\ref{sec:experimental-design} describes our experimental design.
 Section~\ref{sec:evaluation} presents the experimental results.
@@ -169,16 +168,17 @@ Apart from traditional feature selection, there are various methods that assess 
 These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
 In particular, assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
 
-\section{The Optimization Problem of Alternative Feature Selection}
-\label{sec:problem}
+\section{Alternative Feature Selection}
+\label{sec:approach}
 
-In this section, we formalize alternative feature selection as an optimization problem.
-As a first step, we define the structure of the problem, i.e., objective and constraints.
-Second, we discuss the base case where an individual feature set is an alternative to another one.
-Third, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
+In this section, we present the problem and approaches for alternative feature selection.
+First, we define the structure of the optimization problem, i.e., objective and constraints.
+Second, we formalize the notion of alternatives with constraints.
+Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:fundamentals:quality}
+In particular, we describe how to solve the resulting the optimization problem.
 
-\subsection{Problem Structure}
-\label{sec:problem:structure}
+\subsection{Optimization Problem}
+\label{sec:approach:problem}
 
 In alternative feature selection, there are two goals.
 First, the quality of an alternative feature set should be high.
@@ -202,11 +202,18 @@ This yields the following optimization problem:
 	\text{subject to:} &\quad F_s~\text{being alternative}
 \end{align}
 %
-In the remainder of this section, we formalize the notion of \emph{being alternative} with constraints.
-In Section~\ref{sec:approaches}, we discuss different objective functions and their consequences on solving the optimization problem.
 
-\subsection{Single Alternatives}
-\label{sec:problem:single}
+We discuss different constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
+
+\subsection{Constraints -- Defining Alternative Feature Sets}
+\label{sec:approach:constraints}
+
+In this section, we formalize alternative feature sets.
+First, we discuss the base case where an individual feature set is an alternative to another one.
+Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
+
+\subsubsection{Single Alternatives}
+\label{sec:approach:constraints:single}
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-distance measure.
@@ -265,14 +272,15 @@ In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constra
 \end{align}
 %
 Thus, one can express alternative features sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
-This simple constraint type allows for using a broad range of solvers, as we discuss in Section~\ref{sec:approaches}.
+This simple constraint type allows for using a broad range of solvers, as we discuss in Section~\ref{sec:approach:objectives}.
 If there is an existing feature set, i.e., one either knows $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without applying Equation~\ref{eq:product-linear}.
 
-\subsection{Multiple Alternatives}
+\subsubsection{Multiple Alternatives}
+\label{sec:approach:constraints:multiple}
 
 If the user desires multiple alternative feature sets rather than just one, one can compute these alternatives either sequentially or simultaneously.
 
-\subsubsection{Sequential Alternatives}
+\paragraph{Sequential alternatives}
 
 In the sequential case, the user gets several alternatives iteratively.
 In each iteration, we determine one alternative feature set.
@@ -289,7 +297,7 @@ As the solution space becomes narrower over iterations, feature-set quality can 
 The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
 Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average distance to all existing feature sets to pass the threshold.
 
-\subsubsection{Simultaneous Alternatives}
+\paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain several alternatives.
 This entails pairwise distance constraints:
@@ -309,19 +317,21 @@ In contrast to the greedy procedure of the sequential procedure, the simultaneou
 Thus, for the same number of alternatives, the simultaneous procedure should be better in terms of average feature-set quality.
 Also, we expect the qualities of the alternatives to be more evenly distributed, opposed to the dropping quality over the course of the simultaneous procedure.
 
-\section{Approaches for Alternative Feature Selection}
-\label{sec:approaches}
+\subsection{Objective Functions -- Finding Alternative Feature Sets}
+\label{sec:approach:objectives}
 
 In this section, we present concrete approaches to find alternative feature sets.
-In particular, we discuss how to solve the optimization problems from Section~\ref{sec:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+We discuss how to solve the optimization problems from Section~\ref{sec:approach:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
 
-\subsection{White-Box Optimization}
+\subsubsection{White-Box Optimization}
+\label{sec:approach:objectives:white-box}
 
 If feature-set quality~$Q(s,X,y)$ is a sufficiently simple function, one can tackle alternative feature selection with an appropriate white-box solver.
-In Section~\ref{sec:problem:single}, we already showed that our notion of alternative feature sets results in 0-1 integer linear constraints.
+In Section~\ref{sec:approach:constraints}, we already showed that our notion of alternative feature sets results in 0-1 integer linear constraints.
 In this section, we present white-box optimization objectives for different feature-selection methods.
 
-\subsubsection{Univariate Filter Feature Selection}
+\paragraph{Univariate filter feature selection}
 
 For univariate filter feature selection, the objective function is linear as well.
 This makes the optimization problem of alternative feature selection an integer linear problem.
@@ -334,7 +344,7 @@ In particular, univariate filter methods decompose the quality of a feature set 
 %
 Here, $q$ typically is a bivariate dependency measure, e.g., mutual information or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
 
-\subsubsection{Post-Hoc Feature Importance}
+\paragraph{Post-hoc feature importance}
 
 From the technical perspective, one can also insert values of post-hoc feature importance scores for $q$.
 For example, one can pre-compute permutation importance or SAGE scores for each feature and use them in Equation~\ref{eq:univariate-filter}.
@@ -345,9 +355,10 @@ However, such a procedure makes a white-box approach infeasible.
 In practice, one can still use Equation~\ref{eq:univariate-filter} with importance scores only computed on the full dataset.
 One only needs to be aware that such an approach might not represent feature importances in feature subsets faithfully.
 
-\subsubsection{Multivariate Filter Feature Selection}
+\paragraph{Multivariate filter feature selection}
 
 Several multivariate filter methods allow for a simple white-box formulation as well, though not necessarily a linear one.
+In the following, we discuss CFS, mRMR, FCBF, and Relief.
 
 \paragraph{CFS}
 
@@ -399,7 +410,8 @@ We consider this method multivariate as nearest-neighbor computations involve al
 However, the resulting scores for each feature can be put into the univariate objective from Equation~\ref{eq:univariate-filter}.
 Also, one can combine Relief with CFS to consider feature redundancy~\cite{hall1999correlation}.
 
-\subsection{Black-Box Optimization}
+\subsubsection{Black-Box Optimization}
+\label{sec:approach:objectives:black-box}
 
 If feature-set quality has not simple closed-form expression, one needs to treat it as a black-box function when searching for alternative feature sets.
 This applies to the category of wrapper feature selection.
@@ -432,10 +444,11 @@ Such solver-assisted search approaches are common in search procedure for softwa
 
 \paragraph{Multi-objective optimization}
 
-If one considers alternative feature selection as multi-objective problem, as mentioned in Section~\ref{sec:problem:structure}, there are no hard constraints any more.
+If one considers alternative feature selection as multi-objective problem, as mentioned in Section~\ref{sec:approach:problem}, there are no hard constraints any more.
 Given a suitable multi-objective search procedure, the decision on trading off being alternative against feature-set quality might be postponed till after the search.
 
-\subsection{Embedding Alternatives}
+\subsubsection{Embedding Alternatives}
+\label{sec:approach:objectives:embedding}
 
 If feature selection is embedded into training a prediction model, there is no general approach for finding alternative feature sets.
 Instead, one would need to embed the search for alternatives into training as well.
