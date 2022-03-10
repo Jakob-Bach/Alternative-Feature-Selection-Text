@@ -529,7 +529,7 @@ Next, we elaborate on different components of the design in detail.
 
 \subsection{Overview}
 
-With our experiments, we mainly focus on the trade-off between feature-set quality and obtaining alternative solutions.
+With our experiments, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
 We compare four feature selection techniques, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
@@ -539,24 +539,31 @@ We systematically vary the number of alternatives and the distance threshold for
 
 Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
 
-\subsubsection{Feature Selection}
+\subsubsection{Feature Selection (Objective Functions)}
 
 We search for alternatives under different notions of feature-set quality as objective function.
 To represent a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
 We choose four feature selection-methods that are both well-known and either parameter-free or easy to parameterize.
+See Section~\ref{sec:approach:objectives} for details on the objective function of each method.
+One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
+For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
 
-\paragraph{Univariate filter}
+For each method, we set the number of selected features to $k \in \{5,10\}$.
+This yields small feature sets, fostering interpretability.
+As we use a solver to find feature sets anyway, we can enforce the desired $k$ with a simple constraint.
+
+\paragraph{MI}
 
 As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
 We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
 
-\paragraph{Multivariate filter}
+\paragraph{FCBF}
 
 As multivariate filter method, we use our constraint formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
 As bivariate quality measure within FCBF, we rely on mutual information again.
 
-\paragraph{Wrapper}
+\paragraph{Greedy Wrapper}
 
 As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
 We set $max\_iter$ to 1000.
@@ -565,34 +572,35 @@ In particular, we choose Matthews correlation coefficient (MCC)~\cite{matthews19
 Also, we apply a 80:20 holdout split to test generalization performance.
 Thus, $Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
 
-\paragraph{Embedded}
-
-For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
-
-\paragraph{Post-hoc feature importance}
+\paragraph{Model Gini}
 
 As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
-For the tree models we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which is Gini impurity.
+For the tree models we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
 We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat the importances like univariate filter scores.
+Note that the interpretation is different, though.
+In univariate filters, the scores consider features independently.
+Here, the scores originate from trees involving multiple features and hierarchical splits on these features.
 
-\subsubsection{Alternatives}
+\subsubsection{Alternatives (Constraints)}
 
-- see section
-- constraints
-- baseline: let solver enumerate or sample
-- white vs black
-- simultaneous vs sequential
-- different numbers of alternatives
-- distance thresholds
+We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
+We vary the number of alternatives from 1 to 10 with a step size of 1 and the distance threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
+As a simple \emph{baseline} to optimization, we ask a solver to return 100 feature sets that satisfy the constraints for being alternative.
+As we neither know nor influence how the solver chooses these solutions, we consider them to be random.
+However, they might not be uniformly random from the space of valid feature sets, in particular, as the solver obtains these solutions iteratively.
 
 \subsubsection{Prediction}
 
 As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
 Both types of models allow to learn complex, non-linear dependencies from the data.
-We leave the hyperparameters of the models at their defaults.
+We leave the hyperparameters of the models mostly at their defaults, apart from two changes:
+First, we choose information gain instead of Gini impurity as split criterion, to be consistent to our filter feature-selection methods.
+Second, we specify a random seed for reproducibility reasons.
 
-- use mututal info are similar, as we do in filters
-- are embedded (i.e., might not use all features we provide), but of course still depend on the feature sets we feed into them
+Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
+Thus, they might not use all features that we provide to them.
+However, this is no problem for our study.
+We are interested which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
 
 \subsection{Evaluation Metrics}
 
