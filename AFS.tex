@@ -21,14 +21,14 @@
 \maketitle
 
 \begin{abstract}
-Feature-selection techniques are popular to obtain small, interpretable, yet highly accurate prediction models.
-Existing feature-selection techniques typically yield either a fixed set of features or a ranking of features.
+Feature-selection methods are popular to obtain small, interpretable, yet highly accurate prediction models.
+Existing feature-selection methods typically yield either a fixed set of features or a ranking of features.
 However, obtaining just one feature set might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
-In this article, we formalize alternative feature selection as optimization problem first.
-Next, we propose several approaches to solve these problems.
-In particular, we integrate various kinds of existing feature-selection techniques.
-Finally, we evaluate these approaches in a study with 100 classification datasets.
+In this article, we formalize alternative feature selection as optimization problem.
+Next, we propose several approaches to solve this problem.
+In particular, we integrate various kinds of existing feature-selection methods.
+Finally, we evaluate these approaches in a study with 32 classification datasets.
 In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction quality as the optimal ones.
 \end{abstract}
 
@@ -39,14 +39,14 @@ In our experiments, we find that most datasets give way to finding alternative f
 
 \paragraph{Motivation}
 
-Feature-selection techniques are ubiquitous for a variety of reasons.
+Feature-selection methods are ubiquitous for a variety of reasons.
 By reducing the dimensionality of the dataset, they lower computational and memory requirements of prediction models.
 Next, models might generalize better if irrelevant and spurious predictors are removed.
 Finally, prediction models might be smaller and more comprehensive due to feature selection~\cite{li2017feature}, improving interpretability.
 
-Traditional feature-selection techniques either select a feature set or assign a score to each feature.
+Traditional feature-selection methods either select a feature set or assign a score to each feature.
 One can derive a feature set from the latter by only selecting the top-ranked features.
-In any case, existing techniques focus on optimizing a criterion of feature-set quality, e.g., prediction performance.
+In any case, existing methods focus on optimizing a criterion of feature-set quality, e.g., prediction performance.
 However, besides the optimal feature set, there might be multiple, differently composed feature sets with similar quality.
 For the user, these other feature sets might be interesting alternatives for multiple reasons.
 First, some of the originally selected features might be costly to obtain, so the user would prefer cheaper alternatives, while maintaining prediction quality.
@@ -85,18 +85,17 @@ Our contribution is threefold.
 First, we define an optimization problem that formalizes alternative feature selection.
 In particular, we consider finding multiple alternatives sequentially and simultaneously.
 Second, we propose approaches to solve this optimization problem.
-To that end, we discuss how to integrate different kinds of feature-selection techniques.
-Depending on the feature-selection technique, we present an exact or a heuristic solution approach.
+To that end, we discuss how to integrate different kinds of feature-selection methods.
+Depending on the feature-selection method, we present an exact or a heuristic solution approach.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
-We use xxx classification dataset from PMLB\cite{olson2017pmlb, romano2021pmlb}.
-For feature selection, we consider x, y, and z.
+We use 32 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four different feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 \paragraph{Results}
 
 We find that most datasets allow finding alternative feature sets with similar quality as the optimal ones.
 This presents the user with alternative explanations for high-quality predictions.
-For the different feature-selection techniques, we note \dots
+For the different feature-selection methods, we note \dots
 Comparing sequential and simultaneous search for alternatives, we find \dots
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
 
@@ -135,7 +134,7 @@ Without loss of generality, we assume this function should be maximized.
 \label{sec:fundamentals:quality}
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
-Note that we only give a short overview here, and focus on techniques that we use in our evaluation.
+Note that we only give a short overview here, and focus on methods that we use in our evaluation.
 See \cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
 A typical categorization of feature selection is into filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
@@ -272,7 +271,7 @@ In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constra
 \end{align}
 %
 Thus, one can express alternative features sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
-This simple constraint type allows for using a broad range of solvers, as we discuss in Section~\ref{sec:approach:objectives}.
+This simple constraint type allows for using a broad range of solvers, given the right objective function, which we discuss in Section~\ref{sec:approach:objectives}.
 If there is an existing feature set, i.e., one either knows $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without applying Equation~\ref{eq:product-linear}.
 
 \subsubsection{Multiple Alternatives}
@@ -321,7 +320,7 @@ Also, we expect the qualities of the alternatives to be more evenly distributed,
 \label{sec:approach:objectives}
 
 In this section, we present concrete approaches to find alternative feature sets.
-We discuss how to solve the optimization problems from Section~\ref{sec:approach:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
 
 \subsubsection{White-Box Optimization}
@@ -334,7 +333,7 @@ In this section, we present white-box optimization objectives for different feat
 \paragraph{Univariate filter feature selection}
 
 For univariate filter feature selection, the objective function is linear.
-This makes the optimization problem of alternative feature selection an integer linear problem.
+This makes the optimization problem of alternative feature selection an 0-1 integer linear problem.
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
 \begin{equation}
@@ -528,18 +527,22 @@ First, we give a brief overview of its goal and components.
 Next, we elaborate on different components of the design in detail.
 
 \subsection{Overview}
+\label{sec:experimental-design:overview}
 
-With our experiments, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
-We compare four feature selection techniques, representing different notions of feature-set quality.
+We conduct experiments with 32 binary-classification datasets.
+In our evaluation, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
+We compare four feature selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
 We systematically vary the number of alternatives and the distance threshold for being alternative.
 
 \subsection{Approaches}
+\label{sec:experimental-design:approaches}
 
 Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
 
 \subsubsection{Feature Selection (Objective Functions)}
+\label{sec:experimental-design:approaches:feature-selection}
 
 We search for alternatives under different notions of feature-set quality as objective function.
 To represent a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
@@ -582,14 +585,18 @@ In univariate filters, the scores consider features independently.
 Here, the scores originate from trees involving multiple features and hierarchical splits on these features.
 
 \subsubsection{Alternatives (Constraints)}
+\label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
 We vary the number of alternatives from 1 to 10 with a step size of 1 and the distance threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
-As a simple \emph{baseline} to optimization, we ask a solver to return 100 feature sets that satisfy the constraints for being alternative.
+As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
+In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
+To obtain a large sample, we conduct 100 iterations.
 As we neither know nor influence how the solver chooses these solutions, we consider them to be random.
-However, they might not be uniformly random from the space of valid feature sets, in particular, as the solver obtains these solutions iteratively.
+However, depending on how the solver obtains them, they might not be uniformly random from the space of valid feature sets.
 
 \subsubsection{Prediction}
+\label{sec:experimental-design:approaches:prediction}
 
 As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
 Both types of models allow to learn complex, non-linear dependencies from the data.
@@ -603,33 +610,43 @@ However, this is no problem for our study.
 We are interested which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
 
 \subsection{Evaluation Metrics}
+\label{sec:experimental-design:evaluation}
 
-We conduct 10-fold cross-validation.
+To analyze how well feature-selection and prediction models generalize, we conduct 10-fold cross-validation.
 Not only model training, but also the search for alternative feature sets is limited to the training data.
-In contrast, when we report feature-set quality, we describe results on the test data only.
+When we report quality metrics in the following, we focus on test-data results.
 
-MCC~\cite{matthews1975comparison}
-number of interesting alternatives (being alternative enough and satisfying a quality threshold)
+We use two kinds of metrics for feature-set quality.
+We focus on on how these metrics evolve for different configurations of alternative feature selection, cf. Section~\ref{sec:experimental-design:approaches:alternatives}.
+First, we evaluate the objective functions of the individual feature-selection methods, which guided the search for feature sets.
+Second, we train predictions models with the found feature sets.
+We report prediction performance in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
+This coefficient reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
 
 \subsection{Datasets}
+\label{sec:experimental-design:datasets}
 
-PMLB \cite{olson2017pmlb,romano2021pmlb}
-- categorical?
-- missing?
-- classification? balance?
-- min/max data objects?
-- min/max features?
+We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
+To allow for a better comparison of evaluation metrics over datasets, we only consider binary-classification datasets.
+However, alternative feature selection is possible for regression and multi-class problems as well.
+Also, we filter out datasets with less than 15 features, to leave some room to search for alternatives.
+Finally, we manually remove datasets that seem to be duplicates or modified versions of other datasets from the benchmark.
+
+In consequence, we obtain 32 datasets.
+The number of data objects varies from 57 to 9822, and the number of features ranges from 15 to 1000.
+% according to Olson (2017), no missing values, and categorical features should already be ordinally encoded
 
 \subsection{Implementation}
+\label{sec:experimental-design:implementation}
 
 We implement our experimental pipeline in Python.
 For machine learning, we use \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
-To express and solve the constraint optimization problems, we use \emph{Z3}~\cite{deMoura2008z3}.
-
-SMT \cite{barrett2018satisfiability}
+To express and solve the constraint optimization problems, we use \emph{Python-MIP}~\cite{python-mip}.
 
 \section{Evaluation}
 \label{sec:evaluation}
+
+- also see how train and test differ for optimization (and adapt description og "Evaluation metrics")
 
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
