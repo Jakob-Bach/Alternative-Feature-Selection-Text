@@ -26,9 +26,9 @@ Existing feature-selection methods typically yield either a fixed set of feature
 However, obtaining just one feature set might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
 In this article, we formalize alternative feature selection as optimization problem.
-Next, we propose several approaches to solve this problem.
-In particular, we integrate various kinds of existing feature-selection methods.
-Finally, we evaluate these approaches in a study with 32 classification datasets.
+Next, we propose several general approaches to solve this problem.
+In particular, we show how to integrate various kinds of existing feature-selection methods.
+Finally, we evaluate these approaches in a study with classification datasets.
 In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction quality as the optimal ones.
 \end{abstract}
 
@@ -57,16 +57,23 @@ In such a situation, knowing alternatives allows for formulating multiple hypoth
 \paragraph{Problem statement}
 
 This article addresses the problem of alternative feature selection, which we informally define as follows:
-Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
-In particular, if the original feature set had high quality, the alternative feature set should have a similar quality.
+%
+\begin{definition}[Alternative feature selection (informal)]
+	Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
+	\label{def:alternative-feature-selection}
+\end{definition}
+%
+We provide formal definitions later.
+If the original feature set had high quality, the alternative feature set should have a similar quality.
 Depending on how different the alternative feature set should be, one might have to compromise on quality.
 E.g., if there are only a few highly predictive features and most of them are part of the original feature set, the alternative feature set might have significantly lower prediction quality.
+We analyze this effect in our article.
+Also, we consider finding multiple alternatives rather than just one.
 
-Two points are essential for alternative feature selection.
+Two points are essential for alternative feature selection, which we both address in this article.
 First, one needs to formalize and quantify what an alternative feature sets is.
 Second, one needs an approach to efficiently find alternative feature sets.
-We address both these points in this article.
-Also, we consider finding multiple alternatives rather than just one.
+Ideally, the approach should be general, i.e., cover a broad range of existing feature-selection methods.
 
 \paragraph{Related work}
 
@@ -74,7 +81,7 @@ In machine learning, finding alternative solutions has already been addressed ex
 However, there is a lack of such approaches and corresponding experimental evaluation for feature selection.
 The concept of statistically equivalent feature subsets~\cite{lagani2017feature} groups features such that one obtains alternatives for each individual feature.
 However, there might not be such an alternative for some features.
-Also, our approaches consider alternatives to feature sets as a whole.
+Also, we consider alternatives to feature sets as a whole.
 In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{verma2020counterfactual, stepin2021survey}.
 Such explanations involve data objects with similar feature values, but a different prediction.
 In contrast, we target at different feature sets with similar feature-set quality, e.g., prediction performance.
@@ -83,10 +90,11 @@ In contrast, we target at different feature sets with similar feature-set qualit
 
 Our contribution is threefold.
 First, we define an optimization problem that formalizes alternative feature selection.
-In particular, we consider finding multiple alternatives sequentially and simultaneously.
-Second, we propose approaches to solve this optimization problem.
-To that end, we discuss how to integrate different kinds of feature-selection methods.
-Depending on the feature-selection method, we present an exact or a heuristic solution approach.
+We foster the search for alternatives via constraints on feature sets.
+This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward}.
+Second, we propose heuristic and exact approaches to solve this optimization problem.
+To that end, we discuss how to integrate different kinds of feature-selection methods in the objective function.
+Our notion of alternative feature sets is general and thus not tailored towards specific feature-selection methods.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
 We use 32 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four different feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
@@ -172,7 +180,7 @@ In particular, assessing feature importance plays a crucial role in the emerging
 
 In this section, we present the problem and approaches for alternative feature selection.
 First, we define the structure of the optimization problem, i.e., objective and constraints.
-Second, we formalize the notion of alternatives with constraints.
+Second, we formalize the notion of alternatives via constraints.
 Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:fundamentals:quality}
 In particular, we describe how to solve the resulting the optimization problem.
 
@@ -190,7 +198,7 @@ Third, one can consider being alternative as objective and introduce a constrain
 Fourth, one can define constraints for both feature-set quality and being alternative, searching for any feasible solution instead of optimizing.
 Depending on the use case, any of these four formulations might be appropriate.
 
-In accordance with our problem statement in Section~\ref{sec:introduction}, we stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
+In accordance with the informal Definition~\ref{def:alternative-feature-selection} from the introduction, we stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
 This option has the advantage of keeping the original objective function of feature selection.
 Consequently, one does not need to specify a range or a threshold on feature-set quality.
 Instead, the user can control how alternative the feature set should be.
@@ -201,7 +209,6 @@ This yields the following optimization problem:
 	\text{subject to:} &\quad F_s~\text{being alternative}
 \end{align}
 %
-
 We discuss different constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
 
 \subsection{Constraints -- Defining Alternative Feature Sets}
@@ -210,6 +217,7 @@ We discuss different constraints for \emph{being alternative} and different obje
 In this section, we formalize alternative feature sets.
 First, we discuss the base case where an individual feature set is an alternative to another one.
 Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
+Note that this part our work is independent from the feature-selection method one wants to use.
 
 \subsubsection{Single Alternatives}
 \label{sec:approach:constraints:single}
@@ -227,7 +235,7 @@ Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 %
 We leverage this distance measure for the following definition:
 %
-\begin{definition}
+\begin{definition}[Pairwise alternative]
 	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
 	\label{def:single-alternative}
 \end{definition}
@@ -285,7 +293,7 @@ In the sequential case, the user gets several alternatives iteratively.
 In each iteration, we determine one alternative feature set.
 We constrain the new feature set to be alternative to all previously found feature sets:
 %
-\begin{definition}
+\begin{definition}[Sequential alternative]
 	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
 	\label{def:sequential-alternative}
 \end{definition}
@@ -294,14 +302,17 @@ This definition effectively just duplicates the constraint from the base case an
 Also, the objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
 As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
 The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
+Also, a solver for this problem might benefit runtime-wise from iteratively adding constraints, provided the solver keeps some internal state between iterations and can warm-start.
+
 Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average distance to all existing feature sets to pass the threshold.
+We do not consider this case in our article.
 
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain several alternatives.
 This entails pairwise distance constraints:
 %
-\begin{definition}
+\begin{definition}[Simultaneous alternatives]
 	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
 	\label{def:simultaneous-alternative}
 \end{definition}
@@ -320,7 +331,7 @@ Also, we expect the qualities of the alternatives to be more evenly distributed,
 \label{sec:approach:objectives}
 
 In this section, we present concrete approaches to find alternative feature sets.
-We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for the different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
 
 \subsubsection{White-Box Optimization}
@@ -408,7 +419,7 @@ The idea is that data objects with a similar value of the prediction target shou
 In contrast, data objects that differ in their prediction target should differ in their feature values as well.
 We consider this method multivariate as nearest-neighbor computations involve all features instead of considering features independently.
 However, the resulting scores for each feature can be put into the univariate objective from Equation~\ref{eq:univariate-filter}.
-Also, one can combine Relief with CFS to consider feature redundancy~\cite{hall1999correlation}.
+Also, one can combine Relief with CFS to consider feature redundancy~\cite{hall1999correlation}, which the default Relief does not.
 
 \subsubsection{Black-Box Optimization}
 \label{sec:approach:objectives:black-box}
@@ -450,6 +461,7 @@ Such solver-assisted search approaches are common in search procedure for softwa
 For our experiments, we adopt a greedy hill-climbing strategy.
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only proposes and evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
+Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
 Next, it tries swapping one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
 The algorithm applies the solver again to find a solution $s'$ containing this change and satisfying the other constraints.
 If such a solution exists and its quality $Q(s',X,y)$ improves on the current solution, the algorithm continuous from the new solution.
@@ -518,6 +530,8 @@ SMT for counterfactuals \cite{karimi2020model}
 constraint data mining \cite{grossi2017survey}
 There is existing work on considering specific kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward}.
 These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
+
+- with insights/citations from here, make relevance of alternatives more prominent in intro
 
 \section{Experimental Design}
 \label{sec:experimental-design}
@@ -646,20 +660,32 @@ To express and solve the constraint optimization problems, we use \emph{Python-M
 \section{Evaluation}
 \label{sec:evaluation}
 
-- also see how train and test differ for optimization (and adapt description og "Evaluation metrics")
+- overall: solution quality vs. alternatives
+- compare sequential vs simultaneous
+- compare to solver-based "sampling" baseline
+- influence of distance threshold
+- influence of number of alternatives
+- compare FS approaches
+- less important: compare prediction models
+- less important: see how train and test differ for optimization (and adapt description of "Evaluation metrics")
+
+TODO: adapt abstract and intro to results
 
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
 
 \subsection{Conclusions}
 
+- alternatives are interesting
+- existing fs methods not sufficient
+- we are general regarding FS method and can also integrate other kinds of constraints
+
 \subsection{Future Work}
 
+- other FS techniques, in particular, embedded approaches
+- other set-distance measures and other aggregations (than "all are alternative") for multi-alternative case
+- soft constraints or multi-objective (Pareto) approach for problem (rather than hard constraints)
+
 \printbibliography
-
-\appendix
-
-\section{Appendix}
-\label{sec:appendix}
 
 \end{document}
