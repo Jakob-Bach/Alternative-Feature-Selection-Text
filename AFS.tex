@@ -473,11 +473,15 @@ The algorithm terminates if no swap of a feature leads to an improvement or a fi
 	\KwIn{Dataset $X$, Prediction target $y$, Feature-set quality function $Q(\cdot)$, Constraints for alternatives $Cons$, Maximum number of iterations $max\_iters$}
 	\KwOut{Feature-selection decision vector $s$}
 	\BlankLine
-	$iters \leftarrow 0$ \tcp*{Number of feature sets evaluated}
-	$j \leftarrow 1$ \tcp*{Index of feature to be swapped}
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
-	\While{$iters < max\_iters$ \textbf{and} $j < |s|$}{
+	$iters \leftarrow 1$ \tcp*{Number of feature sets evaluated}
+	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
+		\Return{$\emptyset$}
+	}
+	$j \leftarrow 1$ \tcp*{Index of feature to be swapped}
+	\While{$iters < max\_iters$ \textbf{and} $j \leq |s|$}{
 		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Try swapping one feature}
+		$iters \leftarrow iters + 1$\;
 		\If(\tcp*[f]{Swap if improved}){$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
 			$s \leftarrow s'$\;
 			$j \leftarrow 1$\;
@@ -485,7 +489,6 @@ The algorithm terminates if no swap of a feature leads to an improvement or a fi
 		\Else(\tcp*[f]{Try next feature}){
 			$j \leftarrow j + 1$\;
 		}
-		$iters \leftarrow iters + 1$\;
 	}
 	\Return{$s$}
 	\caption{Constraint-aware greedy wrapper feature selection.}
@@ -574,25 +577,26 @@ As we use a solver to find feature sets anyway, we can enforce the desired $k$ w
 As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
 We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
+To improve comparability between datasets, we normalize the qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
 
 \paragraph{FCBF}
 
 As multivariate filter method, we use our constraint formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
-As bivariate quality measure within FCBF, we rely on mutual information again.
+As bivariate quality measure within FCBF, we rely on mutual information again, normalized to sum up to 1.
 
 \paragraph{Greedy Wrapper}
 
 As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
 We set $max\_iter$ to 1000.
 Like all wrapper methods, the search algorithm uses the performance of a prediction model to evaluate feature-set quality.
-In particular, we choose Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
-Also, we apply a 80:20 holdout split to test generalization performance.
+In particular, we choose a decision tree as model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
+Also, we apply a stratified 80:20 holdout split to test generalization performance.
 Thus, $Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
 
-\paragraph{Model Gini}
+\paragraph{Model Gain}
 
 As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
-For the tree models we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
+For the decision-tree model we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
 We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat the importances like univariate filter scores.
 Note that the interpretation is different, though.
 In univariate filters, the scores consider features independently.
@@ -603,11 +607,6 @@ Here, the scores originate from trees involving multiple features and hierarchic
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
 We vary the number of alternatives from 1 to 10 with a step size of 1 and the distance threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
-As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
-In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
-To obtain a large sample, we conduct 100 iterations.
-As we neither know nor influence how the solver chooses these solutions, we consider them to be random.
-However, depending on how the solver obtains them, they might not be uniformly random from the space of valid feature sets.
 
 \subsubsection{Prediction}
 \label{sec:experimental-design:approaches:prediction}
@@ -626,7 +625,7 @@ We are interested which performance the models achieve if they are limited to sm
 \subsection{Evaluation Metrics}
 \label{sec:experimental-design:evaluation}
 
-To analyze how well feature-selection and prediction models generalize, we conduct 10-fold cross-validation.
+To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
 Not only model training, but also the search for alternative feature sets is limited to the training data.
 When we report quality metrics in the following, we focus on test-data results.
 
@@ -648,7 +647,8 @@ Finally, we manually remove datasets that seem to be duplicates or modified vers
 
 In consequence, we obtain 32 datasets.
 The number of data objects varies from 57 to 9822, and the number of features ranges from 15 to 1000.
-% according to Olson (2017), no missing values, and categorical features should already be ordinally encoded
+The datasets contain no missing values.
+Categorical features have an ordinal encoding by default.
 
 \subsection{Implementation}
 \label{sec:experimental-design:implementation}
