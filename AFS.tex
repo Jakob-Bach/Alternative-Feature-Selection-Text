@@ -466,7 +466,10 @@ Next, it tries swapping one feature, i.e., selecting the feature if it was desel
 The algorithm applies the solver again to find a solution $s'$ containing this change and satisfying the other constraints.
 If such a solution exists and its quality $Q(s',X,y)$ improves on the current solution, the algorithm continuous from the new solution.
 Else, it attempts to swap the next feature.
-The algorithm terminates if no swap of a feature leads to an improvement or a fixed amount of iterations $max\_iter$ is reached.
+The algorithm terminates if no swap of a feature leads to an improvement or a fixed amount of iterations $max\_iters$ is reached.
+We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
+This also is an upper bound on the number of prediction models trained.
+However, not all solver calls might yield a valid feature set.
 
 \begin{algorithm}[htb]
 	\DontPrintSemicolon
@@ -474,7 +477,7 @@ The algorithm terminates if no swap of a feature leads to an improvement or a fi
 	\KwOut{Feature-selection decision vector $s$}
 	\BlankLine
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
-	$iters \leftarrow 1$ \tcp*{Number of feature sets evaluated}
+	$iters \leftarrow 1$ \tcp*{Number of iterations = solver calls}
 	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
 		\Return{$\emptyset$}
 	}
@@ -587,7 +590,7 @@ As bivariate quality measure within FCBF, we rely on mutual information again, n
 \paragraph{Greedy Wrapper}
 
 As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
-We set $max\_iter$ to 1000.
+We set $max\_iters$ to 1000.
 Like all wrapper methods, the search algorithm uses the performance of a prediction model to evaluate feature-set quality.
 In particular, we choose a decision tree as model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
 Also, we apply a stratified 80:20 holdout split to test generalization performance.
