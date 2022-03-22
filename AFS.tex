@@ -223,9 +223,9 @@ Note that this part our work is independent from the feature-selection method on
 \label{sec:approach:constraints:single}
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
-Mathematically, we express this with a set-distance measure.
-A simple and well-known set-distance measure is the Jaccard distance.
-We use this distance in our article, but one could choose another measure~\cite{egghe2009new} as well.
+Mathematically, we express this with a set-dissimilarity measure~\cite{egghe2009new}.
+Most of these measures consider how strongly two sets overlap and set this in relation to the size of the sets.
+For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
 Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 %
 \begin{equation}
@@ -233,10 +233,10 @@ Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 	\label{eq:jaccard}
 \end{equation}
 %
-We leverage this distance measure for the following definition:
+We leverage such a dissimilarity measure for the following definition:
 %
 \begin{definition}[Pairwise alternative]
-	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $d_{Jacc}(F_1,F_2) \geq \tau$.
+	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a dissimilarity threshold $\tau \in [0,1]$ if $d(F_1,F_2) \geq \tau$.
 	\label{def:single-alternative}
 \end{definition}
 %
@@ -245,7 +245,7 @@ The choice of $\tau$ depends on how alternative the new feature set should be.
 Also, a feature set that differs strongly might yield a large change in feature-set quality.
 Thus, we leave $\tau$ as a parameter of our approach.
 If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
-Setting $\tau$ is made easier by the fact that the Jaccard distance is normalized to $[0,1]$.
+If the set-dissimilarity measure is normalized to $[0,1]$, the interpretation of $tau$ is user-friendly:
 A value of $0$ allows the alternative feature set to be identical to the original feature set.
 A value of $1$ requires the two feature sets to have no overlap.
 
@@ -259,7 +259,20 @@ This follows from re-arranging Equation~\ref{eq:jaccard} and adapting Definition
 \end{align}
 %
 The latter formulation avoids having the feature-set sizes, and thereby the decision variables, in a quotient.
-Expressing the feature-set sizes in terms of the binary feature-selection vector $s$ is straightforward:
+However, we can see that the effect of setting $\tau$ on the overlap size is non-linear.
+Thus, we resort to another set overlap measure in this article, the using Dice coefficient:
+%
+\begin{align}
+	& & d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \nonumber \\
+	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+	\label{eq:dice-rearranged}
+\end{align}
+%
+If $|F_1| = |F_2|$, this measure is also identical to several further overlap measures.
+In that case, $\tau$ directly controls which fraction of features in one set needs to differ in the other set, and vice versa.
+
+Up to now, we have worked with feature set sizes instead of the binary feature-selection vector $s$.
+However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
 \begin{align}
 	|F_s| =& \sum_{j=1}^n s_j \nonumber \\
@@ -267,7 +280,7 @@ Expressing the feature-set sizes in terms of the binary feature-selection vector
 	\label{eq:feature-set-size}
 \end{align}
 %
-Combining Equation~\ref{eq:jaccard-rearranged} and Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
+Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
 In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2021modeling}:
 %
 \begin{align}
@@ -294,7 +307,7 @@ In each iteration, we determine one alternative feature set.
 We constrain the new feature set to be alternative to all previously found feature sets:
 %
 \begin{definition}[Sequential alternative]
-	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d_{Jacc}(F_1,F_2) \geq \tau$.
+	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d(F_1,F_2) \geq \tau$.
 	\label{def:sequential-alternative}
 \end{definition}
 %
@@ -304,20 +317,20 @@ As the solution space becomes narrower over iterations, feature-set quality can 
 The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
 Also, a solver for this problem might benefit runtime-wise from iteratively adding constraints, provided the solver keeps some internal state between iterations and can warm-start.
 
-Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average distance to all existing feature sets to pass the threshold.
+Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
 We do not consider this case in our article.
 
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain several alternatives.
-This entails pairwise distance constraints:
+This entails pairwise dissimilarity constraints:
 %
 \begin{definition}[Simultaneous alternatives]
-	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a distance threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d_{Jacc}(F_1,F_2) \geq \tau$.
+	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a dissimilarity threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d(F_1,F_2) \geq \tau$.
 	\label{def:simultaneous-alternative}
 \end{definition}
 %
-Again, one could resort to less strict constraints, e.g., based on the average distance between alternatives.
+Again, one could resort to less strict constraints, e.g., based on the average dissimilarity between alternatives.
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
 In this paper, we consider the average quality of all alternatives as objective.
 The constraints remain as simple as in the base case, only their number increases, i.e., quadratically in the number of alternatives.
@@ -554,7 +567,7 @@ In our evaluation, we mainly focus on the trade-off between feature-set quality 
 We compare four feature selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
-We systematically vary the number of alternatives and the distance threshold for being alternative.
+We systematically vary the number of alternatives and the dissimilarity threshold for being alternative.
 
 \subsection{Approaches}
 \label{sec:experimental-design:approaches}
@@ -609,7 +622,7 @@ Here, the scores originate from trees involving multiple features and hierarchic
 \label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
-We vary the number of alternatives from 1 to 10 with a step size of 1 and the distance threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
+We vary the number of alternatives from 1 to 10 with a step size of 1 and the dissimilarity threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
 
 \subsubsection{Prediction}
 \label{sec:experimental-design:approaches:prediction}
@@ -666,7 +679,7 @@ To express and solve the constraint optimization problems, we use \emph{Python-M
 - overall: solution quality vs. alternatives
 - compare sequential vs simultaneous
 - compare to solver-based "sampling" baseline
-- influence of distance threshold
+- influence of dissimilarity threshold
 - influence of number of alternatives
 - compare FS approaches
 - less important: compare prediction models
@@ -686,7 +699,7 @@ TODO: adapt abstract and intro to results
 \subsection{Future Work}
 
 - other FS techniques, in particular, embedded approaches
-- other set-distance measures and other aggregations (than "all are alternative") for multi-alternative case
+- other set-dissimilarity measures and other aggregations (than "all are alternative") for multi-alternative case
 - soft constraints or multi-objective (Pareto) approach for problem (rather than hard constraints)
 
 \printbibliography
