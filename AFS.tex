@@ -269,8 +269,13 @@ Thus, we resort to another set overlap measure in this article, the using Dice c
 \end{align}
 %
 If $|F_1| = |F_2|$, this measure is also identical to several further overlap measures.
-In that case, $\tau$ directly controls which fraction of features in one set needs to differ in the other set, and vice versa.
-
+In that case, $\tau$ directly controls which fraction of features in one set needs to differ in the other set, and vice versa:
+%
+\begin{align}
+	& &\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) &\geq \tau \nonumber \\
+	&\Leftrightarrow & |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
+\end{align}
+%
 Up to now, we have worked with feature set sizes instead of the binary feature-selection vector $s$.
 However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
@@ -312,7 +317,12 @@ We constrain the new feature set to be alternative to all previously found featu
 \end{definition}
 %
 This definition effectively just duplicates the constraint from the base case and instantiates it for different existing feature sets.
-Also, the objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
+The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
+This means the number of variables in the optimization problem remains constant, independent from the number of alternatives.
+Each alternative only adds one new constraint to the optimization problem.
+As we are alway comparing a new, variable feature set to existing feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
+Thus, we expect the runtime of sequential search to scale well with the number of alternatives.
+
 As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
 The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
 Also, a solver for this problem might benefit runtime-wise from iteratively adding constraints, provided the solver keeps some internal state between iterations and can warm-start.
@@ -323,6 +333,7 @@ We do not consider this case in our article.
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain several alternatives.
+The user needs to decide on the number of feature sets $\mathbb{F}$ beforehand.
 This entails pairwise dissimilarity constraints:
 %
 \begin{definition}[Simultaneous alternatives]
@@ -331,10 +342,13 @@ This entails pairwise dissimilarity constraints:
 \end{definition}
 %
 Again, one could resort to less strict constraints, e.g., based on the average dissimilarity between alternatives.
+
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
-In this paper, we consider the average quality of all alternatives as objective.
-The constraints remain as simple as in the base case, only their number increases, i.e., quadratically in the number of alternatives.
-The number of feature sets $\mathbb{F}$ is a parameter for the user.
+In this paper, we consider the average quality of all feature sets as objective.
+The number of decision variables for feature selection increases linearly with the number of alternatives.
+Also, for each feature and each pair of alternatives, we need to introduce an interaction variable according to Equation~\ref{eq:product-linear}.
+The number of constraints grows quadratically in the number of alternatives as well.
+Thus, we expect the runtime of simultaneous search to scale worse with the number of alternatives than of sequential search.
 
 In contrast to the greedy procedure of the sequential procedure, the simultaneous procedure optimizes alternatives globally.
 Thus, for the same number of alternatives, the simultaneous procedure should be better in terms of average feature-set quality.
