@@ -96,7 +96,7 @@ Second, we propose heuristic and exact approaches to solve this optimization pro
 To that end, we discuss how to integrate different kinds of feature-selection methods in the objective function.
 Our notion of alternative feature sets is general and thus not tailored towards specific feature-selection methods.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
-We use 32 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four different feature-selection methods.
+We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four different feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 \paragraph{Results}
@@ -104,7 +104,7 @@ We focus on the question if one can find alternative feature sets with similar f
 We find that most datasets allow finding alternative feature sets with similar quality as the optimal ones.
 This presents the user with alternative explanations for high-quality predictions.
 For the different feature-selection methods, we note \dots
-Comparing sequential and simultaneous search for alternatives, we find \dots
+Comparing search configurations for alternatives, we find \dots
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
 
 \paragraph{Outline}
@@ -471,7 +471,7 @@ Another idea is to `repair' feature sets proposed by the search that are not alt
 For example, one can replace a feature set violating the constraint with the most similar feature set satisfying the constraints.
 Such solver-assisted search approaches are common in search procedure for software configuration~\cite{white2010automated,henard2015combining,guo2018preserve}.
 
-For our experiments, we adopt a greedy hill-climbing strategy.
+As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy.
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only proposes and evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
@@ -562,7 +562,7 @@ Next, we elaborate on different components of the design in detail.
 \subsection{Overview}
 \label{sec:experimental-design:overview}
 
-We conduct experiments with 32 binary-classification datasets.
+We conduct experiments with 30 binary-classification datasets.
 In our evaluation, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
 We compare four feature selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
@@ -584,7 +584,7 @@ See Section~\ref{sec:approach:objectives} for details on the objective function 
 One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
 For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
 
-For each method, we set the number of selected features to $k \in \{5,10\}$.
+For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
 This yields small feature sets, fostering interpretability.
 As we use a solver to find feature sets anyway, we can enforce the desired $k$ with a simple constraint.
 
@@ -622,7 +622,22 @@ Here, the scores originate from trees involving multiple features and hierarchic
 \label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
-We vary the number of alternatives from 1 to 10 with a step size of 1 and the dissimilarity threshold $\tau$ from 0.1 to 1 with a step size of 0.1.
+For sequential search, we evaluate 1 to 10 alternatives, while for simultaneous search, we examine 1 to 5 alternatives.
+This difference stems from the larger size of the optimization problem for simultaneous compared to sequential search, i.e., more decision variables and more constraints.
+For the dissimilarity threshold $\tau$, we analyze all possible sizes of the overlap, or rather the difference between feature sets.
+For $k=5$, this means we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
+For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
+Naturally, we exclude $\tau = 0$, which would allow returning multiple identical feature sets.
+
+As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
+If the solver finishes before the timeout, it might have found an optimal solution, or might have proven that no solution exists.
+If a timeout is reached, the solver might have found a feasible but suboptimal solution, or no solution, though a solution might exist.
+
+%As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
+%In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
+%To obtain a large sample, we conduct 100 iterations.
+%As we neither know nor influence how the solver chooses these solutions, we consider them to be random.
+%However, depending on how the solver obtains them, they might not be uniformly random from the space of valid feature sets.
 
 \subsubsection{Prediction}
 \label{sec:experimental-design:approaches:prediction}
@@ -656,13 +671,15 @@ This coefficient reaches its maximum of 1 for perfect predictions, and is 0 for 
 \label{sec:experimental-design:datasets}
 
 We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
-To allow for a better comparison of evaluation metrics over datasets, we only consider binary-classification datasets.
+To focus the evaluation on one machine-learning task type, we only consider binary-classification datasets.
 However, alternative feature selection is possible for regression and multi-class problems as well.
+We filter out datasets containing less than 100 instances.
 Also, we filter out datasets with less than 15 features, to leave some room to search for alternatives.
+Next, we remove one dataset with 1000 features, as this dataset would dominate the runtime of the experiments compared to the other datasets, which all have significantly lower dimensionality.
 Finally, we manually remove datasets that seem to be duplicates or modified versions of other datasets from the benchmark.
 
-In consequence, we obtain 32 datasets.
-The number of data objects varies from 57 to 9822, and the number of features ranges from 15 to 1000.
+In consequence, we obtain 30 datasets.
+The number of data objects varies from 106 to 9822, and the number of features ranges from 15 to 168.
 The datasets contain no missing values.
 Categorical features have an ordinal encoding by default.
 
@@ -678,10 +695,11 @@ To express and solve the constraint optimization problems, we use \emph{Python-M
 
 - overall: solution quality vs. alternatives
 - compare sequential vs simultaneous
-- compare to solver-based "sampling" baseline
 - influence of dissimilarity threshold
 - influence of number of alternatives
 - compare FS approaches
+- influence of k
+- influence of datasets
 - less important: compare prediction models
 - less important: see how train and test differ for optimization (and adapt description of "Evaluation metrics")
 
