@@ -601,13 +601,16 @@ For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we 
 For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
 This yields small feature sets, fostering interpretability.
 As we use a solver to find feature sets anyway, we can enforce the desired $k$ with a simple constraint.
+However, 0.03\% of the feature sets from our evaluation violate their prescribed $k$ for unknown reasons, i.e., the solver seemingly did not enforce the cardinality constraint properly.
+These few outliers originate from a variety of experimental settings, so we could not detect a cause for this behavior.
+As a consequence, we remove the affected search runs of alternatives completely, which constitute 0.12\% of all search runs.
 
 \paragraph{MI}
 
 As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
 We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
-To improve comparability between datasets, we normalize the qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
+To improve comparability between datasets and values of $k$, we normalize the qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
 
 \paragraph{FCBF}
 
@@ -631,6 +634,7 @@ We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat th
 Note that the interpretation is different, though.
 In univariate filters, the scores consider features independently.
 Here, the scores originate from trees involving multiple features and hierarchical splits on these features.
+The model-based feature importances are normalized to sum up to 1 by default.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:experimental-design:approaches:alternatives}
@@ -645,7 +649,8 @@ Naturally, we exclude $\tau = 0$, which would allow returning multiple identical
 
 As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
 If the solver finishes before the timeout, it might have found an optimal solution, or might have proven that no solution exists.
-If a timeout is reached, the solver might have found a feasible but suboptimal solution, or no solution, though a solution might exist.
+In our evaluation, these two outcomes apply to 94\% of the feature sets.
+In the remaining cases, the solver might have had an error, found a feasible but suboptimal solution, or found no solution though one might exist.
 
 %As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
 %In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
@@ -707,15 +712,37 @@ To express and solve the constraint optimization problems, we use \emph{Python-M
 \section{Evaluation}
 \label{sec:evaluation}
 
+In this section, we evaluate our experiments.
+In particular, we discuss results for the different dimensions of our experimental design:
+datasets, prediction models, feature-selection methods, and approaches to search for alternatives.
+
+\paragraph{Datasets}
+
+Naturally, feature-set quality depends on the datasets used, and several effects could occur.
+For example, distribution of feature-set quality in datasets might be relatively uniform or relatively skewed.
+Datasets with more features $n$ generally allow for more alternative feature sets.
+At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be spread over more features than for smaller datasets, making it harder to compose a high-quality feature set.
+
+In our experiments, we do not observe a clear relationship between dataset dimensionality $n$ and feature-set quality.
+Thus, when we analyzing the search for alternatives in the following, we will normalize feature-set appropriately, to account for the differences between datasets.
+
+\paragraph{Prediction models}
+
+\paragraph{Feature-selection methods}
+
+\paragraph{Searching alternatives}
+
+- see how many runs were infeasible, feasible, optimal
+  - in particular, compare over num alternatives in simultaenous
 - overall: solution quality vs. alternatives
 - compare sequential vs simultaneous
 - influence of dissimilarity threshold
 - influence of number of alternatives
 - compare FS approaches
 - influence of k
-- influence of datasets
 - less important: compare prediction models
 - less important: see how train and test differ for optimization (and adapt description of "Evaluation metrics")
+- could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
 
 TODO: adapt abstract and intro to results
 
