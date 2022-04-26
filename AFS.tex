@@ -560,6 +560,7 @@ genetic algo multi feature sets \cite{siddiqi2020genetic}
 counterfactual surveys \cite{verma2020counterfactual, stepin2021survey}
 MIP for counterfactuals \cite{mohammadi2021scaling}
 SMT for counterfactuals \cite{karimi2020model}
+"Model Interpretability through the Lens of Computational Complexity"
 
 constraint data mining \cite{grossi2017survey}
 There is existing work on considering specific kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward}.
@@ -717,21 +718,43 @@ In this section, we evaluate our experiments.
 In particular, we discuss results for the different dimensions of our experimental design:
 datasets, prediction models, feature-selection methods, and approaches to search for alternatives.
 
-\paragraph{Datasets}
+\subsection{Datasets}
 
 Naturally, feature-set quality depends on the datasets used, and several effects could occur.
 For example, distribution of feature-set quality in datasets might be relatively uniform or relatively skewed.
 Datasets with more features $n$ generally allow for more alternative feature sets.
 At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be spread over more features than for smaller datasets, making it harder to compose a high-quality feature set.
 
-In our experiments, we do not observe a clear relationship between dataset dimensionality $n$ and feature-set quality.
-Thus, when we analyzing the search for alternatives in the following, we will normalize feature-set appropriately, to account for the differences between datasets.
+In our experiments, we indeed see a broad variation of feature-set quality over datasets.
+Further, we do not observe a systematic relationship between dataset dimensionality $n$ and feature-set quality.
+Thus, when we analyzing the search for alternatives in the following, we will normalize feature-set quality appropriately, to compensate for the differences between datasets.
 
-\paragraph{Prediction models}
+\subsection{Prediction Models}
 
-\paragraph{Feature-selection methods}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.7\textwidth]{plots/evaluation-metrics-correlation.pdf}
+	\caption{Correlation between evaluation metrics over all experimental settings.}
+	\label{fig:evaluation-metrics-correlation}
+\end{figure}
 
-\paragraph{Searching alternatives}
+As one can expect, the average prediction performance of random forests is higher than that of decision trees.
+Also, overfitting occurs for both models, i.e., there is a gap between training and test performance.
+As we do not limit the growth of trees or prune them after training, this observation is expected.
+However, that will not prevent our analysis how prediction quality develops over alternative feature sets, where we normalize prediction quality.
+Figure~\ref{fig:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
+As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
+We choose decision trees, as they always consider all features during training, while random forests involve random sampling of features.
+
+Figure~\ref{fig:evaluation-metrics-correlation} also shows that the correlation between training-set quality and test-set quality is moderate, but not high, for the optimization objective $Q$ as well as prediction performance in terms of MCC.
+This might be caused by different degrees of overfitting, depending on the experimental settings.
+Further, the correlation between optimization objective $Q$ and prediction MCC is only weak to moderate.
+This means that the quality criterion of feature selection is only partially indicative of prediction performance.
+In particular, only one of our four feature-selection methods uses prediction performance to assess feature sets.
+
+\subsection{Feature-Selection Methods}
+
+\subsection{Searching Alternatives}
 
 - see how many runs were infeasible, feasible, optimal
   - in particular, compare over num alternatives in simultaenous
@@ -741,9 +764,9 @@ Thus, when we analyzing the search for alternatives in the following, we will no
 - influence of number of alternatives
 - compare FS approaches
 - influence of k
-- less important: compare prediction models
 - less important: see how train and test differ for optimization (and adapt description of "Evaluation metrics")
 - could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
+- maybe also optimization time (depending on n, k, search method, FS method, number of alternatives)
 
 TODO: adapt abstract and intro to results
 
