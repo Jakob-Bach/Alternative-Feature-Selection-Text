@@ -727,7 +727,7 @@ At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be sp
 
 In our experiments, we indeed see a broad variation of feature-set quality over datasets.
 Further, we do not observe a systematic relationship between dataset dimensionality $n$ and feature-set quality.
-Thus, when we analyzing the search for alternatives in the following, we will normalize feature-set quality appropriately, to compensate for the differences between datasets.
+Thus, when we analyzing the search for alternatives later, we will normalize feature-set quality appropriately, to compensate for the differences between datasets.
 
 \subsection{Prediction Models}
 
@@ -739,9 +739,11 @@ Thus, when we analyzing the search for alternatives in the following, we will no
 \end{figure}
 
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
-Also, overfitting occurs for both models, i.e., there is a gap between training and test performance.
+Also, overfitting occurs for both models, i.e., there is a gap between training-set and test-set prediction performance.
 As we do not limit the growth of trees or prune them after training, this observation is expected.
-However, that will not prevent our analysis how prediction quality develops over alternative feature sets, where we normalize prediction quality.
+However, that will not prevent our analysis how prediction performance develops over alternative feature sets, where we normalize feature-sets quality.
+To a lesser extent, the optimization objective $Q$ also shows overfitting for all feature-selection methods.
+
 Figure~\ref{fig:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
 As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
 We choose decision trees, as they always consider all features during training, while random forests involve random sampling of features.
@@ -754,17 +756,34 @@ In particular, only one of our four feature-selection methods uses prediction pe
 
 \subsection{Feature-Selection Methods}
 
+As the different feature-selection methods have different functions as optimization objectives $Q$, it does not make sense to compare objective values between feature-selection methods.
+Regarding the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
+For MI, this figure only is 19\%.
+Thus, besides the constraints for alternatives, the constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:fcbf}) made it hard to find valid feature sets.
+This point needs to be considered when applying our \emph{FCBF} feature selector.
+
+Regarding test-set prediction performance, \emph{Model Gain} beats \emph{MI} and \emph{Greedy Wrapper} on average.
+The median test-set MCC for decision trees is 0.57 for \emph{Model Gain}, 0.54 for \emph{MI}, and 0.51 for \emph{Greedy Wrapper}.
+It is not surprising that model-based importance yields better feature sets than univariate, model-free feature scoring with \emph{MI}.
+The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
+The wrapper search can only evaluate a fraction of all feasible feature sets and might get stuck in local optima, while the remaining feature-selection methods optimize globally.
+
+The feature-set size $k$ shows the expected effect:
+Larger feature sets, i.e., $k=10$, exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
+However, doubling the number of features does not double the prediction performance.
+Over all experimental settings, the median test-set MCC for decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
+This displays that small feature sets can already achieve a large share of the possible prediction performance.
+For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher than for prediction performance, but still less than proportional with $k$.
+
 \subsection{Searching Alternatives}
 
 - see how many runs were infeasible, feasible, optimal
-  - in particular, compare over num alternatives in simultaenous
+  - in particular, compare over num alternatives in simultaneous
 - overall: solution quality vs. alternatives
 - compare sequential vs simultaneous
 - influence of dissimilarity threshold
 - influence of number of alternatives
-- compare FS approaches
-- influence of k
-- less important: see how train and test differ for optimization (and adapt description of "Evaluation metrics")
+- influence of FS methods and k on alternatives
 - could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
 - maybe also optimization time (depending on n, k, search method, FS method, number of alternatives)
 
