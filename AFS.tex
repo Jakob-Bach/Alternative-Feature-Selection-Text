@@ -777,12 +777,33 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \subsection{Searching Alternatives}
 
-- see how many runs were infeasible, feasible, optimal
-  - in particular, compare over num alternatives in simultaneous
+\subsubsection{Search Method}
+
+As we expected, the training-set objective value $Q$ of all feature sets from one search run varies more for sequential search than for simultaneous search.
+Also, this variation increases with the number of alternatives for sequential search, but decreases for simultaneous search.
+I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
+On the test set, the objective value $Q$ of simultaneous-search feature sets still varies less than for sequential search, but increases with the number of alternatives.
+This effect might be a result of overfitting.
+Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
+
+Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor regarding prediction performance.
+Depending on the concrete search setting, either of the two search types might yield better-performing feature sets.
+An explanation for this phenomenon is that search does not always yield the exact optimum.
+For \emph{Greedy Wrapper}, the search is heuristic per se.
+Additionally, the exact optimization of the other three feature-selection methods can time out.
+As simultaneous search is harder than sequential search, it is affected stronger by this phenomenon.
+In particular, 11.65\% of feature sets from simultaneous search might not be optimal, as the solver timed out.
+For sequential search, we do not have any feasible but sub-optimal solution.
+
+Based on these results, we focus on sequential search in the following.
+
+\subsubsection{Number of Alternatives}
+
+\subsubsection{Dissimilarity Threshold $\tau$}
+
 - overall: solution quality vs. alternatives
-- compare sequential vs simultaneous
 - influence of dissimilarity threshold
-- influence of number of alternatives
+- influence of number of alternatives (on objective and infeasibility)
 - influence of FS methods and k on alternatives
 - could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
 - maybe also optimization time (depending on n, k, search method, FS method, number of alternatives)
