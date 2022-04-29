@@ -727,7 +727,6 @@ At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be sp
 
 In our experiments, we indeed see a broad variation of feature-set quality over datasets.
 Further, we do not observe a systematic relationship between dataset dimensionality $n$ and feature-set quality.
-Thus, when we analyzing the search for alternatives later, we will normalize feature-set quality appropriately, to compensate for the differences between datasets.
 
 \subsection{Prediction Models}
 
@@ -799,12 +798,49 @@ Based on these results, we focus on sequential search in the following.
 
 \subsubsection{Number of Alternatives}
 
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-max.pdf}
+		\caption{Max-normalization.}
+		\label{fig:impact-num-alternatives-objective-max}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-min-max.pdf}
+		\caption{Min-max-normalization.}
+		\label{fig:impact-num-alternatives-objective-min-max}
+	\end{subfigure}
+	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.}
+	\label{fig:impact-num-alternatives-objective}
+\end{figure}
+
+For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
+Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
+The other feature-selection methods exhibit similar effects.
+As feature-set quality varies between datasets and number of features $k$, we apply normalization:
+In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., one feature set from a search run gets an objective of 1 and the other feature-set qualities are scaled accordingly.
+This figure shows that there might be multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum of 1.
+Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets an objective of 0.
+This figure highlights that the decrease training-set objective value is most prominent from the original feature set to the first alternative, but becomes smaller beyond.
+
+Figure~\ref{fig:impact-num-alternatives-objective} also shows that test-set objective value drops the most from the original feature set to the first alternative as well.
+The decrease in median objective value over the alternatives is less visible than on the training set.
+In particular, alternatives can even have a higher objective value than the original feature set, due to overfitting of the optimization procedure.
+Similar findings hold for test-set prediction performance.
+Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
+
+However, one should note that these observations refer to the quality of the feature sets actually found.
+In particular, the more alternatives are desired, the more likely it is that the optimization problem becomes infeasible.
+For example, the \emph{MI} feature selector in sequential search always returns a solution for the original feature set, but the problem is infeasible in 2\% of the cases for the first alternative, 14\% of the cases for the second alternative, 24\% of the cases for the fifth alternative, and 30\% of the cases for the tenth alternative.
+Thus, while the quality of feature-sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
+This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
+
 \subsubsection{Dissimilarity Threshold $\tau$}
 
-- overall: solution quality vs. alternatives
 - influence of dissimilarity threshold
-- influence of number of alternatives (on objective and infeasibility)
-- influence of FS methods and k on alternatives
 - could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
 - maybe also optimization time (depending on n, k, search method, FS method, number of alternatives)
 
