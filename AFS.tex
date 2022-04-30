@@ -778,7 +778,28 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \subsubsection{Search Method}
 
-As we expected, the training-set objective value $Q$ of all feature sets from one search run varies more for sequential search than for simultaneous search.
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-search-stddev-objective.pdf}
+		\caption{Standard deviation of objective.}
+		\label{fig:impact-search-stddev-objective}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-search-mean-objective.pdf}
+		\caption{Mean objective.}
+		\label{fig:impact-search-mean-objective}
+	\end{subfigure}
+	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
+	Outliers removed for readability reasons.}
+	\label{fig:impact-search-objective}
+\end{figure}
+
+As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
+Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
 Also, this variation increases with the number of alternatives for sequential search, but decreases for simultaneous search.
 I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
 On the test set, the objective value $Q$ of simultaneous-search feature sets still varies less than for sequential search, but increases with the number of alternatives.
@@ -786,12 +807,15 @@ This effect might be a result of overfitting.
 Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
 
 Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor regarding prediction performance.
+Figure~\ref{fig:impact-search-mean-objective} shows this behavior for the mean training-set objective of search runs.
 Depending on the concrete search setting, either of the two search types might yield better-performing feature sets.
 An explanation for this phenomenon is that search does not always yield the exact optimum.
 For \emph{Greedy Wrapper}, the search is heuristic per se.
 Additionally, the exact optimization of the other three feature-selection methods can time out.
 As simultaneous search is harder than sequential search, it is affected stronger by this phenomenon.
 In particular, 11.65\% of feature sets from simultaneous search might not be optimal, as the solver timed out.
+This figure strongly depends on the number of alternatives:
+While there are no or only a few such potentially sub-optimal feature sets for up to three alternatives in simultaneous search, 4\% of the feature sets might be suboptimal for four alternatives and 35\% of the feature sets for five alternatives.
 For sequential search, we do not have any feasible but sub-optimal solution.
 
 Based on these results, we focus on sequential search in the following.
@@ -813,7 +837,8 @@ Based on these results, we focus on sequential search in the following.
 		\caption{Min-max-normalization.}
 		\label{fig:impact-num-alternatives-objective-min-max}
 	\end{subfigure}
-	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.}
+	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
+	Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
 \end{figure}
 
@@ -862,7 +887,7 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 As Figure~\ref{fig:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
 If the dissimilarity requirement is low, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
 In contrast, if the dissimilarity threshold is be high, e.g, $tau=1$, the objective decrease significantly.
-This phenomenon also holds for test-set objective and test-set prediction performance.
+This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent for prediction performance.
 Also, the the number of infeasible optimization problems increases with $tau$:
 For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
 
