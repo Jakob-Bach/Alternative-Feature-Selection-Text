@@ -819,7 +819,7 @@ Based on these results, we focus on sequential search in the following.
 
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
-The other feature-selection methods exhibit similar effects.
+The other feature-selection methods, including the heuristic \emph{Greedy Wrapper}, exhibit similar effects.
 As feature-set quality varies between datasets and number of features $k$, we apply normalization:
 In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., one feature set from a search run gets an objective of 1 and the other feature-set qualities are scaled accordingly.
 This figure shows that there might be multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum of 1.
@@ -840,11 +840,37 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 
 \subsubsection{Dissimilarity Threshold $\tau$}
 
-- influence of dissimilarity threshold
-- could also compare how strongly feature sets differ from one alternative to next -> only by tau abs or even more (did something similar in SP paper)
-- maybe also optimization time (depending on n, k, search method, FS method, number of alternatives)
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-train-objective-tau.pdf}
+		\caption{Training set.}
+		\label{fig:impact-num-alternatives-train-objective-tau}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-test-objective-tau.pdf}
+		\caption{Test set.}
+		\label{fig:impact-num-alternatives-test-objective-tau}
+	\end{subfigure}
+	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
+	\label{fig:impact-num-alternatives-objective-tau}
+\end{figure}
 
-TODO: adapt abstract and intro to results
+As Figure~\ref{fig:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
+If the dissimilarity requirement is low, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
+In contrast, if the dissimilarity threshold is be high, e.g, $tau=1$, the objective decrease significantly.
+This phenomenon also holds for test-set objective and test-set prediction performance.
+Also, the the number of infeasible optimization problems increases with $tau$:
+For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
+
+While the previous observation were made for \emph{MI} as feature selector, they do not hold universally.
+Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on \emph{tau} as well.
+In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of $\tau$ on feature-set quality.
+In case of \emph{Greedy Wrapper}, this can be explained by its heuristic search procedure.
+In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so adding further constraints has less impact.
 
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
@@ -854,6 +880,7 @@ TODO: adapt abstract and intro to results
 - alternatives are interesting
 - existing fs methods not sufficient
 - we are general regarding FS method and can also integrate other kinds of constraints
+TODO: adapt abstract and intro to results
 
 \subsection{Future Work}
 
