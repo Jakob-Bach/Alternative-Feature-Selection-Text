@@ -27,9 +27,9 @@ However, obtaining just one feature set might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
 In this article, we formalize alternative feature selection as optimization problem.
 Next, we propose several general approaches to solve this problem.
-In particular, we show how to integrate various kinds of existing feature-selection methods.
+In particular, we show how to integrate various categories of existing feature-selection methods.
 Finally, we evaluate these approaches in a study with classification datasets.
-In our experiments, we find that most datasets give way to finding alternative feature sets with similar prediction quality as the optimal ones.
+In our experiments, we find that our approaches allow finding alternative feature sets with similar prediction quality as the original ones.
 \end{abstract}
 
 \textbf{Keywords:} feature selection, alternatives, constraints, explainability
@@ -93,7 +93,7 @@ First, we define an optimization problem that formalizes alternative feature sel
 We foster the search for alternatives via constraints on feature sets.
 This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward}.
 Second, we propose heuristic and exact approaches to solve this optimization problem.
-To that end, we discuss how to integrate different kinds of feature-selection methods in the objective function.
+To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
 Our notion of alternative feature sets is general and thus not tailored towards specific feature-selection methods.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
 We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four different feature-selection methods.
@@ -101,10 +101,13 @@ We focus on the question if one can find alternative feature sets with similar f
 
 \paragraph{Results}
 
-We find that most datasets allow finding alternative feature sets with similar quality as the optimal ones.
-This presents the user with alternative explanations for high-quality predictions.
-For the different feature-selection methods, we note \dots
-Comparing search configurations for alternatives, we find \dots
+Our experiments show that finding alternative feature sets with similar feature-set quality is possible.
+This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions.
+As expected, feature-set quality tends to decrease with the number of alternatives.
+Naturally, the exact decrease depends on the dataset and how feature-set quality is distributed in it.
+Further, we note that the quality of alternatives significantly depends on the dissimilarity threshold for how alternative feature sets should be.
+Thereby, this threshold allows the user to exercise control over alternatives and make use-case specific choices.
+
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
 
 \paragraph{Outline}
@@ -358,7 +361,7 @@ Also, we expect the qualities of the alternatives to be more evenly distributed,
 \label{sec:approach:objectives}
 
 In this section, we present concrete approaches to find alternative feature sets.
-We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for the different kinds of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for the different categories of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
 
 \subsubsection{White-Box Optimization}
@@ -902,16 +905,36 @@ In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than
 
 \subsection{Conclusions}
 
-- alternatives are interesting
-- existing fs methods not sufficient
-- we are general regarding FS method and can also integrate other kinds of constraints
-TODO: adapt abstract and intro to results
+Obtaining interpretable solutions is a highly active area of research in machine learning.
+One way to foster interpretability is selecting a small set of features for prediction.
+Traditional feature-selection algorithms focus on yielding \emph{one} feature set with high quality, e.g., regarding prediction performance.
+However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
+Such alternative feature set might provide alternative explanations for predictions from the data.
+
+In this paper, we leveraged constraints to find alternative feature sets that ideally should have similar quality.
+We introduced a general, formal notion of alternatives, which is independent from the concrete feature-selection method.
+Additionally, it is combinable with other domain-independent or domain-specific constraints on feature selection.
+Further, we discussed how different categories of feature-selection methods can integrate this notion.
+In particular, we presented exact and heuristic approaches for the constrained optimization problem of alternative feature selection.
+Finally, we evaluated our approach with 30 classification datasets and four feature-selection techniques.
+We compared two search strategies for alternatives and varied a threshold how strongly alternatives should differ from existing solutions.
+
+In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original one.
+This worked with simultaneous search for multiple alternatives as well as sequential search for single alternatives.
+The latter search procedure turned out to be significantly faster, and allows stopping the search once one does not want any more alternatives.
+As one could expect, the quality of alternatives drops the more alternatives one desires and the more alternatives should differ from existing feature sets.
+The ultimate decision which trade-off between feature-set quality and alternatives is acceptable lies at the user.
+Thus, we recommend evaluating different dissimilarity thresholds for alternatives and making a use-case-specific decision.
 
 \subsection{Future Work}
 
-- other FS techniques, in particular, embedded approaches
-- other set-dissimilarity measures and other aggregations (than "all are alternative") for multi-alternative case
-- soft constraints or multi-objective (Pareto) approach for problem (rather than hard constraints)
+While our work introduced alternative feature selection, one might vary several points of our approach.
+For example, one can combine the search for alternatives with other feature-selection methods.
+For embedded feature selection, one would need to customize our search routines and push them into model training.
+Further, one can analyze different notions of alternatives, e.g., other dissimilarity measures for feature sets and other definitions for the case of multiple alternatives.
+Additionally, one can express alternatives differently than with hard constraints.
+Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
+Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
 
 \printbibliography
 
