@@ -1,17 +1,26 @@
-\documentclass{article}
+\documentclass[conference]{IEEEtran}
 
-\title{Finding Optimal Solutions for Alternative Feature Selection}
-\author{Jakob Bach}
+\title{Finding Optimal Solutions \\ for Alternative Feature Selection}
+\author{
+	\IEEEauthorblockN{Jakob Bach}
+	\IEEEauthorblockA{
+		\textit{Department of Informatics} \\
+		\textit{Karlsruhe Institute of Technologie (KIT)}\\
+		Karlsruhe, Germany \\
+		jakob.bach@kit.edu
+	}
+}
 
-\usepackage[style=ieee, backend=bibtex]{biblatex}
-\usepackage[ruled,linesnumbered,vlined]{algorithm2e} % pseudo-code
+% \usepackage[style=ieee, backend=bibtex]{biblatex}; handled by IEEE template
+\usepackage[tworuled, linesnumbered,vlined]{algorithm2e} % pseudo-code; use of package discouraged by IEEE, but hacked in in a (hopefully acceptable) way
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
 \usepackage{amsthm} % theorems, definitions etc.
+\usepackage{balance} % balance columns on the last page
 \usepackage{graphicx} % plots
-\usepackage{subcaption} % figures with multiple sub-figures and sub-captions
+\usepackage[caption=false,font=footnotesize]{subfig} % figures with multiple sub-figures and sub-captions; use of (newer) package "subcaption" discouraged by IEEE
 \usepackage{hyperref} % links and URLs
-\addbibresource{references.bib}
+%\addbibresource{references.bib}; handled by IEEE template
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
@@ -31,7 +40,9 @@ Finally, we evaluate these approaches in a study with classification datasets.
 In our experiments, we find that our approaches allow finding alternative feature sets with similar prediction quality as the original ones.
 \end{abstract}
 
-\textbf{Keywords:} feature selection, alternatives, constraints, explainability
+\begin{IEEEkeywords}
+feature selection, alternatives, constraints, explainability
+\end{IEEEkeywords}
 
 \section{Introduction}
 \label{sec:introduction}
@@ -205,11 +216,13 @@ Consequently, one does not need to specify a range or a threshold on feature-set
 Instead, the user can control how alternative the feature set should be.
 This yields the following optimization problem:
 %
-\begin{align}
-	\max_s &\quad Q(s,X,y) \nonumber \\
-	\text{subject to:} &\quad F_s~\text{being alternative}
-	\label{eq:afs}
-\end{align}
+\begin{equation}
+	\begin{split}
+	\max_s & \quad Q(s,X,y) \\
+	\text{subject to:} & \quad F_s~\text{being alternative}
+	\end{split}
+\label{eq:afs}
+\end{equation}
 %
 We discuss different constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
 
@@ -231,7 +244,10 @@ For example, a simple and well-known set-dissimilarity measure is the Jaccard di
 Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 %
 \begin{equation}
-	d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+	\begin{aligned}
+	d_{Jacc}(F_1,F_2) & = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} \\
+	& = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+	\end{aligned}
 	\label{eq:jaccard}
 \end{equation}
 %
@@ -254,49 +270,59 @@ A value of $1$ requires the two feature sets to have no overlap.
 If the feature sets sizes $|F_1|$ and $|F_2|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F_1 \cap F_2|$.
 This follows from re-arranging Equation~\ref{eq:jaccard} and adapting Definition~\ref{def:single-alternative} accordingly:
 %
-\begin{align}
-	& & d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+\begin{equation}
+	\begin{aligned}
+	d_{Jacc}(F_1,F_2) & = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} \geq \tau \\
+	& \Leftrightarrow |F_1 \cap F_2| \leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+	\end{aligned}
 	\label{eq:jaccard-rearranged}
-\end{align}
+\end{equation}
 %
 The latter formulation avoids having the feature-set sizes, and thereby the decision variables, in a quotient.
 However, we can see that the effect of setting $\tau$ on the overlap size is non-linear.
 Thus, we resort to another set overlap measure in this article, the using Dice coefficient:
 %
-\begin{align}
-	& & d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+\begin{equation}
+	\begin{aligned}
+	d_{Dice}(F_1,F_2) & = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} \geq \tau \\
+	& \Leftrightarrow |F_1 \cap F_2| \leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+	\end{aligned}
 	\label{eq:dice-rearranged}
-\end{align}
+\end{equation}
 %
 If $|F_1| = |F_2|$, this measure is also identical to several further overlap measures.
 In that case, $\tau$ directly controls which fraction of features in one set needs to differ in the other set, and vice versa:
 %
-\begin{align}
-	& &\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
-\end{align}
+\begin{equation}
+	\begin{aligned}
+	\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) \geq \tau \\
+	\Leftrightarrow |F_1 \cap F_2| \leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
+	\end{aligned}
+\end{equation}
 %
 Up to now, we have worked with feature set sizes instead of the binary feature-selection vector $s$.
 However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
-\begin{align}
-	|F_s| =& \sum_{j=1}^n s_j \nonumber \\
+\begin{equation}
+	\begin{aligned}
+	|F_s| =& \sum_{j=1}^n s_j \\
 	|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j}
+	\end{aligned}
 	\label{eq:feature-set-size}
-\end{align}
+\end{equation}
 %
 Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
 In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2021modeling}:
 %
-\begin{align}
-	t_j \leq& s_{1,j} \nonumber \\
-	t_j \leq& s_{2,j} \nonumber \\
-	1 + t_j \geq& s_{1,j} + s_{2,j} \nonumber \\
+\begin{equation}
+	\begin{aligned}
+	t_j \leq& s_{1,j} \\
+	t_j \leq& s_{2,j} \\
+	1 + t_j \geq& s_{1,j} + s_{2,j} \\
 	t_j \in& \{0,1\}
+	\end{aligned}
 	\label{eq:product-linear}
-\end{align}
+\end{equation}
 %
 Thus, one can express alternative features sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
 This simple constraint type allows for using a broad range of solvers, given the right objective function, which we discuss in Section~\ref{sec:approach:objectives}.
@@ -406,19 +432,21 @@ Relevance is the correlation between features and prediction target, similar to 
 Redundancy is the correlation between features, acting as a normalization term.
 Using a bivariate dependency measure $q$ to quantify correlation, the objective is as follows:
 %
-\begin{equation}
-	Q_{CFS}(s,X,y) = \frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}}
+\begin{multline}
+	Q_{CFS}(s,X,y) = \\
+	\frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}}
 	\label{eq:cfs}
-\end{equation}
+\end{multline}
 %
 \paragraph{mRMR}
 
 Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} follows a similar principle as CFS, but uses the difference instead of the ratio between relevance and redundancy:
 %
-\begin{equation}
-	Q_{mRMR}(s,X,y) = \frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}{(\sum_{j=1}^{n} s_j)^2}
+\begin{multline}
+	Q_{mRMR}(s,X,y) = \frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sum_{j=1}^{n} s_j} - \\
+	\frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}{(\sum_{j=1}^{n} s_j)^2}
 	\label{eq:mrmr}
-\end{equation}
+\end{multline}
 %
 Note that if one knows the feature-set size, he denominators are constant and thus, Equation~\ref{eq:mrmr} is linear if one replaces the product terms according to Equation~\ref{eq:product-linear}.
 Without this replacement, it is a quadratic-programming problem~\cite{rodriguez2010quadratic, nguyen2014effective}.
@@ -429,12 +457,14 @@ The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notio
 It strives to select features that have at least a certain correlation to the prediction target, but a lower correlation to all other features.
 While the original FCBF algorithm uses a heuristic search, we propose a formulation as a constrained optimization problem:
 %
-\begin{align}
-	\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \nonumber \\
-	\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \nonumber \\
+\begin{equation}
+	\begin{aligned}
+	\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \\
+	\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \\
 	&\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y)
+	\end{aligned}
 	\label{eq:fcbf}
-\end{align}
+\end{equation}
 %
 In particular, we drop the threshold parameter on feature-target correlation and rather maximize the latter, as in the univariate filter case.
 To limit the size of the resulting feature set, one can put a constraint on the feature set size.
@@ -488,7 +518,7 @@ Another idea is to `repair' feature sets proposed by the search that are not alt
 For example, one can replace a feature set violating the constraint with the most similar feature set satisfying the constraints.
 Such solver-assisted search approaches are common in search procedure for software configuration~\cite{white2010automated,henard2015combining,guo2018preserve}.
 
-As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy.
+As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy, as displayed in Figure~\ref{al:greedy-wrapper}.
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only proposes and evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
@@ -501,19 +531,29 @@ We define the iteration count as the number of calls to the solver, i.e., attemp
 This also is an upper bound on the number of prediction models trained.
 However, not all solver calls might yield a valid feature set.
 
-\begin{algorithm}[htb]
+% IEEE wants algorithms as figures, not separate floats (as "algorithm2e" does), so we need some hacking: https://tex.stackexchange.com/questions/147598/how-to-use-the-algorithm2e-package-with-ieeetran-class
+\begin{figure}[t]
+\makeatletter
+\let\@latex@error\@gobble
+\makeatother
+\begin{algorithm}[H]
 	\DontPrintSemicolon
-	\KwIn{Dataset $X$, Prediction target $y$, Feature-set quality function $Q(\cdot)$, Constraints for alternatives $Cons$, Maximum number of iterations $max\_iters$}
+	\KwIn{
+		Dataset $X$, Prediction target $y$, \newline
+		Feature-set quality function $Q(\cdot)$, \newline
+		Constraints for alternatives $Cons$, \newline
+		Maximum number of iterations $max\_iters$
+	}
 	\KwOut{Feature-selection decision vector $s$}
 	\BlankLine
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
-	$iters \leftarrow 1$ \tcp*{Number of iterations = solver calls}
+	$iters \leftarrow 1$ \tcp*{Number of solver calls}
 	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
 		\Return{$\emptyset$}
 	}
-	$j \leftarrow 1$ \tcp*{Index of feature to be swapped}
+	$j \leftarrow 1$ \tcp*{Index to be swapped}
 	\While{$iters < max\_iters$ \textbf{and} $j \leq |s|$}{
-		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Try swapping one feature}
+		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Swap feature}
 		$iters \leftarrow iters + 1$\;
 		\If(\tcp*[f]{Swap if improved}){$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
 			$s \leftarrow s'$\;
@@ -524,9 +564,10 @@ However, not all solver calls might yield a valid feature set.
 		}
 	}
 	\Return{$s$}
-	\caption{Constraint-aware greedy wrapper feature selection.}
-	\label{al:greedy-wrapper}
 \end{algorithm}
+\caption{Constraint-aware greedy wrapper feature selection.}
+\label{al:greedy-wrapper}
+\end{figure}
 
 \subsubsection{Embedding Alternatives}
 \label{sec:approach:objectives:embedding}
@@ -791,9 +832,9 @@ Further, we do not observe a systematic relationship between dataset dimensional
 
 \subsection{Prediction Models}
 
-\begin{figure}[htb]
+\begin{figure}[t]
 	\centering
-	\includegraphics[width=0.7\textwidth]{plots/evaluation-metrics-correlation.pdf}
+	\includegraphics[width=\columnwidth]{plots/evaluation-metrics-correlation.pdf}
 	\caption{Correlation between evaluation metrics over all experimental settings.}
 	\label{fig:evaluation-metrics-correlation}
 \end{figure}
@@ -839,25 +880,17 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \subsubsection{Search Method}
 
-\begin{figure}[htb]
+\begin{figure*}[t]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-search-stddev-objective.pdf}
-		\caption{Standard deviation of objective.}
+	\subfloat[Standard deviation of objective.]{\includegraphics[width=\columnwidth]{plots/impact-search-stddev-objective.pdf}}
 		\label{fig:impact-search-stddev-objective}
-	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-search-mean-objective.pdf}
-		\caption{Mean objective.}
+	\subfloat[Mean objective.]{\includegraphics[width=\columnwidth]{plots/impact-search-mean-objective.pdf}}
 		\label{fig:impact-search-mean-objective}
-	\end{subfigure}
 	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-search-objective}
-\end{figure}
+\end{figure*}
 
 As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
 Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
@@ -883,25 +916,17 @@ Based on these results, we focus on sequential search in the following.
 
 \subsubsection{Number of Alternatives}
 
-\begin{figure}[htb]
+\begin{figure*}[t]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-max.pdf}
-		\caption{Max-normalization.}
+	\subfloat[Max-normalization.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-objective-max.pdf}}
 		\label{fig:impact-num-alternatives-objective-max}
-	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-min-max.pdf}
-		\caption{Min-max-normalization.}
+	\subfloat[Min-max-normalization.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-objective-min-max.pdf}}
 		\label{fig:impact-num-alternatives-objective-min-max}
-	\end{subfigure}
 	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
-\end{figure}
+\end{figure*}
 
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
@@ -924,26 +949,18 @@ For example, the \emph{MI} feature selector in sequential search always returns 
 Thus, while the quality of feature-sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
 This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
 
-\subsubsection{Dissimilarity Threshold $\tau$}
+\subsubsection{Dissimilarity Threshold}
 
-\begin{figure}[htb]
+\begin{figure*}[t]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-train-objective-tau.pdf}
-		\caption{Training set.}
+	\subfloat[Training set.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-train-objective-tau.pdf}}
 		\label{fig:impact-num-alternatives-train-objective-tau}
-	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-test-objective-tau.pdf}
-		\caption{Test set.}
+	\subfloat[Test set.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-test-objective-tau.pdf}}
 		\label{fig:impact-num-alternatives-test-objective-tau}
-	\end{subfigure}
 	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
 	\label{fig:impact-num-alternatives-objective-tau}
-\end{figure}
+\end{figure*}
 
 As Figure~\ref{fig:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
 If the dissimilarity requirement is low, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
@@ -994,6 +1011,10 @@ Additionally, one can express alternatives differently than with hard constraint
 Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
 
-\printbibliography
+\balance % according to documentation, command might not work if issued to late in document, so hopefully placing it here suffices
+
+% \printbibliography
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,references}
 
 \end{document}
