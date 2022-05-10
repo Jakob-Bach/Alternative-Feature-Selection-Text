@@ -41,7 +41,7 @@ In our experiments, we find that our approaches allow finding alternative featur
 \end{abstract}
 
 \begin{IEEEkeywords}
-feature selection, alternatives, constraints, explainability
+feature selection, alternatives, constraints, explainability, interpretability
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -155,37 +155,35 @@ Without loss of generality, we assume this function should be maximized.
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
 Note that we only give a short overview here, and focus on methods that we use in our evaluation.
-See \cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
+See~\cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
 A typical categorization of feature selection is into filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
 \paragraph{Filter methods}
 
 Filter methods evaluate feature sets without training a prediction model.
-Univariate filters assess each feature on its own, often assigning a numeric score ot each feature, while multivariate filters evaluate feature sets.
-Examples for univariate filters are the absolute Pearson correlation or the mutual information between a feature and the prediction target.
-Such methods ignore potential interaction between features, e.g., if they are redundant to each other.
-Multivariate methods often combine a measure of feature relevance with a measure of feature redundancy.
-Examples for such a method include CFS \cite{hall1999correlation}, FCBF \cite{yu2003feature}, and mRMR \cite{peng2005feature}.
-Another interesting filter method is Relief~\cite{kira1992feature}, for which multiple extensions exist.
-While Relief assigns quality to individual features rather than feature sets, it still uses other features indirectly via nearest-neighbor computations between data objects.
+Univariate filters assess each feature on its own, while multivariate filters evaluate feature sets.
+Examples for univariate filters are the Pearson correlation or the mutual information between a feature and the prediction target.
+Such methods ignore interaction between features, e.g., redundancies.
+Multivariate methods, like CFS~\cite{hall1999correlation}, FCBF~\cite{yu2003feature}, and mRMR~\cite{peng2005feature}, often combine a measure of feature relevance with a measure of feature redundancy to express feature-set quality.
+%Another interesting filter method is Relief~\cite{kira1992feature}, for which multiple extensions exist.
+%While Relief assigns quality to individual features rather than feature sets, it still uses other features indirectly via nearest-neighbor computations between data objects.
 
 \paragraph{Wrapper methods}
 
-Wrapper methods~\cite{kohavi1997wrappers} employ a search strategy over feature sets and evaluate each of these feature set by training a prediction model.
-Thus, feature-set quality is equal to the prediction quality of the model trained with this feature set.
-Various black-box optimization techniques can serve as search strategy, e.g., genetic algorithms.
+Wrapper methods~\cite{kohavi1997wrappers} assess feature-set quality by training a prediction model with the feature set and evaluating prediction performance.
+They can use an arbitrary black-box optimization strategy to iterate over feature sets, e.g., genetic algorithms.
 
 \paragraph{Embedded methods}
 
-Embedded methods train prediction models with built-in feature selection, e.g., decision trees~\cite{breiman1984classification} or random forests~\cite{breiman2001random}.
-Thus, the criterion to evaluate the quality of features or feature sets is model-specific.
-For example, tree-based models often use information gain or the Gini index to select features during training.
+Embedded methods have feature selection built into training of prediction models, e.g., decision trees~\cite{breiman1984classification} or random forests~\cite{breiman2001random}.
+Thus, the criterion to evaluate feature-set quality often is model-specific.
+Tree-based models typically use information gain or the Gini index.
 
 \paragraph{Post-hoc feature-importance methods}
 
 Apart from traditional feature selection, there are various methods that assess feature importance after training a model.
-These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
-In particular, assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
+Assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
+Approaches range from local explanation methods, like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified}, to global importance methods, like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
 
 \section{Alternative Feature Selection}
 \label{sec:approach}
