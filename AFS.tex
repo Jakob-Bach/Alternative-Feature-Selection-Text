@@ -590,7 +590,7 @@ As an example, \cite{siddiqi2020genetic} adapts a genetic algorithm to ensure di
 
 \paragraph{Ensemble feature selection}
 
-Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} runs feature selection on different versions, e.g., samples, of the data, or uses different feature-selection techniques.
+Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} runs feature selection on different versions, e.g., samples, of the data, or uses different feature-selection methods.
 While fostering diverse feature sets might be a sub-goal to improve prediction performance, the results of the different feature selectors are combined at the end.
 Thus, this focus is different from our goal of obtaining optimal alternatives.
 As an example, \cite{woznica2012model} uses k-medoid clustering and frequent-itemset mining to reduce a set of feature-selection results, obtained on bootstrap samples of the original data, to a smaller, yet diverse subset.
@@ -939,34 +939,29 @@ In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than
 \subsection{Conclusions}
 
 Obtaining interpretable solutions is a highly active area of research in machine learning.
-One way to foster interpretability is selecting a small set of features for prediction.
-Traditional feature-selection algorithms focus on yielding \emph{one} feature set with high quality, e.g., regarding prediction performance.
+One way to foster interpretability is selecting a small set of features for predictions.
+Traditional feature-selection methods yield \emph{one} feature set with high quality.
 However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
-Such alternative feature set might provide alternative explanations for predictions from the data.
+Such alternative feature set might provide alternative explanations for predictions.
 
-In this paper, we leveraged constraints to find alternative feature sets that ideally should have similar quality.
-We introduced a general, formal notion of alternatives, which is independent from the concrete feature-selection method.
-Additionally, it is combinable with other domain-independent or domain-specific constraints on feature selection.
-Further, we discussed how different categories of feature-selection methods can integrate this notion.
-In particular, we presented exact and heuristic approaches for the constrained optimization problem of alternative feature selection.
-Finally, we evaluated our approach with 30 classification datasets and four feature-selection techniques.
-We compared two search strategies for alternatives and varied a threshold how strongly alternatives should differ from existing solutions.
+In this paper, we defined alternative feature selection as an optimization problem.
+We formalized alternatives via constraints, independent from the feature-selection method.
+Further, we presented approaches to solve the optimization problem for different categories of feature selection.
+Finally, we ran an evaluation with 30 classification datasets and four feature-selection methods.
+We varied a threshold for how strongly alternatives should differ from existing solutions.
 
-In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original one.
-This worked with simultaneous search for multiple alternatives as well as sequential search for single alternatives.
-The latter search procedure turned out to be significantly faster, and allows stopping the search once one does not want any more alternatives.
-As one could expect, the quality of alternatives drops the more alternatives one desires and the more alternatives should differ from existing feature sets.
+In our experiments, we found that one can obtain alternative feature sets with similar quality as the original ones.
+This worked with simultaneous search as well as sequential search for alternatives.
+The latter procedure was significantly faster, and allows stopping the search once one does not want any more alternatives.
+As expected, the quality of alternatives drops the more alternatives one desires and the more alternatives should differ.
 The ultimate decision which trade-off between feature-set quality and alternatives is acceptable lies at the user.
-Thus, we recommend evaluating different dissimilarity thresholds for alternatives and making a use-case-specific decision.
+Thus, we recommend evaluating different dissimilarity thresholds for alternatives.
 
 \subsection{Future Work}
 
 While our work introduced alternative feature selection, one might vary several points of our approach.
-For example, one can combine the search for alternatives with other feature-selection methods.
-For embedded feature selection, one would need to customize our search routines and push them into model training.
-Further, one can analyze different notions of alternatives, e.g., other dissimilarity measures for feature sets and other definitions for the case of multiple alternatives.
-Additionally, one can express alternatives differently than with hard constraints.
-Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
+For example, one can integrate other feature-selection methods, in particular, embedded methods.
+Further, one can vary the notion of alternatives, e.g., set-dissimilarity measure, definition for multiple alternatives, or soft constraints instead of hard constraints.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
 
 % \printbibliography
