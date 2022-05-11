@@ -778,7 +778,7 @@ Further, we do not observe a systematic relationship between dataset dimensional
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=\columnwidth]{plots/evaluation-metrics-correlation.pdf}
+	\includegraphics[width=\columnwidth, trim=0 15 0 15, clip]{plots/evaluation-metrics-correlation.pdf}
 	\caption{Correlation between evaluation metrics over all experimental settings.}
 	\label{fig:evaluation-metrics-correlation}
 \end{figure}
@@ -826,10 +826,10 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Standard deviation of objective.]{\includegraphics[width=\columnwidth]{plots/impact-search-stddev-objective.pdf}}
+	\subfloat[Standard deviation of objective.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-stddev-objective.pdf}}
 		\label{fig:impact-search-stddev-objective}
 	\hfill
-	\subfloat[Mean objective.]{\includegraphics[width=\columnwidth]{plots/impact-search-mean-objective.pdf}}
+	\subfloat[Mean objective.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-mean-objective.pdf}}
 		\label{fig:impact-search-mean-objective}
 	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
 	Outliers removed for readability reasons.}
@@ -862,10 +862,10 @@ Based on these results, we focus on sequential search in the following.
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Max-normalization.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-objective-max.pdf}}
+	\subfloat[Max-normalization.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-max.pdf}}
 		\label{fig:impact-num-alternatives-objective-max}
 	\hfill
-	\subfloat[Min-max-normalization.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-objective-min-max.pdf}}
+	\subfloat[Min-max-normalization.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-min-max.pdf}}
 		\label{fig:impact-num-alternatives-objective-min-max}
 	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
 	Outliers removed for readability reasons.}
@@ -897,10 +897,10 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Training set.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-train-objective-tau.pdf}}
+	\subfloat[Training set.]{\includegraphics[width=\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}}
 		\label{fig:impact-num-alternatives-train-objective-tau}
 	\hfill
-	\subfloat[Test set.]{\includegraphics[width=\columnwidth]{plots/impact-num-alternatives-test-objective-tau.pdf}}
+	\subfloat[Test set.]{\includegraphics[width=\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}}
 		\label{fig:impact-num-alternatives-test-objective-tau}
 	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
 	\label{fig:impact-num-alternatives-objective-tau}
@@ -921,6 +921,8 @@ In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than
 
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
+
+\balance % according to documentation, command might not work if issued to late in document, so hopefully placing it here suffices
 
 \subsection{Conclusions}
 
@@ -954,8 +956,6 @@ Further, one can analyze different notions of alternatives, e.g., other dissimil
 Additionally, one can express alternatives differently than with hard constraints.
 Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
-
-\balance % according to documentation, command might not work if issued to late in document, so hopefully placing it here suffices
 
 % \printbibliography
 \bibliographystyle{IEEEtran}
