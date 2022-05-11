@@ -636,79 +636,73 @@ Next, we elaborate on different components of the design in detail.
 
 We conduct experiments with 30 binary-classification datasets.
 In our evaluation, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
-We compare four feature selection methods, representing different notions of feature-set quality.
+We compare four feature-selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
 We systematically vary the number of alternatives and the dissimilarity threshold for being alternative.
 
-\subsection{Approaches}
+\subsection{Methods}
 \label{sec:experimental-design:approaches}
-
-Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
 
 \subsubsection{Feature Selection (Objective Functions)}
 \label{sec:experimental-design:approaches:feature-selection}
 
-We search for alternatives under different notions of feature-set quality as objective function.
-To represent a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
-We choose four feature selection-methods that are both well-known and either parameter-free or easy to parameterize.
+To have a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
+We choose four feature selection-methods that are well-known and either parameter-free or easy to parameterize.
 See Section~\ref{sec:approach:objectives} for details on the objective function of each method.
 One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
-For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
+As explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method.
 
 For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
 This yields small feature sets, fostering interpretability.
-As we use a solver to find feature sets anyway, we can enforce the desired $k$ with a simple constraint.
-However, 0.03\% of the feature sets from our evaluation violate their prescribed $k$ for unknown reasons, i.e., the solver seemingly did not enforce the cardinality constraint properly.
-These few outliers originate from a variety of experimental settings, so we could not detect a cause for this behavior.
+In our optimization problem, we can enforce the desired $k$ with a simple constraint.
+However, 0.03\% of the feature sets from our evaluation violate their prescribed $k$.
+These few outliers originate from various experimental settings, so we could not detect a cause.
 As a consequence, we remove the affected search runs of alternatives completely, which constitute 0.12\% of all search runs.
 
 \paragraph{MI}
 
-As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
-This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
-We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
+For univariate filtering, we use Equation~\ref{eq:univariate-filter} with mutual information~\cite{kraskov2004estimating} as dependency measure $q()$.
 To improve comparability between datasets and values of $k$, we normalize the qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
 
 \paragraph{FCBF}
 
-As multivariate filter method, we use our constraint formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
+As multivariate filter method, we use our constrained formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
 As bivariate quality measure within FCBF, we rely on mutual information again, normalized to sum up to 1.
 
 \paragraph{Greedy Wrapper}
 
 As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
 We set $max\_iters$ to 1000.
-Like all wrapper methods, the search algorithm uses the performance of a prediction model to evaluate feature-set quality.
-In particular, we choose a decision tree as model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
+To evaluate feature-set quality within the wrapper, we choose a decision tree as model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
 Also, we apply a stratified 80:20 holdout split to test generalization performance.
 Thus, $Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
 
 \paragraph{Model Gain}
 
 As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
-For the decision-tree model we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
+Again, we use a decision tree as model.
+There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
 We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat the importances like univariate filter scores.
 Note that the interpretation is different, though.
-In univariate filters, the scores consider features independently.
-Here, the scores originate from trees involving multiple features and hierarchical splits on these features.
-The model-based feature importances are normalized to sum up to 1 by default.
+Here, the scores originate from trees involving multiple features, rather than assessing features in isolation.
+The model-based importances are normalized to sum up to 1 by default.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
 For sequential search, we evaluate 1 to 10 alternatives, while for simultaneous search, we examine 1 to 5 alternatives.
-This difference stems from the larger size of the optimization problem for simultaneous compared to sequential search, i.e., more decision variables and more constraints.
+This difference stems from the increased runtime for simultaneous search.
 For the dissimilarity threshold $\tau$, we analyze all possible sizes of the overlap, or rather the difference between feature sets.
 For $k=5$, this means we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
 For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
 Naturally, we exclude $\tau = 0$, which would allow returning multiple identical feature sets.
 
 As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
-If the solver finishes before the timeout, it might have found an optimal solution, or might have proven that no solution exists.
+If the solver finishes before the timeout, it either found an optimal solution or proved that no solution exists.
 In our evaluation, these two outcomes apply to 94\% of the feature sets.
-In the remaining cases, the solver might have had an error, found a feasible but suboptimal solution, or found no solution though one might exist.
+In the remaining cases, the solver had an error, found a feasible but potentially suboptimal solution, or found no solution though one might exist.
 
 %As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
 %In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
@@ -721,38 +715,34 @@ In the remaining cases, the solver might have had an error, found a feasible but
 
 As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
 Both types of models allow to learn complex, non-linear dependencies from the data.
-We leave the hyperparameters of the models mostly at their defaults, apart from two changes:
-First, we choose information gain instead of Gini impurity as split criterion, to be consistent to our filter feature-selection methods.
-Second, we specify a random seed for reproducibility reasons.
+We mostly use default hyperparameters of the models, apart from choosing information gain as split criterion and setting a random seed for reproducibility.
 
-Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
-Thus, they might not use all features that we provide to them.
+Note that tree models carry out feature selection themselves, i.e., they are embedded approaches.
+Thus, they need not use all features that we provide to them.
 However, this is no problem for our study.
 We are interested which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
 
 \subsection{Evaluation Metrics}
 \label{sec:experimental-design:evaluation}
 
-To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
-Not only model training, but also the search for alternative feature sets is limited to the training data.
-When we report quality metrics in the following, we focus on test-data results.
-
 We use two kinds of metrics for feature-set quality.
-We focus on on how these metrics evolve for different configurations of alternative feature selection, cf. Section~\ref{sec:experimental-design:approaches:alternatives}.
-First, we evaluate the objective functions of the individual feature-selection methods, which guided the search for feature sets.
+First, we evaluate the objective functions of the feature-selection methods, which guided the search for feature sets.
 Second, we train predictions models with the found feature sets.
 We report prediction performance in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
 This coefficient reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
+
+To analyze generalization, we conduct stratified 10-fold cross-validation.
+Not only model training, but also the search for alternative feature sets is limited to the training data.
 
 \subsection{Datasets}
 \label{sec:experimental-design:datasets}
 
 We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
-To focus the evaluation on one machine-learning task type, we only consider binary-classification datasets.
+To focus the evaluation on one machine-learning task, we only consider binary-classification datasets.
 However, alternative feature selection is possible for regression and multi-class problems as well.
 We filter out datasets containing less than 100 instances.
-Also, we filter out datasets with less than 15 features, to leave some room to search for alternatives.
-Next, we remove one dataset with 1000 features, as this dataset would dominate the runtime of the experiments compared to the other datasets, which all have significantly lower dimensionality.
+Also, we filter out datasets with less than 15 features, to leave some room for alternatives.
+Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments.
 Finally, we manually remove datasets that seem to be duplicates or modified versions of other datasets from the benchmark.
 
 In consequence, we obtain 30 datasets.
@@ -763,7 +753,7 @@ Categorical features have an ordinal encoding by default.
 \subsection{Implementation}
 \label{sec:experimental-design:implementation}
 
-We implement our experimental pipeline in Python.
+We implement our experiments in Python.
 For machine learning, we use \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
 To express and solve the constraint optimization problems, we use \emph{Python-MIP}~\cite{python-mip}.
 
