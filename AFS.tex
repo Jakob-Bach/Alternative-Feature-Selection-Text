@@ -826,11 +826,15 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Standard deviation of objective.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-stddev-objective.pdf}}
+	\subfloat[Standard deviation of objective.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-stddev-objective.pdf}
 		\label{fig:impact-search-stddev-objective}
+	}
 	\hfill
-	\subfloat[Mean objective.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-mean-objective.pdf}}
+	\subfloat[Mean objective.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-mean-objective.pdf}
 		\label{fig:impact-search-mean-objective}
+	}
 	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-search-objective}
@@ -862,11 +866,15 @@ Based on these results, we focus on sequential search in the following.
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Max-normalization.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-max.pdf}}
+	\subfloat[Max-normalization.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-max.pdf}
 		\label{fig:impact-num-alternatives-objective-max}
+	}
 	\hfill
-	\subfloat[Min-max-normalization.]{\includegraphics[width=\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-min-max.pdf}}
+	\subfloat[Min-max-normalization.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
 		\label{fig:impact-num-alternatives-objective-min-max}
+	}
 	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
@@ -897,11 +905,15 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Training set.]{\includegraphics[width=\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}}
+	\subfloat[Training set.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
 		\label{fig:impact-num-alternatives-train-objective-tau}
+	}
 	\hfill
-	\subfloat[Test set.]{\includegraphics[width=\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}}
+	\subfloat[Test set.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 10 0 10, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
 		\label{fig:impact-num-alternatives-test-objective-tau}
+	}
 	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
 	\label{fig:impact-num-alternatives-objective-tau}
 \end{figure*}
