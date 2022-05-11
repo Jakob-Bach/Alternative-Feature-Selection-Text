@@ -783,6 +783,22 @@ Further, we do not observe a systematic relationship between dataset dimensional
 	\label{fig:evaluation-metrics-correlation}
 \end{figure}
 
+\begin{figure*}[t]
+	\centering
+	\subfloat[Standard deviation of objective.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-stddev-objective.pdf}
+		\label{fig:impact-search-stddev-objective}
+	}
+	\hfill
+	\subfloat[Mean objective.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-mean-objective.pdf}
+		\label{fig:impact-search-mean-objective}
+	}
+	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
+		Outliers removed for readability reasons.}
+	\label{fig:impact-search-objective}
+\end{figure*}
+
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
 Also, overfitting occurs for both models, i.e., there is a gap between training-set and test-set prediction performance.
 As we do not limit the growth of trees or prune them after training, this observation is expected.
@@ -826,18 +842,18 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 \begin{figure*}[t]
 	\centering
-	\subfloat[Standard deviation of objective.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-stddev-objective.pdf}
-		\label{fig:impact-search-stddev-objective}
+	\subfloat[Max-normalization.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-max.pdf}
+		\label{fig:impact-num-alternatives-objective-max}
 	}
 	\hfill
-	\subfloat[Mean objective.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-search-mean-objective.pdf}
-		\label{fig:impact-search-mean-objective}
+	\subfloat[Min-max-normalization.]{
+		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
+		\label{fig:impact-num-alternatives-objective-min-max}
 	}
-	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
-	Outliers removed for readability reasons.}
-	\label{fig:impact-search-objective}
+	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
+		Outliers removed for readability reasons.}
+	\label{fig:impact-num-alternatives-objective}
 \end{figure*}
 
 As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
@@ -863,22 +879,6 @@ For sequential search, we do not have any feasible but sub-optimal solution.
 Based on these results, we focus on sequential search in the following.
 
 \subsubsection{Number of Alternatives}
-
-\begin{figure*}[t]
-	\centering
-	\subfloat[Max-normalization.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-max.pdf}
-		\label{fig:impact-num-alternatives-objective-max}
-	}
-	\hfill
-	\subfloat[Min-max-normalization.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 10, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
-		\label{fig:impact-num-alternatives-objective-min-max}
-	}
-	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
-	Outliers removed for readability reasons.}
-	\label{fig:impact-num-alternatives-objective}
-\end{figure*}
 
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
