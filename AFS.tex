@@ -49,23 +49,23 @@ feature selection, alternatives, constraints, explainability, interpretability
 
 \paragraph{Motivation}
 
-Feature-selection methods are ubiquitous for a variety of reasons.
-By reducing the dimensionality of the dataset, they lower computational and memory requirements of prediction models.
+Feature-selection methods are ubiquitous for various reasons.
+By reducing dataset dimensionality, they lower computational and memory requirements of prediction models.
 Next, models might generalize better if irrelevant and spurious predictors are removed.
 Finally, prediction models might be smaller and more comprehensive due to feature selection~\cite{li2017feature}, improving interpretability.
 
-Traditional feature-selection methods mostly return just one feature set~\cite{borboudakis2021extending}.
+Traditional feature-selection methods mostly return only one feature set~\cite{borboudakis2021extending}.
 These methods optimize a criterion of feature-set quality, e.g., prediction performance.
-However, besides the optimal feature set, there might be multiple, differently composed feature sets with similar quality.
-For the user, these other feature sets might be interesting alternatives for multiple reasons.
-First, some of the originally selected features might be costly to obtain, so the user would prefer cheaper alternatives, while maintaining prediction quality.
+However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
+For the user, these alternative feature sets might be interesting for multiple reasons.
+First, some of the originally selected features might be costly to obtain, so the user would prefer cheaper alternatives.
 Second, some of the originally selected features might contain sensitive information that should not be used in predictions.
-Third, the user might be interested in explaining the prediction target, rather than just making good predictions.
-In such a situation, knowing alternatives allows for formulating multiple hypotheses and broadens the understanding.
+Third, the user might be interested in explanations for the prediction.
+In such a situation, knowing alternatives allows formulating multiple hypotheses and broadens the understanding.
 
 \paragraph{Problem statement}
 
-This article addresses the problem of alternative feature selection, which we informally define as follows:
+This article addresses the problem of alternative feature selection, which we define as follows:
 %
 \begin{definition}[Alternative feature selection (informal)]
 	Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
@@ -73,9 +73,9 @@ This article addresses the problem of alternative feature selection, which we in
 \end{definition}
 %
 We provide formal definitions later.
-If the original feature set had high quality, the alternative feature set should have a similar quality.
-Depending on how different the alternative feature set should be, one might have to compromise on quality.
-E.g., if there are only a few highly predictive features and most of them are part of the original feature set, the alternative feature set might have significantly lower prediction quality.
+If the original feature set had high quality, the alternative feature set should have similar quality.
+Depending on how different the alternative should be, one might have to compromise on quality.
+E.g., if original feature set already contains most of the highly predictive features, the alternative might have significantly lower quality.
 We analyze this effect in our article.
 Also, we consider finding multiple alternatives rather than just one.
 
@@ -89,18 +89,16 @@ Ideally, the approach should be general, i.e., cover a broad range of existing f
 In machine learning, finding alternative solutions has already been addressed extensively in clustering~\cite{bailey2014alternative}.
 However, there is a lack of such approaches and corresponding experimental evaluation for feature selection.
 Only few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
-Ensemble feature-selection techniques~\cite{saeys2008robust, seijo2017ensemble} produce multiple feature sets, but do not focus on optimal alternatives.
-The same goes for the concept of statistically equivalent feature subsets~\cite{lagani2017feature}.
+Techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets, but do not focus on optimal alternatives.
 In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{verma2020counterfactual, stepin2021survey}.
 Such explanations involve data objects with similar feature values, but a different prediction outcome.
-In contrast, we target at sets with different features, but similar feature-set quality, e.g., prediction performance.
+In contrast, we target at sets of different features, but similar feature-set quality, e.g., prediction performance.
 
 \paragraph{Contributions}
 
 Our contribution is threefold.
-First, we define an optimization problem that formalizes alternative feature selection.
-We foster the search for alternatives via constraints on feature sets.
-This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward}.
+First, we formalize alternative feature selection as an optimization problem.
+In particular, we foster alternatives via constraints on feature sets.
 Second, we propose heuristic and exact approaches to solve this optimization problem.
 To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
 Our notion of alternative feature sets is general and thus not tailored towards specific feature-selection methods.
@@ -117,7 +115,7 @@ Naturally, the exact decrease depends on the dataset and how feature-set quality
 Further, we note that the quality of alternatives significantly depends on the dissimilarity threshold for how alternative feature sets should be.
 Thereby, this threshold allows the user to exercise control over alternatives and make use-case specific choices.
 
-We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
+We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review} online.
 
 \paragraph{Outline}
 
