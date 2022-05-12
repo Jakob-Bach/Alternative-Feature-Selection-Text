@@ -651,9 +651,6 @@ As explained in Section~\ref{sec:approach:objectives:embedding}, we do not inclu
 For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
 This yields small feature sets, fostering interpretability.
 In our optimization problem, we can enforce the desired $k$ with a simple constraint.
-However, 0.03\% of the feature sets from our evaluation violate their prescribed $k$.
-These few outliers originate from various experimental settings, so we could not detect a cause.
-As a consequence, we remove the affected search runs of alternatives completely, which constitute 0.12\% of all search runs.
 
 \paragraph{MI}
 
@@ -749,8 +746,8 @@ Categorical features have an ordinal encoding by default.
 \label{sec:experimental-design:implementation}
 
 We implement our experiments in Python.
-For machine learning, we use \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
-To express and solve the constraint optimization problems, we use \emph{Python-MIP}~\cite{python-mip}.
+For machine learning, we use the package \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
+To express and solve the constraint optimization problems, we use the solver \emph{CBC} via the package \emph{OR-Tools}~\cite{or-tools}.
 
 \section{Evaluation}
 \label{sec:evaluation}
