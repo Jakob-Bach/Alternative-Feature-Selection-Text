@@ -766,13 +766,13 @@ datasets, prediction models, feature-selection methods, and approaches to search
 
 \subsection{Datasets}
 
-Naturally, feature-set quality depends on the datasets used, and several effects could occur.
+Naturally, feature-set quality depends on the dataset.
 For example, distribution of feature-set quality in datasets might be relatively uniform or relatively skewed.
 Datasets with more features $n$ generally allow for more alternative feature sets.
 At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be spread over more features than for smaller datasets, making it harder to compose a high-quality feature set.
 
-In our experiments, we indeed see a broad variation of feature-set quality over datasets.
-Further, we do not observe a systematic relationship between dataset dimensionality $n$ and feature-set quality.
+Indeed, our experiments show a broad variation of feature-set quality over datasets.
+Further, we do not observe a clear relationship between dimensionality $n$ and feature-set quality.
 
 \subsection{Prediction Models}
 
@@ -799,47 +799,6 @@ Further, we do not observe a systematic relationship between dataset dimensional
 	\label{fig:impact-search-objective}
 \end{figure*}
 
-As one can expect, the average prediction performance of random forests is higher than that of decision trees.
-Also, overfitting occurs for both models, i.e., there is a gap between training-set and test-set prediction performance.
-As we do not limit the growth of trees or prune them after training, this observation is expected.
-However, that will not prevent our analysis how prediction performance develops over alternative feature sets, where we normalize feature-sets quality.
-To a lesser extent, the optimization objective $Q$ also shows overfitting for all feature-selection methods.
-
-Figure~\ref{fig:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
-As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
-We choose decision trees, as they always consider all features during training, while random forests involve random sampling of features.
-
-Figure~\ref{fig:evaluation-metrics-correlation} also shows that the correlation between training-set quality and test-set quality is moderate, but not high, for the optimization objective $Q$ as well as prediction performance in terms of MCC.
-This might be caused by different degrees of overfitting, depending on the experimental settings.
-Further, the correlation between optimization objective $Q$ and prediction MCC is only weak to moderate.
-This means that the quality criterion of feature selection is only partially indicative of prediction performance.
-In particular, only one of our four feature-selection methods uses prediction performance to assess feature sets.
-
-\subsection{Feature-Selection Methods}
-
-As the different feature-selection methods have different functions as optimization objectives $Q$, it does not make sense to compare objective values between feature-selection methods.
-Regarding the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
-For MI, this figure only is 19\%.
-Thus, besides the constraints for alternatives, the constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:fcbf}) made it hard to find valid feature sets.
-This point needs to be considered when applying our \emph{FCBF} feature selector.
-
-Regarding test-set prediction performance, \emph{Model Gain} beats \emph{MI} and \emph{Greedy Wrapper} on average.
-The median test-set MCC for decision trees is 0.57 for \emph{Model Gain}, 0.54 for \emph{MI}, and 0.51 for \emph{Greedy Wrapper}.
-It is not surprising that model-based importance yields better feature sets than univariate, model-free feature scoring with \emph{MI}.
-The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
-The wrapper search can only evaluate a fraction of all feasible feature sets and might get stuck in local optima, while the remaining feature-selection methods optimize globally.
-
-The feature-set size $k$ shows the expected effect:
-Larger feature sets, i.e., $k=10$, exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
-However, doubling the number of features does not double the prediction performance.
-Over all experimental settings, the median test-set MCC for decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
-This displays that small feature sets can already achieve a large share of the possible prediction performance.
-For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher than for prediction performance, but still less than proportional with $k$.
-
-\subsection{Searching Alternatives}
-
-\subsubsection{Search Method}
-
 \begin{figure*}[t]
 	\centering
 	\subfloat[Max-normalization.]{
@@ -851,57 +810,49 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 		\includegraphics[width=0.99\columnwidth, trim=0 25 0 5, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
 		\label{fig:impact-num-alternatives-objective-min-max}
 	}
-	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
+	\caption{Objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector.
 		Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
 \end{figure*}
 
-As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
-Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
-Also, this variation increases with the number of alternatives for sequential search, but decreases for simultaneous search.
-I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
-On the test set, the objective value $Q$ of simultaneous-search feature sets still varies less than for sequential search, but increases with the number of alternatives.
-This effect might be a result of overfitting.
-Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
+As one can expect, the average prediction performance of random forests is higher than for decision trees.
+Also, overfitting occurs for both models, i.e., there is a gap between training-set and test-set prediction performance.
+As we do not limit the growth of trees or prune them after training, this observation is expected.
+However, that will not prevent our analysis how prediction performance develops over alternative feature sets, where we normalize feature-sets quality.
+To a lesser extent, the optimization objective $Q$ also shows overfitting for all feature-selection methods.
 
-Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor regarding prediction performance.
-Figure~\ref{fig:impact-search-mean-objective} shows this behavior for the mean training-set objective of search runs.
-Depending on the concrete search setting, either of the two search types might yield better-performing feature sets.
-An explanation for this phenomenon is that search does not always yield the exact optimum.
-For \emph{Greedy Wrapper}, the search is heuristic per se.
-Additionally, the exact optimization of the other three feature-selection methods can time out.
-As simultaneous search is harder than sequential search, it is affected stronger by this phenomenon.
-In particular, 11.65\% of feature sets from simultaneous search might not be optimal, as the solver timed out.
-This figure strongly depends on the number of alternatives:
-While there are no or only a few such potentially sub-optimal feature sets for up to three alternatives in simultaneous search, 4\% of the feature sets might be suboptimal for four alternatives and 35\% of the feature sets for five alternatives.
-For sequential search, we do not have any feasible but sub-optimal solution.
+Figure~\ref{fig:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
+As the performance of decision trees and random forests is highly correlated, we focus on decision trees in the following, which always consider all features rather than randomly subsampling them.
 
-Based on these results, we focus on sequential search in the following.
+Figure~\ref{fig:evaluation-metrics-correlation} also shows that the correlation between training-set quality and test-set quality is moderate, but not high, for the optimization objective $Q$ as well as prediction performance in terms of MCC.
+This observation might be an effect of overfitting.
+Further, the correlation between $Q$ and MCC is only weak to moderate.
+This means that the quality criterion of feature selection is only partially indicative of prediction performance.
+In particular, only one of our four feature-selection methods uses prediction performance to assess feature sets.
 
-\subsubsection{Number of Alternatives}
+\subsection{Feature-Selection Methods}
 
-For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
-Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
-The other feature-selection methods, including the heuristic \emph{Greedy Wrapper}, exhibit similar effects.
-As feature-set quality varies between datasets and number of features $k$, we apply normalization:
-In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., one feature set from a search run gets an objective of 1 and the other feature-set qualities are scaled accordingly.
-This figure shows that there might be multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum of 1.
-Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets an objective of 0.
-This figure highlights that the decrease training-set objective value is most prominent from the original feature set to the first alternative, but becomes smaller beyond.
+As the different feature-selection methods have different objective functions, it does not make sense to compare objective values between them.
+For the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
+For MI, this figure only is 19\%.
+In particular, the additional constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:fcbf}) seemingly made it hard to find valid feature sets.
 
-Figure~\ref{fig:impact-num-alternatives-objective} also shows that test-set objective value drops the most from the original feature set to the first alternative as well.
-The decrease in median objective value over the alternatives is less visible than on the training set.
-In particular, alternatives can even have a higher objective value than the original feature set, due to overfitting of the optimization procedure.
-Similar findings hold for test-set prediction performance.
-Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
+Regarding test-set prediction performance, \emph{Model Gain} is best on average.
+The median test-set MCC for decision trees is 0.57 for \emph{Model Gain}, 0.54 for \emph{MI}, and 0.51 for \emph{Greedy Wrapper}.
+It is not surprising that model-based importance yields better feature sets than univariate, model-free feature scoring with \emph{MI}.
+The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
+The wrapper search can only evaluate a fraction of all feasible feature sets and might get stuck in local optima, while the remaining feature-selection methods optimize globally.
 
-However, one should note that these observations refer to the quality of the feature sets actually found.
-In particular, the more alternatives are desired, the more likely it is that the optimization problem becomes infeasible.
-For example, the \emph{MI} feature selector in sequential search always returns a solution for the original feature set, but the problem is infeasible in 2\% of the cases for the first alternative, 14\% of the cases for the second alternative, 24\% of the cases for the fifth alternative, and 30\% of the cases for the tenth alternative.
-Thus, while the quality of feature-sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
-This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
+The feature-set size $k$ shows expected effects:
+Larger feature sets, i.e., $k=10$, yield higher feature-set quality than smaller feature sets, i.e., $k=5$.
+However, doubling the number of features does not double prediction performance.
+Over all experimental settings, the median test-set MCC of decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
+This shows that small feature sets can already achieve relatively high prediction performance.
+For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher than for prediction performance, but still less than proportional with~$k$.
 
-\subsubsection{Dissimilarity Threshold}
+\subsection{Searching Alternatives}
+
+\subsubsection{Search Method}
 
 \begin{figure*}[t]
 	\centering
@@ -914,21 +865,62 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 		\includegraphics[width=0.99\columnwidth, trim=0 20 0 15, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
 		\label{fig:impact-num-alternatives-test-objective-tau}
 	}
-	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
+	\caption{Median objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
 	\label{fig:impact-num-alternatives-objective-tau}
 \end{figure*}
 
+As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
+Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
+Also, the variance increases with the number of alternatives for sequential search, but decreases for simultaneous search.
+I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
+However, on the test set, the variance also increases with the number of alternatives for simultaneous search.
+This effect might be a result of overfitting.
+Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
+
+Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor regarding prediction performance.
+Figure~\ref{fig:impact-search-mean-objective} shows this behavior for the mean training-set objective of search runs.
+Depending on the search setting, either of the two searches might yield better results.
+An explanation for this phenomenon is that search results might be sub-optimal.
+Exact optimization can time out, and \emph{Greedy Wrapper} uses a heuristic search per se.
+As simultaneous search is harder than sequential search, it is affected more by timeouts.
+In particular, 11.65\% of feature sets from simultaneous search were feasible but potentially sub-optimal, but no feature sets for sequential search.
+The former figure strongly depends on the number of alternatives:
+For up to three alternatives in simultaneous search, no or only a few feature sets are potentially sub-optimal, but 4\% of the feature sets for four alternatives and 35\% of the feature sets for five alternatives.
+Based on these results, we focus on sequential search in the following.
+
+\subsubsection{Number of Alternatives}
+
+For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
+Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
+The other feature-selection methods, including the heuristic \emph{Greedy Wrapper}, exhibit similar effects.
+As feature-set quality varies between datasets and number of features $k$, we apply normalization:
+In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., the highest objective value is scaled to~1.
+This figure shows that there are multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum.
+Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
+This figure highlights that the training-set objective value decreases most from the original feature set to the first alternative, but less beyond.
+
+Additionally, Figure~\ref{fig:impact-num-alternatives-objective} shows that the test-set objective value drops most to the first alternative as well.
+However, the decrease in objective value over the alternatives is less visible than on the training set.
+In particular, alternatives can even have a higher objective value than the original feature set, due to overfitting.
+Similar findings hold for test-set prediction performance.
+Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
+
+Be aware that these observations refer to the quality of the found feature sets.
+However, the more alternatives are desired, the more likely is an infeasible optimization problem.
+For example, the \emph{MI} feature selector in sequential search always finds an original feature set, but the problem is infeasible in 2\% of the cases for the first alternative, 14\% for the second alternative, 24\% for the fifth alternative, and 30\% for the tenth alternative.
+This outcome also depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
+
+\subsubsection{Dissimilarity Threshold}
+
 As Figure~\ref{fig:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
-If the dissimilarity requirement is low, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
-In contrast, if the dissimilarity threshold is be high, e.g, $tau=1$, the objective decrease significantly.
-This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent for prediction performance.
-Also, the the number of infeasible optimization problems increases with $tau$:
-For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
+For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
+In contrast, for dissimilarity threshold, e.g, $\tau=1$, the objective decrease significantly.
+This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent.
+Also, the the number of infeasible optimization problems, i.e., lack of valid alternative feature sets, increases with $\tau$.
 
 While the previous observation were made for \emph{MI} as feature selector, they do not hold universally.
-Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on \emph{tau} as well.
-In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of $\tau$ on feature-set quality.
-In case of \emph{Greedy Wrapper}, this can be explained by its heuristic search procedure.
+The results for \emph{Model Gain} strongly depend on $\tau$ as well, but the picture for \emph{FCBF} and \emph{Greedy Wrapper} is less clear.
+In case of \emph{Greedy Wrapper}, this can be explained by its heuristic search.
 In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so adding further constraints has less impact.
 
 \section{Conclusions and Future Work}
