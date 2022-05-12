@@ -515,9 +515,7 @@ However, not all solver calls might yield a valid feature set.
 	\BlankLine
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
 	$iters \leftarrow 1$ \tcp*{Number of solver calls}
-	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
-		\Return{$\emptyset$}
-	}
+	\lIf(\tcp*[f]{No alternative}){$s = \emptyset$}{\Return{$\emptyset$}}
 	$j \leftarrow 1$ \tcp*{Index to be swapped}
 	\While{$iters < max\_iters$ \textbf{and} $j \leq |s|$}{
 		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Swap feature}
@@ -526,9 +524,7 @@ However, not all solver calls might yield a valid feature set.
 			$s \leftarrow s'$\ \tcp*{Swap if improved}
 			$j \leftarrow 1$\;
 		}
-		\Else(\tcp*[f]{Try next feature}){
-			$j \leftarrow j + 1$\;
-		}
+		\lElse(\tcp*[f]{Try next feature}){$j \leftarrow j + 1$}
 	}
 	\Return{$s$}
 \end{algorithm}
