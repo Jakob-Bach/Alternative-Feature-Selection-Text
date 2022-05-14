@@ -840,7 +840,7 @@ Larger feature sets, i.e., $k=10$, yield higher feature-set quality than smaller
 However, doubling the number of features does not double prediction performance.
 Over all experimental settings, the median test-set MCC of decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
 This shows that small feature sets can already achieve relatively high prediction performance.
-For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher than for prediction performance, but still less than proportional with~$k$.
+For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is less than proportional with~$k$ as well.
 
 \subsection{Searching Alternatives}
 
@@ -849,12 +849,12 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 \begin{figure*}[t]
 	\centering
 	\subfloat[Training set.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 15, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
+		\includegraphics[width=0.99\columnwidth, trim=0 15 0 15, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
 		\label{fig:impact-num-alternatives-train-objective-tau}
 	}
 	\hfill
 	\subfloat[Test set.]{
-		\includegraphics[width=0.99\columnwidth, trim=0 20 0 15, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
+		\includegraphics[width=0.99\columnwidth, trim=0 15 0 15, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
 		\label{fig:impact-num-alternatives-test-objective-tau}
 	}
 	\caption{Median objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
@@ -863,9 +863,9 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
 Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
-Also, the variance increases with the number of alternatives for sequential search, but decreases for simultaneous search.
-I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
-However, on the test set, the variance also increases with the number of alternatives for simultaneous search.
+Also, the variance slightly increases with the number of alternatives for sequential search, but decreases for simultaneous search.
+I.e., simultaneous search finds more homogeneous feature sets, in particular, if many alternatives are desired.
+However, on the test set, the variance of $Q$ also increases with the number of alternatives for simultaneous search.
 This effect might be a result of overfitting.
 Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
 
@@ -875,9 +875,9 @@ Depending on the search setting, either of the two searches might yield better r
 An explanation for this phenomenon is that search results might be sub-optimal.
 Exact optimization can time out, and \emph{Greedy Wrapper} uses a heuristic search per se.
 As simultaneous search is harder than sequential search, it is affected more by timeouts.
-In particular, 11.65\% of feature sets from simultaneous search were feasible but potentially sub-optimal, but no feature sets for sequential search.
+In particular, 10\% of feature sets from simultaneous search were feasible but potentially sub-optimal, but no feature sets for sequential search.
 The former figure strongly depends on the number of alternatives:
-For up to three alternatives in simultaneous search, no or only a few feature sets are potentially sub-optimal, but 4\% of the feature sets for four alternatives and 35\% of the feature sets for five alternatives.
+For up to three alternatives in simultaneous search, less than 1\% of feature sets are potentially sub-optimal, but 4\% of the feature sets for four alternatives and 32\% of the feature sets for five alternatives.
 Based on these results, we focus on sequential search in the following.
 
 \subsubsection{Number of Alternatives}
@@ -891,16 +891,16 @@ This figure shows that there are multiple alternatives of similar quality, as th
 Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
 This figure highlights that the training-set objective value decreases most from the original feature set to the first alternative, but less beyond.
 
-Additionally, Figure~\ref{fig:impact-num-alternatives-objective} shows that the test-set objective value drops most to the first alternative as well.
+Additionally, Figure~\ref{fig:impact-num-alternatives-objective} shows that the test-set objective value also drops most to the first alternative.
 However, the decrease in objective value over the alternatives is less visible than on the training set.
-In particular, alternatives can even have a higher objective value than the original feature set, due to overfitting.
+In particular, alternatives can even have a higher test-set objective value than the original feature set, due to overfitting.
 Similar findings hold for test-set prediction performance.
 Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
 
 Be aware that these observations refer to the quality of the found feature sets.
 However, the more alternatives are desired, the more likely is an infeasible optimization problem.
 For example, the \emph{MI} feature selector in sequential search always finds an original feature set, but the problem is infeasible in 2\% of the cases for the first alternative, 14\% for the second alternative, 24\% for the fifth alternative, and 30\% for the tenth alternative.
-This outcome also depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
+This outcome also depends on the dissimilarity threshold $\tau$, which we analyze in the following.
 
 \subsubsection{Dissimilarity Threshold}
 
