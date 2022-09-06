@@ -9,7 +9,6 @@
 
 \author{Jakob Bach\thanks{Karlsruhe Institute of Technology (KIT), Germany, \href{mailto:jakob.bach@kit.edu}{jakob.bach@kit.edu}}} % affiliation inserted via \thanks is used in SIAM template
 
-\usepackage[style=ieee, backend=bibtex]{biblatex}
 \usepackage[algo2e, ruled, linesnumbered, vlined]{algorithm2e} % pseudo-code; without option "algo2e", clashes with SIAM template
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
@@ -18,8 +17,6 @@
 \usepackage{graphicx} % plots
 \usepackage[caption=false,font=footnotesize]{subfig} % figures with multiple sub-figures and sub-captions; use of (newer) package "subcaption" discouraged by IEEE
 \usepackage{hyperref} % links and URLs
-
-\addbibresource{references.bib}
 
 %\theoremstyle{definition} %handled by SIAM template
 %\newtheorem{definition}{Definition}
@@ -945,6 +942,7 @@ For example, one can integrate other feature-selection methods, particularly emb
 Further, one can vary the notion of alternatives, e.g., the set-dissimilarity measure, definition for multiple alternatives, or soft constraints instead of hard constraints.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature sets for explainable predictions should be analyzed in domain-specific case studies.
 
-\printbibliography
+\bibliographystyle{abbrv}
+\bibliography{references}
 
 \end{document}
