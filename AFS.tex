@@ -1,44 +1,40 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[twoside,leqno,twocolumn]{article}
 
-\title{Finding Optimal Solutions \\ for Alternative Feature Selection}
-%\author{
-%	\IEEEauthorblockN{Jakob Bach}
-%	\IEEEauthorblockA{
-%		\textit{Department of Informatics} \\
-%		\textit{Karlsruhe Institute of Technologie (KIT)}\\
-%		Karlsruhe, Germany \\
-%		jakob.bach@kit.edu
-%	}
-%}
-\author{
-	\IEEEauthorblockN{(Anonymous authors.)}
-	\IEEEauthorblockA{
-		\textit{(Anonymized data)} \\
-		\textit{(Anonymized data)}\\
-		(Anonymized data) \\
-		(Anonymized data)
-	}
-}
+\usepackage[letterpaper]{geometry} % SIAM wants letter format
+\usepackage{ltexpprt} % required by SIAM template
 
-% \usepackage[style=ieee, backend=bibtex]{biblatex}; handled by IEEE template
-\usepackage[tworuled, linesnumbered,vlined]{algorithm2e} % pseudo-code; use of package discouraged by IEEE, but hacked in in a (hopefully acceptable) way
+\title{\Large Finding Optimal Solutions for Alternative Feature Selection} % \Large used in SIAM template
+
+\date{} % don't display a date
+
+\author{Jakob Bach\thanks{Karlsruhe Institute of Technology (KIT), Germany, \href{mailto:jakob.bach@kit.edu}{jakob.bach@kit.edu}}} % affiliation inserted via \thanks is used in SIAM template
+
+\usepackage[style=ieee, backend=bibtex]{biblatex}
+\usepackage[algo2e, ruled, linesnumbered, vlined]{algorithm2e} % pseudo-code; without option "algo2e", clashes with SIAM template
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
-\usepackage{amsthm} % theorems, definitions etc.
+%\usepackage{amsthm} % theorems, definitions etc.; handled (overridden) by SIAM template
 \usepackage{balance} % balance columns on the last page
 \usepackage{graphicx} % plots
 \usepackage[caption=false,font=footnotesize]{subfig} % figures with multiple sub-figures and sub-captions; use of (newer) package "subcaption" discouraged by IEEE
 \usepackage{hyperref} % links and URLs
-%\addbibresource{references.bib}; handled by IEEE template
 
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
+\addbibresource{references.bib}
+
+%\theoremstyle{definition} %handled by SIAM template
+%\newtheorem{definition}{Definition}
+
+%\newcommand\relatedversion{}
+%\renewcommand\relatedversion{\thanks{The full version of the paper can be accessed at \protect\url{https://arxiv.org/abs/1902.09310}}} % command in SIAM template if there is another version
+
+\fancyfoot[R]{\scriptsize{Copyright \textcopyright\ 2022\\ Copyright for this paper is retained by authors}}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
+\small\baselineskip=9pt % used in SIAM template
 Feature-selection methods are popular for obtaining small, interpretable, yet highly accurate prediction models.
 Existing feature-selection methods typically yield only one feature set, which might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
@@ -48,10 +44,8 @@ In particular, we show how to integrate various categories of existing feature-s
 Finally, we evaluate these approaches in a study with 30 classification datasets.
 In our experiments, we are able to determine alternative feature sets with high prediction quality.
 \end{abstract}
-
-\begin{IEEEkeywords}
-feature selection, alternatives, constraints, explainability, interpretability
-\end{IEEEkeywords}
+\newline
+\textbf{Keywords:} feature selection, alternatives, constraints, explainability, interpretability % no dedicated command in SIAM template
 
 \section{Introduction}
 \label{sec:introduction}
@@ -76,10 +70,10 @@ In such a situation, knowing alternatives allows the formulation of multiple hyp
 
 This article addresses the problem of alternative feature selection, which we define as follows:
 %
-\begin{definition}[Alternative feature selection (informal)]
+\begin{Definition}[Alternative feature selection]
 	Given an original set of features, find a sufficiently different set that optimizes feature-set quality at the same time.
 	\label{def:alternative-feature-selection}
-\end{definition}
+\end{Definition}
 %
 We will provide formal definitions later.
 Depending on how different the alternative feature set should be composed, one might have to compromise on quality.
@@ -123,7 +117,7 @@ Naturally, the exact decrease depends on the dataset and how feature-set quality
 Further, we note that the quality of alternative feature sets significantly depends on the dissimilarity threshold for being alternative.
 Thus, this threshold allows the user to exercise control over alternatives and make use-case-specific choices.
 
-We publish our code\footnote{temporary, anonymized version for review: \url{https://www.dropbox.com/sh/s1n5vxfugtfurmg/AACecUHOzvrEq9EHg6KHXAvga?dl=0}} and our experimental data\footnote{temporary, anonymized version for review: \url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online.
+We publish our code\footnote{temporary version for review: \url{https://www.dropbox.com/sh/s1n5vxfugtfurmg/AACecUHOzvrEq9EHg6KHXAvga?dl=0}} and our experimental data\footnote{temporary version for review: \url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online.
 
 \paragraph{Outline}
 
@@ -262,10 +256,10 @@ In our article, we base dissimilarity on the Dice coefficient, a well-known and 
 % %
 We leverage such a set-dissimilarity measure for the following definition:
 %
-\begin{definition}[Single alternative]
+\begin{Definition}[Single alternative]
 	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $d(F_1,F_2) \geq \tau$.
 	\label{def:single-alternative}
-\end{definition}
+\end{Definition}
 %
 Depending on the preferences of the user, different values of $\tau$ might be appropriate.
 $\tau$ controls how alternative the new feature set should be.
@@ -279,7 +273,10 @@ If the feature sets sizes $|F_1|$ and $|F_2|$ are known, a threshold $\tau$ corr
 This follows from re-arranging Equation~\ref{eq:dice} in combination with Definition~\ref{def:single-alternative}:
 %
 \begin{equation}
-	d_{Dice}(F_1,F_2) \geq \tau \Leftrightarrow |F_1 \cap F_2| \leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+	\begin{aligned}
+	d_{Dice}(F_1,F_2) &\geq \tau \\
+	\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+	\end{aligned}
 	\label{eq:dice-rearranged}
 \end{equation}
 %
@@ -339,10 +336,10 @@ If the user desires multiple alternative feature sets rather than just one, we c
 In the sequential case, we obtain alternatives iteratively, with one alternative feature set per iteration.
 We constrain the new feature set to be an alternative to all previously found feature sets:
 %
-\begin{definition}[Sequential alternative]
+\begin{Definition}[Sequential alternative]
 	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}: d(F_1,F_2) \geq \tau$.
 	\label{def:sequential-alternative}
-\end{definition}
+\end{Definition}
 %
 This definition duplicates the constraint from the base case and instantiates it for different existing feature sets.
 One could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
@@ -361,10 +358,10 @@ In the simultaneous case, we directly obtain several alternatives.
 The user needs to decide on the number of feature sets $\mathbb{F}$ beforehand.
 We formulate pairwise dissimilarity constraints:
 %
-\begin{definition}[Simultaneous alternative]
+\begin{Definition}[Simultaneous alternative]
 	A set of feature sets $\mathbb{F}$ contains simultaneous alternatives for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d(F_1,F_2) \geq \tau$.
 	\label{def:simultaneous-alternative}
-\end{definition}
+\end{Definition}
 %
 Again, one could resort to less strict constraints, e.g., based on the average dissimilarity between alternatives.
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
@@ -504,12 +501,7 @@ Else, it attempts to swap the next feature.
 The algorithm terminates if no swap leads to an improvement or a fixed number of iterations $max\_iters$ is reached.
 Each iteration corresponds to one solver call and, if the solver yields a valid feature set, one training of the prediction model.
 
-% IEEE wants algorithms as figures, not separate floats (as "algorithm2e" does), so we need some hacking: https://tex.stackexchange.com/questions/147598/how-to-use-the-algorithm2e-package-with-ieeetran-class
-\begin{figure}[t]
-\makeatletter
-\let\@latex@error\@gobble
-\makeatother
-\begin{algorithm}[H]
+\begin{algorithm2e}[htb]
 	\DontPrintSemicolon
 	\KwIn{
 		Dataset $X$, Prediction target $y$, \newline
@@ -524,7 +516,7 @@ Each iteration corresponds to one solver call and, if the solver yields a valid 
 	\lIf(\tcp*[f]{No alternative}){$s = \emptyset$}{\Return{$\emptyset$}}
 	$j \leftarrow 1$ \tcp*{Index to be swapped}
 	\While{$iters < max\_iters$ \textbf{and} $j \leq |s|$}{
-		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Swap feature}
+		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Try swap}
 		$iters \leftarrow iters + 1$\;
 		\If{$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
 			$s \leftarrow s'$\ \tcp*{Swap if improved}
@@ -533,10 +525,9 @@ Each iteration corresponds to one solver call and, if the solver yields a valid 
 		\lElse(\tcp*[f]{Try next feature}){$j \leftarrow j + 1$}
 	}
 	\Return{$s$}
-\end{algorithm}
-\caption{Constraint-aware greedy wrapper feature selection.}
-\label{al:greedy-wrapper}
-\end{figure}
+	\caption{Constraint-aware greedy wrapper feature selection.}
+	\label{al:greedy-wrapper}
+\end{algorithm2e}
 
 \subsubsection{Embedding Alternatives}
 \label{sec:approach:objectives:embedding}
@@ -954,8 +945,6 @@ For example, one can integrate other feature-selection methods, particularly emb
 Further, one can vary the notion of alternatives, e.g., the set-dissimilarity measure, definition for multiple alternatives, or soft constraints instead of hard constraints.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature sets for explainable predictions should be analyzed in domain-specific case studies.
 
-% \printbibliography
-\bibliographystyle{IEEEtran}
-\bibliography{IEEEabrv,references}
+\printbibliography
 
 \end{document}
