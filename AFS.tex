@@ -3,7 +3,7 @@
 \title{Finding Optimal Solutions for Alternative Feature Selection}
 \author{Jakob Bach}
 
-\usepackage[style=ieee, backend=bibtex]{biblatex}
+\usepackage[style=numeric, backend=bibtex]{biblatex}
 \usepackage[ruled,linesnumbered,vlined]{algorithm2e} % pseudo-code
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
@@ -89,7 +89,7 @@ In contrast, we target at sets with different features, but similar feature-set 
 Our contribution is threefold.
 First, we define an optimization problem that formalizes alternative feature selection.
 We foster the search for alternatives via constraints on feature sets.
-This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward}.
+This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward,bach2022empirical}.
 Second, we propose heuristic and exact approaches to solve this optimization problem.
 To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
 Our notion of alternative feature sets is general and thus not tailored towards specific feature-selection methods.
@@ -288,7 +288,7 @@ However, expressing the feature-set sizes in terms of $s$ is straightforward:
 \end{align}
 %
 Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
-In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2021modeling}:
+In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
 %
 \begin{align}
 	t_j \leq& s_{1,j} \nonumber \\
@@ -594,6 +594,7 @@ Thus, this focus is different from our target of finding optimal alternative fea
 \cite{woznica2012model} uses k-medoid clustering and frequent-itemset mining to reduce a set of feature-selection results to a smaller, yet diverse subset.
 To obtain the initial set of feature sets, the run a feature-selection method on multiple bootstrap samples of the original dataset.
 \cite{liu2019subspace} builds an ensemble prediction model from classifiers trained on different feature sets and uses an evolutionary algorithm that ensures diversity of feature sets.
+\cite{guru2018alternative} selects features separately for each class and then combines the results.
 
 \paragraph{Statistically equivalent feature sets}
 
@@ -615,7 +616,7 @@ Nevertheless, if one does definitely not want certain redundant features or feat
 \paragraph{Constrained feature selection}
 
 Our article is not the first to formulate constrained feature-selection problems.
-In fact, there is work on considering various kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward}.
+In fact, there is work on considering various kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward, bach2022empirical}.
 These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
 
 \paragraph{Counterfactual explanations}
@@ -769,8 +770,8 @@ Categorical features have an ordinal encoding by default.
 \label{sec:experimental-design:implementation}
 
 We implement our experimental pipeline in Python.
-For machine learning, we use \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
-To express and solve the constraint optimization problems, we use \emph{Python-MIP}~\cite{python-mip}.
+For machine learning, we use the package \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
+To express and solve the constraint optimization problems, we use the solver \emph{CBC} via the package \emph{OR-Tools}~\cite{perron2022or-tools}.
 
 \section{Evaluation}
 \label{sec:evaluation}
@@ -994,6 +995,7 @@ Additionally, one can express alternatives differently than with hard constraint
 Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
 Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
 
+\renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
 
 \end{document}
