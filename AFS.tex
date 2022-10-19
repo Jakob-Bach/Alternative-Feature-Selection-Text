@@ -34,14 +34,14 @@
 Feature-selection methods are popular to obtain small, interpretable, yet highly accurate prediction models.
 Existing feature-selection methods typically yield only one feature set, which might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
-In this article, we formalize alternative feature selection as optimization problem.
+In this article, we formalize alternative feature selection as an optimization problem.
 Next, we propose several general approaches to solve this problem.
 In particular, we show how to integrate various categories of existing feature-selection methods.
-Finally, we evaluate these approaches in a study with classification datasets.
-In our experiments, we find that our approaches allow finding alternative feature sets with similar prediction quality as the original ones.
+Finally, we evaluate these approaches in a study with 30 classification datasets.
+In our experiments, we can determine alternative feature sets with similar prediction quality as the original ones.
 \end{abstract}
 
-\textbf{Keywords:} feature selection, alternatives, constraints, explainability
+\textbf{Keywords:} feature selection, alternatives, constraints, explainability, interpretability
 
 \section{Introduction}
 \label{sec:introduction}
@@ -49,56 +49,55 @@ In our experiments, we find that our approaches allow finding alternative featur
 \paragraph{Motivation}
 
 Feature-selection methods are ubiquitous for a variety of reasons.
-By reducing the dimensionality of the dataset, they lower computational and memory requirements of prediction models.
+By reducing dataset dimensionality, they lower the computational and memory requirements of prediction models.
 Next, models might generalize better if irrelevant and spurious predictors are removed.
 Finally, prediction models might be smaller and more comprehensive due to feature selection~\cite{li2017feature}, improving interpretability.
 
-Traditional feature-selection methods mostly return just one feature set~\cite{borboudakis2021extending}.
+Traditional feature-selection methods mostly return only one feature set~\cite{borboudakis2021extending}.
 These methods optimize a criterion of feature-set quality, e.g., prediction performance.
-However, besides the optimal feature set, there might be multiple, differently composed feature sets with similar quality.
-For the user, these other feature sets might be interesting alternatives for multiple reasons.
-First, some of the originally selected features might be costly to obtain, so the user would prefer cheaper alternatives, while maintaining prediction quality.
-Second, some of the originally selected features might contain sensitive information that should not be used in predictions.
-Third, the user might be interested in explaining the prediction target, rather than just making good predictions.
-In such a situation, knowing alternatives allows for formulating multiple hypotheses and broadens the understanding.
+However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
+For the user, these alternative feature sets might be interesting for multiple reasons.
+First, some originally selected features might be costly to obtain, so the user would prefer cheaper alternatives, while maintaining prediction quality.
+Second, some originally selected features might contain sensitive information that should not be used in predictions.
+Third, the user might be interested in explanations for the prediction, rather than just making good predictions.
+In such a situation, knowing alternatives allows the formulation of multiple hypotheses and broadens the understanding.
 
 \paragraph{Problem statement}
 
 This article addresses the problem of alternative feature selection, which we informally define as follows:
 %
 \begin{definition}[Alternative feature selection (informal)]
-	Given an original feature set, find a sufficiently different feature set that optimizes feature-set quality at the same time.
+	Given an original set of features, find a sufficiently different feature set that optimizes feature-set quality at the same time.
 	\label{def:alternative-feature-selection}
 \end{definition}
 %
-We provide formal definitions later.
-If the original feature set had high quality, the alternative feature set should have a similar quality.
-Depending on how different the alternative feature set should be, one might have to compromise on quality.
+We will provide formal definitions later.
+Ideally, the alternative feature set should have a similar quality as the original one.
+However, depending on how different the alternative feature set should be, one might have to compromise on quality.
 E.g., if there are only a few highly predictive features and most of them are part of the original feature set, the alternative feature set might have significantly lower prediction quality.
 We analyze this effect in our article.
 Also, we consider finding multiple alternatives rather than just one.
 
 Two points are essential for alternative feature selection, which we both address in this article.
-First, one needs to formalize and quantify what an alternative feature sets is.
-Second, one needs an approach to efficiently find alternative feature sets.
+First, one needs to formalize and quantify what an alternative feature set is.
+Second, one needs an approach to find alternative feature sets efficiently.
 Ideally, the approach should be general, i.e., cover a broad range of existing feature-selection methods.
 
 \paragraph{Related work}
 
 In machine learning, finding alternative solutions has already been addressed extensively in clustering~\cite{bailey2014alternative}.
 However, there is a lack of such approaches and corresponding experimental evaluation for feature selection.
-Only few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
-Ensemble feature-selection techniques~\cite{saeys2008robust, seijo2017ensemble} produce multiple feature sets, but do not focus on optimal alternatives.
-The same goes for the concept of statistically equivalent feature subsets~\cite{lagani2017feature}.
+Only a few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
+Techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets but do not focus on optimal alternatives.
 In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{verma2020counterfactual, stepin2021survey}.
-Such explanations involve data objects with similar feature values, but a different prediction outcome.
-In contrast, we target at sets with different features, but similar feature-set quality, e.g., prediction performance.
+Such explanations involve data objects with similar feature values but a different prediction outcome.
+In contrast, we target at sets with different features but similar quality, e.g., prediction performance.
 
 \paragraph{Contributions}
 
 Our contribution is threefold.
-First, we define an optimization problem that formalizes alternative feature selection.
-We foster the search for alternatives via constraints on feature sets.
+First, we formalize alternative feature selection as an optimization problem.
+In particular, we foster the search for alternatives via constraints on feature sets.
 This formulation also allows integrating other constraint types on feature sets~\cite{paclik2002feature,yuan2006model,groves2015toward,bach2022empirical}.
 Second, we propose heuristic and exact approaches to solve this optimization problem.
 To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
@@ -109,14 +108,14 @@ We focus on the question if one can find alternative feature sets with similar f
 
 \paragraph{Results}
 
-Our experiments show that finding alternative feature sets with similar feature-set quality is possible.
+Our experiments show that finding alternative feature sets with similar quality is possible indeed.
 This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions.
 As expected, feature-set quality tends to decrease with the number of alternatives.
 Naturally, the exact decrease depends on the dataset and how feature-set quality is distributed in it.
-Further, we note that the quality of alternatives significantly depends on the dissimilarity threshold for how alternative feature sets should be.
-Thereby, this threshold allows the user to exercise control over alternatives and make use-case specific choices.
+Further, we note that the quality of alternative feature sets significantly depends on the dissimilarity threshold for being alternative.
+Thereby, this threshold allows the user to exercise control over alternatives and make use-case-specific choices.
 
-We publish our code\footnote{\url{https://github.com/Jakob-Bach/AFS}} and our experimental data\footnote{temporary link: \url{https://bwsyncandshare.kit.edu/s/xxx}; will be moved to a public repository after review}.
+We publish our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and our experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}}. % TODO
 
 \paragraph{Outline}
 
@@ -130,7 +129,7 @@ Section~\ref{sec:conclusion} concludes.
 \section{Fundamentals}
 \label{sec:fundamentals}
 
-In this section, we introduce basic notation and review different methods to measure quality of feature sets.
+In this section, we introduce basic notation and review different methods to measure the quality of feature sets.
 
 \subsection{Notation}
 \label{sec:fundamentals:notation}
@@ -146,7 +145,7 @@ The actual domain of the target might also be smaller, e.g., $\{0,1\}$ for binar
 With feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
 The vector $s \in \{0,1\}^n$ combines all these selection decisions.
 The selected feature set is $F_s = \{f_j \mid s_j=1\}$.
-Let the function $Q(s,X,y)$ return the quality of a such feature set.
+Let the function $Q(s,X,y)$ return the quality of such a feature set.
 Without loss of generality, we assume this function should be maximized.
 
 \subsection{Measuring Feature (Set) Quality}
@@ -154,17 +153,17 @@ Without loss of generality, we assume this function should be maximized.
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
 Note that we only give a short overview here, and focus on methods that we use in our evaluation.
-See \cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
+See~\cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
 A typical categorization of feature selection is into filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
 \paragraph{Filter methods}
 
 Filter methods evaluate feature sets without training a prediction model.
-Univariate filters assess each feature on its own, often assigning a numeric score ot each feature, while multivariate filters evaluate feature sets.
+Univariate filters assess each feature independently, often assigning a score to each feature, while multivariate filters evaluate feature sets.
 Examples for univariate filters are the absolute Pearson correlation or the mutual information between a feature and the prediction target.
 Such methods ignore potential interaction between features, e.g., if they are redundant to each other.
-Multivariate methods often combine a measure of feature relevance with a measure of feature redundancy.
-Examples for such a method include CFS \cite{hall1999correlation}, FCBF \cite{yu2003feature}, and mRMR \cite{peng2005feature}.
+In contrast, multivariate methods often combine a measure of feature relevance with a measure of feature redundancy.
+Examples for such a method include CFS~\cite{hall1999correlation}, FCBF~\cite{yu2003feature}, and mRMR~\cite{peng2005feature}.
 Another interesting filter method is Relief~\cite{kira1992feature}, for which multiple extensions exist.
 While Relief assigns quality to individual features rather than feature sets, it still uses other features indirectly via nearest-neighbor computations between data objects.
 
@@ -177,14 +176,14 @@ Various black-box optimization techniques can serve as search strategy, e.g., ge
 \paragraph{Embedded methods}
 
 Embedded methods train prediction models with built-in feature selection, e.g., decision trees~\cite{breiman1984classification} or random forests~\cite{breiman2001random}.
-Thus, the criterion to evaluate the quality of features or feature sets is model-specific.
+Thus, the criterion to evaluate feature-set quality is model-specific.
 For example, tree-based models often use information gain or the Gini index to select features during training.
 
 \paragraph{Post-hoc feature-importance methods}
 
 Apart from traditional feature selection, there are various methods that assess feature importance after training a model.
 These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
-In particular, assessing feature importance plays a crucial role in the emerging fields of ML interpretability~\cite{carvalho2019machine}.
+In particular, assessing feature importance plays a crucial role in the emerging field of ML interpretability~\cite{carvalho2019machine}.
 
 \section{Alternative Feature Selection}
 \label{sec:approach}
@@ -192,34 +191,36 @@ In particular, assessing feature importance plays a crucial role in the emerging
 In this section, we present the problem and approaches for alternative feature selection.
 First, we define the structure of the optimization problem, i.e., objective and constraints.
 Second, we formalize the notion of alternatives via constraints.
-Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:fundamentals:quality}
-In particular, we describe how to solve the resulting the optimization problem.
+Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
+In particular, we describe how to solve the resulting optimization problem.
 
 \subsection{Optimization Problem}
 \label{sec:approach:problem}
 
 In alternative feature selection, there are two goals.
 First, the quality of an alternative feature set should be high.
-Second, an alternative feature set should be different to one or more existing feature set(s).
+Second, an alternative feature set should differ from one or more existing feature set(s).
 There are different ways to combine these two goals in an optimization problem:
 
 First, one can consider both goals as objectives, obtaining an unconstrained multi-objective problem.
-Second, one can treat feature-set quality as objective and being alternative as one or multiple constraints.
-Third, one can consider being alternative as objective and introduce a constraint on feature-set quality, e.g., a lower bound.
-Fourth, one can define constraints for both feature-set quality and being alternative, searching for any feasible solution instead of optimizing.
+Second, one can treat feature-set quality as objective and enforce alternatives with constraints.
+Third, one can consider being alternative as objective and constrain feature-set quality, e.g., with a lower bound.
+Fourth, one can define constraints for both, feature-set quality and being alternative, searching for feasible solutions instead of optimizing.
 Depending on the use case, any of these four formulations might be appropriate.
 
-In accordance with the informal Definition~\ref{def:alternative-feature-selection} from the introduction, we stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
-This option has the advantage of keeping the original objective function of feature selection.
+Following the informal Definition~\ref{def:alternative-feature-selection} from the introduction, we stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
+This formulation has the advantage of keeping the original objective function of feature selection.
 Consequently, one does not need to specify a range or a threshold on feature-set quality.
-Instead, the user can control how alternative the feature set should be.
+Instead, the user can control how alternative the new feature set should be.
 This yields the following optimization problem:
 %
-\begin{align}
-	\max_s &\quad Q(s,X,y) \nonumber \\
-	\text{subject to:} &\quad F_s~\text{being alternative}
+\begin{equation}
+	\begin{split}
+		\max_s &\quad Q(s,X,y) \\
+		\text{subject to:} &\quad F_s~\text{being alternative}
+	\end{split}
 	\label{eq:afs}
-\end{align}
+\end{equation}
 %
 We discuss different constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
 
@@ -227,16 +228,16 @@ We discuss different constraints for \emph{being alternative} and different obje
 \label{sec:approach:constraints}
 
 In this section, we formalize alternative feature sets.
+This part of our work is independent of the feature-selection method.
 First, we discuss the base case where an individual feature set is an alternative to another one.
 Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
-Note that this part our work is independent from the feature-selection method one wants to use.
 
 \subsubsection{Single Alternatives}
 \label{sec:approach:constraints:single}
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-dissimilarity measure~\cite{egghe2009new}.
-Most of these measures consider how strongly two sets overlap and set this in relation to the size of the sets.
+Most of these measures describe how strongly two sets overlap and set this in relation to the size of the sets.
 For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
 Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 %
@@ -244,146 +245,162 @@ Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 	d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
 	\label{eq:jaccard}
 \end{equation}
+Another possible dissimilarity measure follows from the Dice coefficient:
 %
-We leverage such a dissimilarity measure for the following definition:
+\begin{equation}
+	d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|}
+	\label{eq:dice}
+\end{equation}
 %
-\begin{definition}[Pairwise alternative]
-	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a dissimilarity threshold $\tau \in [0,1]$ if $d(F_1,F_2) \geq \tau$.
+We leverage such a set-dissimilarity measure for the following definition:
+%
+\begin{definition}[Single alternative]
+	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $d(F_1,F_2) \geq \tau$.
 	\label{def:single-alternative}
 \end{definition}
 %
-Depending on the preferences of the user, different values of $\tau$ might be appropriate.
-The choice of $\tau$ depends on how alternative the new feature set should be.
-Also, a feature set that differs strongly might yield a large change in feature-set quality.
-Thus, we leave $\tau$ as a parameter of our approach.
+$\tau$ controls how alternative the new feature set should be.
+In particular, a feature set that differs strongly might cause a significant drop in feature-set quality.
+Thus, we leave $\tau$ as a parameter.
 If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
-If the set-dissimilarity measure is normalized to $[0,1]$, the interpretation of $tau$ is user-friendly:
-A value of $0$ allows the alternative feature set to be identical to the original feature set.
+In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
+A value of $0$ allows the alternative feature set to be identical to the original one.
 A value of $1$ requires the two feature sets to have no overlap.
 
 If the feature sets sizes $|F_1|$ and $|F_2|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F_1 \cap F_2|$.
-This follows from re-arranging Equation~\ref{eq:jaccard} and adapting Definition~\ref{def:single-alternative} accordingly:
+This follows from re-arranging Equation~\ref{eq:jaccard} and Equation~\ref{eq:dice} in combination with Definition~\ref{def:single-alternative}:
 %
-\begin{align}
-	& & d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+\begin{equation}
+	\begin{aligned}
+		d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \\
+		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+		\end{aligned}
 	\label{eq:jaccard-rearranged}
-\end{align}
+\end{equation}
 %
-The latter formulation avoids having the feature-set sizes, and thereby the decision variables, in a quotient.
-However, we can see that the effect of setting $\tau$ on the overlap size is non-linear.
-Thus, we resort to another set overlap measure in this article, the using Dice coefficient:
+The latter formulation also avoids having the feature-set sizes, and thereby the decision variables for feature selection, in a quotient.
+However, we can see that the effect of $\tau$ on the maximum overlap size $|F_1 \cap F_2|$ is non-linear for the Jaccard distance in Equation~\ref{eq:jaccard-rearranged}.
+Thus, we use the Dice dissimilarity in this article, where the effect of $\tau$ on the maximum overlap size $|F_1 \cap F_2|$ is linear:
 %
-\begin{align}
-	& & d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+\begin{equation}
+	\begin{aligned}
+		d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \\
+		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+	\end{aligned}
 	\label{eq:dice-rearranged}
-\end{align}
+\end{equation}
 %
 If $|F_1| = |F_2|$, this measure is also identical to several further overlap measures.
-In that case, $\tau$ directly controls which fraction of features in one set needs to differ in the other set, and vice versa:
+In that case, $\tau$ directly controls which fraction of features in one set needs to differ from the other set, and vice versa:
 %
-\begin{align}
-	& &\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) &\geq \tau \nonumber \\
-	&\Leftrightarrow & |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
-\end{align}
+\begin{equation}
+	\begin{aligned}
+		\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) &\geq \tau \\
+		\Leftrightarrow |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
+	\end{aligned}
+\end{equation}
 %
 Up to now, we have worked with feature set sizes instead of the binary feature-selection vector $s$.
 However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
-\begin{align}
-	|F_s| =& \sum_{j=1}^n s_j \nonumber \\
-	|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j}
+\begin{equation}
+	\begin{aligned}
+		|F_s| =& \sum_{j=1}^n s_j \\
+		|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j}
+	\end{aligned}
 	\label{eq:feature-set-size}
-\end{align}
+\end{equation}
 %
 Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
 In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
 %
-\begin{align}
-	t_j \leq& s_{1,j} \nonumber \\
-	t_j \leq& s_{2,j} \nonumber \\
-	1 + t_j \geq& s_{1,j} + s_{2,j} \nonumber \\
-	t_j \in& \{0,1\}
+\begin{equation}
+	\begin{aligned}
+		t_j \leq& s_{1,j} \\
+		t_j \leq& s_{2,j} \\
+		1 + t_j \geq& s_{1,j} + s_{2,j} \\
+		t_j \in& \{0,1\}
+	\end{aligned}
 	\label{eq:product-linear}
-\end{align}
+\end{equation}
 %
-Thus, one can express alternative features sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
-This simple constraint type allows for using a broad range of solvers, given the right objective function, which we discuss in Section~\ref{sec:approach:objectives}.
-If there is an existing feature set, i.e., one either knows $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without applying Equation~\ref{eq:product-linear}.
+If there is an existing feature set, i.e., we either know $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without Equation~\ref{eq:product-linear}.
+
+Overall, one can express alternative feature sets according to Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
+This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
 
 \subsubsection{Multiple Alternatives}
 \label{sec:approach:constraints:multiple}
 
-If the user desires multiple alternative feature sets rather than just one, one can compute these alternatives either sequentially or simultaneously.
+If the user desires multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
 
 \paragraph{Sequential alternatives}
 
 In the sequential case, the user gets several alternatives iteratively.
 In each iteration, we determine one alternative feature set.
-We constrain the new feature set to be alternative to all previously found feature sets:
+We constrain the new feature set to be an alternative to all previously found feature sets:
 %
 \begin{definition}[Sequential alternative]
-	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}: d(F_1,F_2) \geq \tau$.
+	A feature set $F_2$ an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}: d(F_1,F_2) \geq \tau$.
 	\label{def:sequential-alternative}
 \end{definition}
 %
-This definition effectively just duplicates the constraint from the base case and instantiates it for different existing feature sets.
+This definition duplicates the constraint from the base case and instantiates it for different existing feature sets.
+One could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
+We do not consider this case in our article.
+
 The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
-This means the number of variables in the optimization problem remains constant, independent from the number of alternatives.
-Each alternative only adds one new constraint to the optimization problem.
+Thus, the number of variables in the optimization problem remains constant, independent of the number of alternatives.
 As we are alway comparing a new, variable feature set to existing feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
+Each alternative only adds one new constraint to the optimization problem.
 Thus, we expect the runtime of sequential search to scale well with the number of alternatives.
+Further runtime gains might be possible if the solver keeps a state between iterations and can warm-start.
 
 As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
-The user can decide after each iteration if feature-set quality is too low or if another alternative should be found.
-Also, a solver for this problem might benefit runtime-wise from iteratively adding constraints, provided the solver keeps some internal state between iterations and can warm-start.
-
-Instead of Definition~\ref{def:sequential-alternative}, one could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
-We do not consider this case in our article.
+After each iteration, the user can decide if the feature-set quality is too low or if another alternative should be found.
 
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain several alternatives.
 The user needs to decide on the number of feature sets $\mathbb{F}$ beforehand.
-This entails pairwise dissimilarity constraints:
+We formulate pairwise dissimilarity constraints:
 %
 \begin{definition}[Simultaneous alternatives]
-	A set of feature sets $\mathbb{F}$ contains pairwise alternatives for a dissimilarity threshold $\tau \in [0,1]$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d(F_1,F_2) \geq \tau$.
+	A set of feature sets $\mathbb{F}$ contains simultaneous alternatives for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d(F_1,F_2) \geq \tau$.
 	\label{def:simultaneous-alternative}
 \end{definition}
 %
 Again, one could resort to less strict constraints, e.g., based on the average dissimilarity between alternatives.
 
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
-In this paper, we consider the average quality of all feature sets as objective.
-The number of decision variables for feature selection increases linearly with the number of alternatives.
-Also, for each feature and each pair of alternatives, we need to introduce an interaction variable according to Equation~\ref{eq:product-linear}.
-The number of constraints grows quadratically in the number of alternatives as well.
-Thus, we expect the runtime of simultaneous search to scale worse with the number of alternatives than of sequential search.
+In this paper, we consider the summed quality of all feature sets as objective.
 
-In contrast to the greedy procedure of the sequential procedure, the simultaneous procedure optimizes alternatives globally.
-Thus, for the same number of alternatives, the simultaneous procedure should be better in terms of average feature-set quality.
-Also, we expect the qualities of the alternatives to be more evenly distributed, opposed to the dropping quality over the course of the simultaneous procedure.
+Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search.
+The number of decision variables increases linearly with the number of alternatives, while the number of constraints grows quadratically.
+Also, for each feature and each pair of alternatives, we need to introduce an interaction variable as in Equation~\ref{eq:product-linear} if we want to obtain a linear problem.
+
+In contrast to the greedy procedure of sequential search, simultaneous search optimizes alternatives globally.
+Thus, the simultaneous procedure should yield higher average feature-set quality for the same number of alternatives.
+Also, we expect the qualities of the alternatives to be more evenly distributed, as opposed to the dropping quality over the course of the sequential procedure.
 
 \subsection{Objective Functions -- Finding Alternative Feature Sets}
 \label{sec:approach:objectives}
 
-In this section, we present concrete approaches to find alternative feature sets.
+In this section, we present concrete approaches for finding alternative feature sets.
 We discuss how to solve the optimization problem from Section~\ref{sec:approach:problem} for the different categories of feature-set quality measures from Section~\ref{sec:fundamentals:quality}.
 In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
 
 \subsubsection{White-Box Optimization}
 \label{sec:approach:objectives:white-box}
 
-If feature-set quality~$Q(s,X,y)$ is a sufficiently simple function, one can tackle alternative feature selection with an appropriate white-box solver.
+If the feature-set quality function~$Q(s,X,y)$ is sufficiently simple, one can tackle alternative feature selection with a suitable white-box solver.
 In Section~\ref{sec:approach:constraints}, we already showed that our notion of alternative feature sets results in 0-1 integer linear constraints.
 In this section, we present white-box optimization objectives for different feature-selection methods.
 
 \paragraph{Univariate filter feature selection}
 
 For univariate filter feature selection, the objective function is linear.
-This makes the optimization problem of alternative feature selection an 0-1 integer linear problem.
+Thus, the optimization problem of alternative feature selection becomes a 0-1 integer linear problem.
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
 \begin{equation}
@@ -391,18 +408,18 @@ In particular, univariate filter methods decompose the quality of a feature set 
 	\label{eq:univariate-filter}
 \end{equation}
 %
-Here, $q$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
+Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
 
 \paragraph{Post-hoc feature importance}
 
-From the technical perspective, one can also insert values of post-hoc feature importance scores for $q$.
-For example, one can pre-compute permutation importance or SAGE scores for each feature and use them in Equation~\ref{eq:univariate-filter}.
-However, note that such post-hoc importance scores often evaluate the usefulness of features under the presence of other features.
+From the technical perspective, one can also insert values of post-hoc feature importance scores for $q(\cdot)$ in Equation~\ref{eq:univariate-filter}.
+For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature.
+However, such post-hoc importance scores often evaluate the usefulness of features under the presence of other features.
 In consequence, the feature-independence assumption underlying Equation~\ref{eq:univariate-filter} does not hold.
 In theory, one would have to re-calculate feature importance for each feature set.
 However, such a procedure makes a white-box approach infeasible.
 In practice, one can still use Equation~\ref{eq:univariate-filter} with importance scores only computed on the full dataset.
-One only needs to be aware that such an approach might not represent feature importances in feature subsets faithfully.
+One only needs to be aware that such an approach might not represent feature interactions, e.g., feature importances in particular subsets, faithfully.
 
 \paragraph{Multivariate filter feature selection}
 
@@ -436,25 +453,27 @@ Without this replacement, it is a quadratic-programming problem~\cite{rodriguez2
 \paragraph{FCBF}
 
 The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance:
-It strives to select features that have at least a certain correlation to the prediction target, but a lower correlation to all other features.
+It strives to select features that have at least a certain correlation to the prediction target but a lower correlation to all other features.
 While the original FCBF algorithm uses a heuristic search, we propose a formulation as a constrained optimization problem:
 %
-\begin{align}
-	\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \nonumber \\
-	\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \nonumber \\
-	&\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y)
+\begin{equation}
+	\begin{aligned}
+		\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \\
+		\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \\
+		&\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y)
+	\end{aligned}
 	\label{eq:fcbf}
-\end{align}
+\end{equation}
 %
-In particular, we drop the threshold parameter on feature-target correlation and rather maximize the latter, as in the univariate filter case.
+In particular, we drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate filter case.
 To limit the size of the resulting feature set, one can put a constraint on the feature set size.
 Also, if one still wants to definitely prevent selection of features with low correlation to the prediction target, one can filter out these features before optimization.
-With the constraint in Equation~\ref{eq:fcbf}, we enforce that if two feature are selected, their correlation is lower than each feature's target correlation.
+With the constraint in Equation~\ref{eq:fcbf}, we enforce that if two feature are selected, their correlation has to be lower than each feature's target correlation.
 Overall, the optimization problem is linear again if one appropriately handles the product term between decision variables.
 
 \paragraph{Relief}
 
-Relief~\cite{kira1992feature} assigns a score to each features by sampling data objects and considering the difference in feature values compared to their nearest neighbors.
+Relief~\cite{kira1992feature} assigns a score to each feature by sampling data objects and considering the difference in feature values compared to their nearest neighbors.
 The idea is that data objects with a similar value of the prediction target should have similar feature values.
 In contrast, data objects that differ in their prediction target should differ in their feature values as well.
 We consider this method multivariate as nearest-neighbor computations involve all features instead of considering features independently.
@@ -465,11 +484,11 @@ Also, one can combine Relief with CFS to consider feature redundancy~\cite{hall1
 \label{sec:approach:objectives:black-box}
 
 If feature-set quality has not simple closed-form expression, one needs to treat it as a black-box function when searching for alternative feature sets.
-This applies to the category of wrapper feature selection.
-Using search heuristics, one can optimize such black-box functions by iterating over candidate feature sets in a systematic manner.
+This situation applies to the category of wrapper feature selection.
+One can optimize such black-box functions using search heuristics, systematically iterating over candidate feature sets.
 However, search heuristics often assume an unconstrained search space.
 For example, they might propose a candidate feature set that is not alternative enough.
-We see multiple ways to address this challenge.
+We see multiple ways to address this challenge:
 
 \paragraph{Enumerating feature sets}
 
@@ -499,12 +518,12 @@ For example, one can replace a feature set violating the constraint with the mos
 Such solver-assisted search approaches are common in search procedure for software configuration~\cite{white2010automated,henard2015combining,guo2018preserve}.
 
 As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy.
-Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only proposes and evaluates feature sets that satisfy the constraints for alternatives.
+Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
-Next, it tries swapping one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
-The algorithm applies the solver again to find a solution $s'$ containing this change and satisfying the other constraints.
-If such a solution exists and its quality $Q(s',X,y)$ improves on the current solution, the algorithm continuous from the new solution.
+Next, it tries `swapping' one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
+The algorithm applies the solver again to find a solution~$s'$ containing this change and satisfying the other constraints.
+If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution.
 Else, it attempts to swap the next feature.
 The algorithm terminates if no swap of a feature leads to an improvement or a fixed amount of iterations $max\_iters$ is reached.
 We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
@@ -513,7 +532,10 @@ However, not all solver calls might yield a valid feature set.
 
 \begin{algorithm}[htb]
 	\DontPrintSemicolon
-	\KwIn{Dataset $X$, Prediction target $y$, Feature-set quality function $Q(\cdot)$, Constraints for alternatives $Cons$, Maximum number of iterations $max\_iters$}
+	\KwIn{Dataset $X$, Prediction target $y$, \newline
+		Feature-set quality function $Q(\cdot)$, \newline
+		Constraints for alternatives $Cons$, \newline
+		Maximum number of iterations $max\_iters$}
 	\KwOut{Feature-selection decision vector $s$}
 	\BlankLine
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative}
@@ -543,27 +565,26 @@ However, not all solver calls might yield a valid feature set.
 
 If feature selection is embedded into training a prediction model, there is no general approach for finding alternative feature sets.
 Instead, one would need to embed the search for alternatives into training as well.
-In consequence, approaches for embedding alternatives will be rather specific to certain prediction models.
-Thus, we leave formulation of concrete approaches open for future work.
-For example, in decision trees, one could prevent the tree from splitting on certain features if the resulting feature set was too similar to a feature set of a previously trained tree.
+For example, one could prevent decision trees from splitting on a feature if the resulting feature set was too similar to an existing feature set.
+We leave the formulation of such specific approaches open for future work.
 
 \section{Related Work}
 \label{sec:related-work}
 
-In this section, we review related work from four areas that are closely or loosely related to alternative feature selection:
+In this section, we review literature from areas related to alternative feature selection:
 alternative clustering, subspace clustering and subspace search, feature selection, and counterfactual explanations.
 To the best of our knowledge, searching for optimal alternative feature sets is novel.
 However, there is literature on optimal alternatives outside the field of feature selection.
 Also, there are works on finding multiple, diverse feature sets.
 
-\paragraph{Alternative Clustering}
+\paragraph{Alternative clustering}
 
 Finding alternative solutions has been addressed extensively in the field of clustering.
 \cite{bailey2014alternative} gives a taxonomy of alternative clustering and describes algorithms from different categories of alternative clustering.
 Our problem definition in Sections~\ref{sec:approach:problem} and~\ref{sec:approach:constraints} is, on a high level, inspired by the one in~\cite{bailey2014alternative}:
 find one or multiple solutions that maximize quality while minimizing similarity.
 Nevertheless, the concrete problem definition for a clustering scenario and our feature-selection scenario is different.
-\cite{bailey2014alternative} also draws the distinction between singular alternatives and multiple alternatives, found sequentially or simultaneously.
+\cite{bailey2014alternative} also distinguishes between singular alternatives and multiple alternatives, found sequentially or simultaneously.
 Besides constraint-based search for alternatives, they discuss other solution paradigms as well.
 For example, feature selection and data transformation can help to find alternative clusterings~\cite{tao2012novel}.
 
@@ -579,25 +600,26 @@ The solutions of this problem are not concrete alternative clusterings, but cons
 Finding multiple useful feature set plays a role in subspace clustering~\cite{mueller2009relevant, guan2011unified, hu2018subspace} and subspace search in general~\cite{nguyen20134s, trittenbach2019dimension, fouche2021efficient}.
 These fields strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
 Some of the existing subspace approaches only consider if features are useful in their subspace, but do not consider the relationship between subspaces.
-In contrast, other approaches explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{trittenbach2019dimension, fouche2021efficient}, which bears some resemble to alternative feature selection.
+In contrast, other approaches explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{trittenbach2019dimension, fouche2021efficient}, which bears some resemblance to alternative feature selection.
 Nevertheless, these unsupervised scenarios have fundamentally different goals than our approaches for supervised feature selection.
 
 \paragraph{Feature selection}
 
 In the field of feature selection, most methods only yield one solution~\cite{borboudakis2021extending}, though there are some exceptions.
+Nevertheless, none of the following approaches explicitly searches for optimal alternatives.
 As an example, \cite{siddiqi2020genetic} adapts a genetic algorithm to ensure diversity of feature sets in the population.
 To be concrete, they modify the fitness criterion to penalize overlap of candidate feature sets in each iteration.
 \cite{emmanouilidis1999selecting} uses multi-objective genetic algorithms to obtain prediction models of different complexity, i.e., using feature sets of different sizes.
 \cite{mueller2021feature} clusters features based on their values and then forms all combinations of picking one feature from each cluster.
 They do this as a pre-processing step to reduce the number of features, not as a guided search for alternative feature sets.
 
-\cite{leeuwen2012diverse} presents six strategies to foster diversity in subgroup set discovery, which attempts to find regions in the feature space where the distribution of the target variable is different from the rest of the data.
+\cite{leeuwen2012diverse} presents six strategies to foster diversity in subgroup set discovery, which searches for regions in the feature space where the distribution of the target variable is different from the rest of the data.
 They integrate these strategies into beam search, i.e, a heuristic search procedure, while we also consider exact solutions.
 Also, the selection space is different to ours, as subgroup set discovery does not only select features, but also subsets of the features' values.
 
 \paragraph{Ensemble feature selection}
 
-There are techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble}, which run feature selection on different versions, e.g., samples, of the data, or run different feature-selection techniques.
+Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} runs feature selection on different versions, e.g., samples, of the data or uses different feature-selection methods.
 While fostering diverse feature sets might be a sub-goal to improve prediction performance, the results of the different feature selectors are combined at the end.
 Thus, this focus is different from our target of finding optimal alternative feature sets.
 
@@ -616,12 +638,12 @@ The output either is a set of equivalent feature sets or a feature grouping stru
 
 While equivalent feature sets are related to our notion of alternative feature sets, there are differences as well.
 We do not require equivalence based on statistical tests.
-Depending on how the test are configured, such an approach might yield an arbitrary number of alternatives.
+Depending on how the test are configured, such an approach might yield an arbitrary number of alternatives, without an explicit quality-based ordering.
 I.e., it is not straightforward to build an optimal solution for the alternative feature-selection problem from the output of an algorithm for finding statistically equivalent feature sets.
 Instead, we always provide a fixed number of alternatives in the form of feature sets, unless the problem is infeasible.
-These alternatives do not need to be equivalent in terms of their quality or another criterion, but should be optimal under constraints.
-Our dissimilarity threshold allows to control overlap between feature sets, instead of eliminating all feature redundancies.
-Nevertheless, if one does definitely not want certain redundant features or feature sets to be selected simultaneously, one can achieve this with additional constraints in our optimization problem as well.
+Our alternatives do not need to be equivalent in terms of their quality or another criterion, but should be optimal under constraints.
+Our dissimilarity threshold allows controlling overlap between feature sets instead of eliminating all feature redundancies.
+Nevertheless, if one wants to prevent the selection of certain redundant features or feature sets reliably, one can achieve this with additional constraints in our optimization problem as well.
 
 \paragraph{Constrained feature selection}
 
@@ -637,7 +659,7 @@ Also, the search for counterfactual might be formulated as optimization problem,
 \cite{mothilal2020explaining} presents an approach to find multiple, diverse counterfactual explanations for differentiable prediction models.
 
 However, there are crucial differences between counterfactuals and alternative feature sets:
-Counterfactual explanations target at predictions on single data objects and the feature values relevant for the prediction, rather than predictive quality of features on the whole dataset.
+Counterfactual explanations target at predictions on single data objects rather than the global predictive quality of features.
 Also, counterfactuals want to alter the prediction outcome by changing feature values little, while alternative feature sets should keep the prediction quality while changing the feature set significantly.
 
 \section{Experimental Design}
@@ -652,12 +674,12 @@ Next, we elaborate on different components of the design in detail.
 
 We conduct experiments with 30 binary-classification datasets.
 In our evaluation, we mainly focus on the trade-off between feature-set quality and obtaining alternative feature sets.
-We compare four feature selection methods, representing different notions of feature-set quality.
-Also, we train prediction models with the resulting feature sets, and analyze prediction performance.
+We compare four feature-selection methods, representing different notions of feature-set quality.
+Also, we train prediction models with the resulting feature sets and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
 We systematically vary the number of alternatives and the dissimilarity threshold for being alternative.
 
-\subsection{Approaches}
+\subsection{Methods}
 \label{sec:experimental-design:approaches}
 
 Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
@@ -666,65 +688,61 @@ Our experimental design comprises multiple approaches for feature selection, def
 \label{sec:experimental-design:approaches:feature-selection}
 
 We search for alternatives under different notions of feature-set quality as objective function.
-To represent a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
-We choose four feature selection-methods that are both well-known and either parameter-free or easy to parameterize.
+To have a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:fundamentals:quality}.
+We choose four well-known feature-selection methods that are either parameter-free or easy to parameterize.
 See Section~\ref{sec:approach:objectives} for details on the objective function of each method.
 One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
-For the reason explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded method for feature selection.
+As explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded feature-selection method.
 
 For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
-This yields small feature sets, fostering interpretability.
-As we use a solver to find feature sets anyway, we can enforce the desired $k$ with a simple constraint.
-However, 0.03\% of the feature sets from our evaluation violate their prescribed $k$ for unknown reasons, i.e., the solver seemingly did not enforce the cardinality constraint properly.
-These few outliers originate from a variety of experimental settings, so we could not detect a cause for this behavior.
-As a consequence, we remove the affected search runs of alternatives completely, which constitute 0.12\% of all search runs.
+These values yield small feature sets, fostering interpretability.
+We enforce the desired $k$ with a simple constraint in our optimization problems.
 
 \paragraph{MI}
 
-As univariate filter method, we consider mutual information~\cite{kraskov2004estimating} between each feature and the prediction target.
+For univariate filtering, we use Equation~\ref{eq:univariate-filter} with mutual information~\cite{kraskov2004estimating} as dependency measure $q(\cdot)$.
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
-We add up the univariate feature qualities according to Equation~\ref{eq:univariate-filter}.
 To improve comparability between datasets and values of $k$, we normalize the qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
 
 \paragraph{FCBF}
 
-As multivariate filter method, we use our constraint formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
+As a multivariate filter method, we use our constrained formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:fcbf}.
 As bivariate quality measure within FCBF, we rely on mutual information again, normalized to sum up to 1.
 
 \paragraph{Greedy Wrapper}
 
-As wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
+As a wrapper method, we employ a greedy hill-climbing strategy according to Algorithm~\ref{al:greedy-wrapper}.
 We set $max\_iters$ to 1000.
-Like all wrapper methods, the search algorithm uses the performance of a prediction model to evaluate feature-set quality.
-In particular, we choose a decision tree as model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as performance metric.
+To evaluate feature-set quality within the wrapper, we choose a decision tree as the prediction model and Matthews correlation coefficient (MCC)~\cite{matthews1975comparison} as the performance metric.
 Also, we apply a stratified 80:20 holdout split to test generalization performance.
 Thus, $Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
 
 \paragraph{Model Gain}
 
 As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
-For the decision-tree model we use, importance expresses a feature's contribution towards optimizing the split criterion of the tree, which for which we choose information gain, i.e., mutual information.
+Again, we use a decision tree as the model.
+There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain, i.e., mutual information.
 We plug the importances into Equation~\ref{eq:univariate-filter}, i.e., treat the importances like univariate filter scores.
 Note that the interpretation is different, though.
 In univariate filters, the scores consider features independently.
-Here, the scores originate from trees involving multiple features and hierarchical splits on these features.
+Here, the scores originate from trees trained with all features rather than assessing features in isolation.
 The model-based feature importances are normalized to sum up to 1 by default.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
-For sequential search, we evaluate 1 to 10 alternatives, while for simultaneous search, we examine 1 to 5 alternatives.
-This difference stems from the larger size of the optimization problem for simultaneous compared to sequential search, i.e., more decision variables and more constraints.
-For the dissimilarity threshold $\tau$, we analyze all possible sizes of the overlap, or rather the difference between feature sets.
-For $k=5$, this means we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
+We evaluate 1 to 10 alternatives for sequential search, while we examine 1 to 5 alternatives for simultaneous search.
+This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
+For the dissimilarity threshold $\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
+Thus, for $k=5$, we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
 For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
 Naturally, we exclude $\tau = 0$, which would allow returning multiple identical feature sets.
 
 As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
-If the solver finishes before the timeout, it might have found an optimal solution, or might have proven that no solution exists.
-In our evaluation, these two outcomes apply to 94\% of the feature sets.
-In the remaining cases, the solver might have had an error, found a feasible but suboptimal solution, or found no solution though one might exist.
+If the solver finishes before the timeout, it either finds an optimal solution or proves no solution exists.
+These two outcomes apply to 94\% of the feature sets in our evaluation.
+In the remaining cases, the solver either found a feasible but potentially suboptimal solution or found no solution though one might exist.
 
 %As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
 %In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
@@ -736,7 +754,7 @@ In the remaining cases, the solver might have had an error, found a feasible but
 \label{sec:experimental-design:approaches:prediction}
 
 As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
-Both types of models allow to learn complex, non-linear dependencies from the data.
+Both types of models allow learning of complex, non-linear dependencies from the data.
 We leave the hyperparameters of the models mostly at their defaults, apart from two changes:
 First, we choose information gain instead of Gini impurity as split criterion, to be consistent to our filter feature-selection methods.
 Second, we specify a random seed for reproducibility reasons.
@@ -744,21 +762,20 @@ Second, we specify a random seed for reproducibility reasons.
 Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
 Thus, they might not use all features that we provide to them.
 However, this is no problem for our study.
-We are interested which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
+We are interested in which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
 
 \subsection{Evaluation Metrics}
 \label{sec:experimental-design:evaluation}
 
-To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
-Not only model training, but also the search for alternative feature sets is limited to the training data.
-When we report quality metrics in the following, we focus on test-data results.
-
 We use two kinds of metrics for feature-set quality.
 We focus on on how these metrics evolve for different configurations of alternative feature selection, cf. Section~\ref{sec:experimental-design:approaches:alternatives}.
-First, we evaluate the objective functions of the individual feature-selection methods, which guided the search for feature sets.
+First, we evaluate the objective functions of the feature-selection methods, which guided the search for feature sets.
 Second, we train predictions models with the found feature sets.
 We report prediction performance in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
-This coefficient reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
+This coefficient reaches its maximum of 1 for perfect predictions and is 0 for random guessing.
+
+To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
+Not only model training but also the search for alternative feature sets is limited to the training data.
 
 \subsection{Datasets}
 \label{sec:experimental-design:datasets}
@@ -767,9 +784,9 @@ We evaluate alternative feature selection on a variety of datasets from the Penn
 To focus the evaluation on one machine-learning task type, we only consider binary-classification datasets.
 However, alternative feature selection is possible for regression and multi-class problems as well.
 We filter out datasets containing less than 100 instances.
-Also, we filter out datasets with less than 15 features, to leave some room to search for alternatives.
-Next, we remove one dataset with 1000 features, as this dataset would dominate the runtime of the experiments compared to the other datasets, which all have significantly lower dimensionality.
-Finally, we manually remove datasets that seem to be duplicates or modified versions of other datasets from the benchmark.
+Also, we filter out datasets with less than 15 features to leave some room to search for alternatives.
+Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments since the other datasets all have significantly lower dimensionality.
+Finally, we manually remove datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
 
 In consequence, we obtain 30 datasets.
 The number of data objects varies from 106 to 9822, and the number of features ranges from 15 to 168.
@@ -793,27 +810,27 @@ datasets, prediction models, feature-selection methods, and approaches to search
 \subsection{Datasets}
 
 Naturally, feature-set quality depends on the datasets used, and several effects could occur.
-For example, distribution of feature-set quality in datasets might be relatively uniform or relatively skewed.
+For example, the distribution of feature-set quality in the datasets might be relatively uniform or relatively skewed.
 Datasets with more features $n$ generally allow for more alternative feature sets.
 At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be spread over more features than for smaller datasets, making it harder to compose a high-quality feature set.
 
-In our experiments, we indeed see a broad variation of feature-set quality over datasets.
-Further, we do not observe a systematic relationship between dataset dimensionality $n$ and feature-set quality.
+Indeed, our experiments show a broad variation of feature-set quality over datasets.
+Further, we do not observe a clear relationship between dataset dimensionality~$n$ and feature-set quality.
 
 \subsection{Prediction Models}
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=0.7\textwidth]{plots/evaluation-metrics-correlation.pdf}
+	\includegraphics[width=0.7\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
 	\caption{Correlation between evaluation metrics over all experimental settings.}
 	\label{fig:evaluation-metrics-correlation}
 \end{figure}
 
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
-Also, overfitting occurs for both models, i.e., there is a gap between training-set and test-set prediction performance.
-As we do not limit the growth of trees or prune them after training, this observation is expected.
-However, that will not prevent our analysis how prediction performance develops over alternative feature sets, where we normalize feature-sets quality.
-To a lesser extent, the optimization objective $Q$ also shows overfitting for all feature-selection methods.
+Also, overfitting occurs for both model types, i.e., there is a gap between training-set and test-set prediction performance.
+This observation is expected as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
+However, this will not invalidate our analysis of how prediction performance develops over alternatives, where we normalize feature-set quality.
+The optimization objective $Q$ also shows overfitting for all feature-selection methods, though to a lesser extent than prediction performance.
 
 Figure~\ref{fig:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
 As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
@@ -827,11 +844,11 @@ In particular, only one of our four feature-selection methods uses prediction pe
 
 \subsection{Feature-Selection Methods}
 
-As the different feature-selection methods have different functions as optimization objectives $Q$, it does not make sense to compare objective values between feature-selection methods.
+As the different feature-selection methods have different objective functions~$Q$, it does not make sense to compare objective values between feature-selection methods.
 Regarding the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
 For MI, this figure only is 19\%.
-Thus, besides the constraints for alternatives, the constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:fcbf}) made it hard to find valid feature sets.
-This point needs to be considered when applying our \emph{FCBF} feature selector.
+In particular, besides the constraints for alternatives, the additional constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:fcbf}) seemingly made it hard to find valid feature sets.
+This point needs to be considered when applying this \emph{FCBF} feature selector.
 
 Regarding test-set prediction performance, \emph{Model Gain} beats \emph{MI} and \emph{Greedy Wrapper} on average.
 The median test-set MCC for decision trees is 0.57 for \emph{Model Gain}, 0.54 for \emph{MI}, and 0.51 for \emph{Greedy Wrapper}.
@@ -842,9 +859,9 @@ The wrapper search can only evaluate a fraction of all feasible feature sets and
 The feature-set size $k$ shows the expected effect:
 Larger feature sets, i.e., $k=10$, exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
 However, doubling the number of features does not double the prediction performance.
-Over all experimental settings, the median test-set MCC for decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
+Over all experimental settings, the median test-set MCC of decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
 This displays that small feature sets can already achieve a large share of the possible prediction performance.
-For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher than for prediction performance, but still less than proportional with $k$.
+For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is less than proportional with~$k$ as well.
 
 \subsection{Searching Alternatives}
 
@@ -854,14 +871,14 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-search-stddev-objective.pdf}
+		\includegraphics[width=\textwidth, trim=5 25 10 10, clip]{plots/impact-search-stddev-objective.pdf}
 		\caption{Standard deviation of objective.}
 		\label{fig:impact-search-stddev-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-search-mean-objective.pdf}
+		\includegraphics[width=\textwidth, trim=5 25 10 10, clip]{plots/impact-search-mean-objective.pdf}
 		\caption{Mean objective.}
 		\label{fig:impact-search-mean-objective}
 	\end{subfigure}
@@ -872,25 +889,23 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is higher 
 
 As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
 Figure~\ref{fig:impact-search-stddev-objective} visualizes this observation.
-Also, this variation increases with the number of alternatives for sequential search, but decreases for simultaneous search.
-I.e., simultaneous search finds relatively homogeneous feature sets, in particular, if many alternatives are desired.
-On the test set, the objective value $Q$ of simultaneous-search feature sets still varies less than for sequential search, but increases with the number of alternatives.
+Also, the variance slightly increases with the number of alternatives for sequential search, but decreases for simultaneous search.
+I.e., simultaneous search finds more homogeneous feature sets, in particular, if many alternatives are desired.
+However, on the test set, the variance of $Q$ also increases with the number of alternatives for simultaneous search.
 This effect might be a result of overfitting.
-Regarding test-set prediction performance, simultaneous search does not show lower variance than sequential search any more.
+Regarding test-set prediction performance, simultaneous search does not even show lower variance than sequential search anymore.
 
-Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor regarding prediction performance.
+Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor prediction performance.
 Figure~\ref{fig:impact-search-mean-objective} shows this behavior for the mean training-set objective of search runs.
 Depending on the concrete search setting, either of the two search types might yield better-performing feature sets.
-An explanation for this phenomenon is that search does not always yield the exact optimum.
+An explanation for this phenomenon is that search results can be sub-optimal.
 For \emph{Greedy Wrapper}, the search is heuristic per se.
 Additionally, the exact optimization of the other three feature-selection methods can time out.
 As simultaneous search is harder than sequential search, it is affected stronger by this phenomenon.
-In particular, 11.65\% of feature sets from simultaneous search might not be optimal, as the solver timed out.
+In particular, 10\% of the feature sets from simultaneous search were feasible but potentially sub-optimal, but no feature sets for sequential search.
 This figure strongly depends on the number of alternatives:
-While there are no or only a few such potentially sub-optimal feature sets for up to three alternatives in simultaneous search, 4\% of the feature sets might be suboptimal for four alternatives and 35\% of the feature sets for five alternatives.
-For sequential search, we do not have any feasible but sub-optimal solution.
-
-Based on these results, we focus on sequential search in the following.
+For up to three alternatives in simultaneous search, less than 1\% of feature sets are potentially sub-optimal, but 4\% of the feature sets for four alternatives and 32\% of the feature sets for five alternatives.
+Based on these results, we focus on the sequential search in the following.
 
 \subsubsection{Number of Alternatives}
 
@@ -898,18 +913,18 @@ Based on these results, we focus on sequential search in the following.
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=5 25 10 5, clip]{plots/impact-num-alternatives-objective-max.pdf}
 		\caption{Max-normalization.}
 		\label{fig:impact-num-alternatives-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-objective-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=5 25 10 5, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
 		\caption{Min-max-normalization.}
 		\label{fig:impact-num-alternatives-objective-min-max}
 	\end{subfigure}
-	\caption{Development of objective value $Q$, normalized per experimental setting, over the alternatives in sequential search, using \emph{MI} as feature selector.
+	\caption{Objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
 \end{figure}
@@ -917,23 +932,24 @@ Based on these results, we focus on sequential search in the following.
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 Figure~\ref{fig:impact-num-alternatives-objective} illustrates this for \emph{MI}-based feature selection.
 The other feature-selection methods, including the heuristic \emph{Greedy Wrapper}, exhibit similar effects.
-As feature-set quality varies between datasets and number of features $k$, we apply normalization:
-In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., one feature set from a search run gets an objective of 1 and the other feature-set qualities are scaled accordingly.
+As feature-set quality varies between datasets and the number of features $k$, we apply normalization:
+In Figure~\ref{fig:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., the highest objective value in the search run is scaled to~1 and the other feature-set qualities are scaled accordingly.
 This figure shows that there might be multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum of 1.
-Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets an objective of 0.
-This figure highlights that the decrease training-set objective value is most prominent from the original feature set to the first alternative, but becomes smaller beyond.
+Figure~\ref{fig:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
+This figure highlights that the training-set objective value decreases most from the original feature set to the first alternative but less beyond.
 
-Figure~\ref{fig:impact-num-alternatives-objective} also shows that test-set objective value drops the most from the original feature set to the first alternative as well.
-The decrease in median objective value over the alternatives is less visible than on the training set.
-In particular, alternatives can even have a higher objective value than the original feature set, due to overfitting of the optimization procedure.
+Additionally, Figure~\ref{fig:impact-num-alternatives-objective} shows that the test-set objective value also drops most from the original feature set to the first alternative.
+However, the decrease in objective value over the alternatives is less visible than on the training set.
+In particular, alternatives can even have a higher test-set objective value than the original feature set, due to overfitting of the optimization procedure.
 Similar findings hold for test-set prediction performance.
 Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
 
-However, one should note that these observations refer to the quality of the feature sets actually found.
-In particular, the more alternatives are desired, the more likely it is that the optimization problem becomes infeasible.
-For example, the \emph{MI} feature selector in sequential search always returns a solution for the original feature set, but the problem is infeasible in 2\% of the cases for the first alternative, 14\% of the cases for the second alternative, 24\% of the cases for the fifth alternative, and 30\% of the cases for the tenth alternative.
+Be aware that these observations refer to the quality of the found feature sets.
+However, the more alternatives are desired, the more likely an infeasible optimization problem is.
+For example, the \emph{MI} feature selector in sequential search always finds an original feature set.
+However, the problem is infeasible in 2\% of the cases for the first alternative, 14\% for the second alternative, 24\% for the fifth alternative, and 30\% for the tenth alternative.
 Thus, while the quality of feature-sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
-This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in the following.
+This outcome also depends on the dissimilarity threshold $\tau$, which we analyze next.
 
 \subsubsection{Dissimilarity Threshold $\tau$}
 
@@ -941,33 +957,33 @@ This outcome depends on the dissimilarity, threshold $\tau$, which we analyze in
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-train-objective-tau.pdf}
+		\includegraphics[width=\textwidth, trim=5 15 30 10, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
 		\caption{Training set.}
 		\label{fig:impact-num-alternatives-train-objective-tau}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{plots/impact-num-alternatives-test-objective-tau.pdf}
+		\includegraphics[width=\textwidth, trim=5 15 30 10, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
 		\caption{Test set.}
 		\label{fig:impact-num-alternatives-test-objective-tau}
 	\end{subfigure}
-	\caption{Development of median objective value $Q$, max-normalized per experimental setting, over the alternatives and dissimilarity threshold $\tau$ in sequential search, using \emph{MI} as feature selector and $k=10$.}
+	\caption{Median objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
 	\label{fig:impact-num-alternatives-objective-tau}
 \end{figure}
 
 As Figure~\ref{fig:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
-If the dissimilarity requirement is low, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
-In contrast, if the dissimilarity threshold is be high, e.g, $tau=1$, the objective decrease significantly.
-This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent for prediction performance.
-Also, the the number of infeasible optimization problems increases with $tau$:
+For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
+In contrast, the objective decrease significantly for a high dissimilarity threshold, e.g., $\tau=1$.
+This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent.
+Also, the number of infeasible optimization problems, i.e., lack of valid alternative feature sets, increases with $\tau$:
 For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
 
 While the previous observation were made for \emph{MI} as feature selector, they do not hold universally.
 Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on \emph{tau} as well.
 In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of $\tau$ on feature-set quality.
-In case of \emph{Greedy Wrapper}, this can be explained by its heuristic search procedure.
-In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so adding further constraints has less impact.
+For \emph{Greedy Wrapper}, this can be explained by its heuristic search procedure.
+For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so adding further constraints has less impact.
 
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
@@ -975,35 +991,31 @@ In case of \emph{FCBF}, the fraction of infeasible solutions is much higher than
 \subsection{Conclusions}
 
 Obtaining interpretable solutions is a highly active area of research in machine learning.
-One way to foster interpretability is selecting a small set of features for prediction.
-Traditional feature-selection algorithms focus on yielding \emph{one} feature set with high quality, e.g., regarding prediction performance.
+One way to foster interpretability is by selecting a small set of features for predictions.
+Traditional feature-selection methods yield \emph{one} feature set with high quality, e.g., regarding prediction performance.
 However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
 Such alternative feature set might provide alternative explanations for predictions from the data.
 
-In this paper, we leveraged constraints to find alternative feature sets that ideally should have similar quality.
-We introduced a general, formal notion of alternatives, which is independent from the concrete feature-selection method.
-Additionally, it is combinable with other domain-independent or domain-specific constraints on feature selection.
-Further, we discussed how different categories of feature-selection methods can integrate this notion.
-In particular, we presented exact and heuristic approaches for the constrained optimization problem of alternative feature selection.
-Finally, we evaluated our approach with 30 classification datasets and four feature-selection techniques.
+In this paper, we defined alternative feature selection as an optimization problem.
+We formalized alternatives via constraints, which are independent from the feature-selection method and can be combined with other constraints on feature selection, e.g., based on domain knowledge.
+Further, we presented approaches to solve the optimization problem for different categories of feature selectors.
+Finally, we ran an evaluation with 30 classification datasets and four feature-selection methods.
 We compared two search strategies for alternatives and varied a threshold how strongly alternatives should differ from existing solutions.
 
-In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original one.
-This worked with simultaneous search for multiple alternatives as well as sequential search for single alternatives.
-The latter search procedure turned out to be significantly faster, and allows stopping the search once one does not want any more alternatives.
-As one could expect, the quality of alternatives drops the more alternatives one desires and the more alternatives should differ from existing feature sets.
-The ultimate decision which trade-off between feature-set quality and alternatives is acceptable lies at the user.
-Thus, we recommend evaluating different dissimilarity thresholds for alternatives and making a use-case-specific decision.
+In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original ones.
+This worked with simultaneous search as well as sequential search for alternatives.
+The latter procedure was significantly faster and allows stopping the search once the user does not want any more alternatives.
+As expected, the quality of alternatives drops the more alternatives one desires, and the more alternatives should differ from existing feature sets.
+The ultimate decision on which trade-off between feature-set quality and alternatives is acceptable lies with the user.
+Thus, we recommend evaluating different dissimilarity thresholds for alternatives to find a suitable value.
 
 \subsection{Future Work}
 
 While our work introduced alternative feature selection, one might vary several points of our approach.
 For example, one can combine the search for alternatives with other feature-selection methods.
 For embedded feature selection, one would need to customize our search routines and push them into model training.
-Further, one can analyze different notions of alternatives, e.g., other dissimilarity measures for feature sets and other definitions for the case of multiple alternatives.
-Additionally, one can express alternatives differently than with hard constraints.
-Instead, one may use soft constraints or a multi-objective formulation of the optimization problem.
-Finally, while our evaluation was domain-independent, the benefit of alternative feature set for explainable predictions should be analyzed in domain-specific case studies.
+Further, one can vary the notion of alternatives, e.g., the set-dissimilarity measure, definition for multiple alternatives, or soft constraints instead of hard constraints.
+Finally, while our evaluation was domain-independent, the benefit of alternative feature sets for explainable predictions should be analyzed in domain-specific case studies.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
