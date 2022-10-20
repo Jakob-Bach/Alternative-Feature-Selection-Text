@@ -566,91 +566,87 @@ We leave the formulation of such specific approaches open for future work.
 \section{Related Work}
 \label{sec:related-work}
 
-In this section, we review literature from areas related to alternative feature selection:
-alternative clustering, subspace clustering and subspace search, feature selection, and counterfactual explanations.
+In this section, we review literature from areas related to alternative feature selection, within the field of feature selection itself, closely related fields, alternative clustering, and counterfactual explanations.
 To the best of our knowledge, searching for optimal alternative feature sets is novel.
 However, there is literature on optimal alternatives outside the field of feature selection.
 Also, there are works on finding multiple, diverse feature sets.
 
-\paragraph{Alternative clustering}
+\subsection{Feature Selection}
 
-Finding alternative solutions has been addressed extensively in the field of clustering.
-\cite{bailey2014alternative} gives a taxonomy of alternative clustering and describes algorithms from different categories of alternative clustering.
-Our problem definition in Sections~\ref{sec:approach:problem} and~\ref{sec:approach:constraints} is, on a high level, inspired by the one in~\cite{bailey2014alternative}:
-find one or multiple solutions that maximize quality while minimizing similarity.
-Nevertheless, the concrete problem definition for a clustering scenario and our feature-selection scenario is different.
-\cite{bailey2014alternative} also distinguishes between singular alternatives and multiple alternatives, found sequentially or simultaneously.
-Besides constraint-based search for alternatives, they discuss other solution paradigms as well.
-For example, feature selection and data transformation can help to find alternative clusterings~\cite{tao2012novel}.
+\paragraph{Traditional feature selection}
 
-Two examples of constrained-based alternative clustering are \emph{COALA}~\cite{bae2006coala} and \emph{MAXIMUS}~\cite{bae2010clustering}.
-COALA~\cite{bae2006coala} is a hierarchical algorithm that imposes \emph{cannot-link constraints} on pairs of data objects:
-Data objects assigned to the same cluster in the original clustering should be assigned to different clusters in the alternative clustering.
-If observing the constraints is infeasible or violates a quality threshold, the algorithms proceeds like unconstrained hierarchical clustering.
-MAXIMUS~\cite{bae2010clustering} employs an integer program to formulates dissimilarity between clusterings, building on the distributions of feature values in clusters.
-The solutions of this problem are not concrete alternative clusterings, but constrain a subsequent clustering procedure.
-
-\paragraph{Subspace clustering and subspace search}
-
-Finding multiple useful feature set plays a role in subspace clustering~\cite{mueller2009relevant, guan2011unified, hu2018subspace} and subspace search in general~\cite{nguyen20134s, trittenbach2019dimension, fouche2021efficient}.
-These fields strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
-Some of the existing subspace approaches only consider if features are useful in their subspace, but do not consider the relationship between subspaces.
-In contrast, other approaches explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{trittenbach2019dimension, fouche2021efficient}, which bears some resemblance to alternative feature selection.
-Nevertheless, these unsupervised scenarios have fundamentally different goals than our approaches for supervised feature selection.
-
-\paragraph{Feature selection}
-
-In the field of feature selection, most methods only yield one solution~\cite{borboudakis2021extending}, though there are some exceptions.
+Most feature-selection methods only yield one solution~\cite{borboudakis2021extending}, though there are some exceptions.
 Nevertheless, none of the following approaches explicitly searches for optimal alternatives.
-As an example, \cite{siddiqi2020genetic} adapts a genetic algorithm to ensure diversity of feature sets in the population.
-To be concrete, they modify the fitness criterion to penalize overlap of candidate feature sets in each iteration.
-\cite{emmanouilidis1999selecting} uses multi-objective genetic algorithms to obtain prediction models of different complexity, i.e., using feature sets of different sizes.
-\cite{mueller2021feature} clusters features based on their values and then forms all combinations of picking one feature from each cluster.
-They do this as a pre-processing step to reduce the number of features, not as a guided search for alternative feature sets.
-
-\cite{leeuwen2012diverse} presents six strategies to foster diversity in subgroup set discovery, which searches for regions in the feature space where the distribution of the target variable is different from the rest of the data.
-They integrate these strategies into beam search, i.e, a heuristic search procedure, while we also consider exact solutions.
-Also, the selection space is different to ours, as subgroup set discovery does not only select features, but also subsets of the features' values.
+\cite{siddiqi2020genetic}~adapts a genetic algorithm to ensure diversity of feature sets in the population.
+In particular, they modify the fitness criterion to penalize overlap of feature sets in each iteration.
+\cite{emmanouilidis1999selecting}~uses multi-objective genetic algorithms to obtain prediction models of different complexity, using feature sets of different sizes.
+\cite{mueller2021feature}~clusters features and forms all combinations by picking one feature from each cluster.
+They do this to reduce the number of features, not as a guided search for alternatives.
 
 \paragraph{Ensemble feature selection}
 
-Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} runs feature selection on different versions, e.g., samples, of the data or uses different feature-selection methods.
-While fostering diverse feature sets might be a sub-goal to improve prediction performance, the results of the different feature selectors are combined at the end.
-Thus, this focus is different from our target of finding optimal alternative feature sets.
+Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} combines feature-selection results, e.g., obtained by different feature-selection methods or on different samples of the data.
+Fostering diverse feature sets might be a sub-goal to improve prediction performance, but is only an intermediate step.
+This focus differs from our goal of finding optimal alternative feature sets.
 
-\cite{woznica2012model} uses k-medoid clustering and frequent-itemset mining to reduce a set of feature-selection results to a smaller, yet diverse subset.
-To obtain the initial set of feature sets, the run a feature-selection method on multiple bootstrap samples of the original dataset.
-\cite{liu2019subspace} builds an ensemble prediction model from classifiers trained on different feature sets and uses an evolutionary algorithm that ensures diversity of feature sets.
-\cite{guru2018alternative} selects features separately for each class and then combines the results.
+\cite{woznica2012model}~uses k-medoid clustering and frequent-itemset mining to reduce a set of feature-selection results, obtained on bootstrap samples of the data, to a smaller, yet diverse subset.
+\cite{liu2019subspace}~builds an ensemble prediction model from classifiers trained on different feature sets and uses an evolutionary algorithm that ensures diversity of these feature sets.
+\cite{guru2018alternative}~selects features separately for each class and then combines the results.
 
 \paragraph{Statistically equivalent feature sets}
 
-A subfield of feature selection is the search for statistically equivalent feature sets~\cite{lagani2017feature, borboudakis2021extending}.
-These approaches use statistical tests to determine which individual features or feature sets can be used interchangeably to predict a target variable.
-For example, one can test whether a feature is independent from the target given another feature.
-A search algorithm combines conducts multiple such tests.
-The output either is a set of equivalent feature sets or a feature grouping structure that allows to form such non-redundant feature sets.
+Approaches for statistically equivalent feature sets~\cite{borboudakis2021extending, lagani2017feature} use statistical tests to determine which features or feature sets are equivalent for predictions.
+For example, a feature may be independent from the prediction target given another feature.
+A search algorithm conducts multiple such tests and either outputs equivalent feature sets or a feature grouping that allows forming such non-redundant feature sets.
 
-While equivalent feature sets are related to our notion of alternative feature sets, there are differences as well.
-We do not require equivalence based on statistical tests.
-Depending on how the test are configured, such an approach might yield an arbitrary number of alternatives, without an explicit quality-based ordering.
-I.e., it is not straightforward to build an optimal solution for the alternative feature-selection problem from the output of an algorithm for finding statistically equivalent feature sets.
-Instead, we always provide a fixed number of alternatives in the form of feature sets, unless the problem is infeasible.
-Our alternatives do not need to be equivalent in terms of their quality or another criterion, but should be optimal under constraints.
+Our notion of alternative feature sets differs from equivalent feature sets.
+In particular, it is not straightforward to build optimal alternatives from such equivalent feature sets.
+Depending on how the statistical test are configured, there can be an arbitrary number of equivalent feature sets, without an explicit quality-based ordering.
+Instead, we always provide a fixed number of alternatives, unless the problem is infeasible.
+Also, our alternatives need not be equivalent in terms of their quality, but should be optimal under constraints.
 Our dissimilarity threshold allows controlling overlap between feature sets instead of eliminating all feature redundancies.
-Nevertheless, if one wants to prevent the selection of certain redundant features or feature sets reliably, one can achieve this with additional constraints in our optimization problem as well.
+Nevertheless, one can also add constraints to our optimization problem to exclude predefined redundant selections.
 
 \paragraph{Constrained feature selection}
 
-Our article is not the first to formulate constrained feature-selection problems.
-In fact, there is work on considering various kinds of constraints in feature selection, e.g. cost constraints \cite{paclik2002feature}, group constraints \cite{yuan2006model}, or constraints from domain knowledge \cite{groves2015toward, bach2022empirical}.
+There already is work on considering various kinds of constraints in feature selection, e.g., for feature cost~\cite{paclik2002feature}, feature groups~\cite{yuan2006model}, or domain knowledge~\cite{bach2022empirical, groves2015toward}.
 These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
 
-\paragraph{Counterfactual explanations}
+\subsection{Fields Related to Feature Selection}
 
-The concept of alternative feature selection shares similarities with counterfactual explanations~\cite{verma2020counterfactual,stepin2021survey}, which uncover solutions for alternative predictions.
-The search for counterfactual can also be formulated as an optimization problem, e.g., as an integer problem~\cite{mohammadi2021scaling} or via Satisfiability Modulo Theories (SMT)~\cite{karimi2020model}, and finding diverse counterfactuals \cite{mothilal2020explaining} is a topic as well.
+\paragraph{Subgroup set discovery}
 
+\cite{leeuwen2012diverse} presents six strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space rather than purely selecting features.
+They integrate these strategies into beam search, i.e, a heuristic search procedure, while we also consider exact solutions.
+
+\paragraph{Subspace clustering and subspace search}
+
+Finding multiple useful feature set plays a role in subspace clustering~\cite{guan2011unified, hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
+These approaches strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
+While some subspace approaches only consider features utility in individual subspaces, others explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{fouche2021efficient, trittenbach2019dimension}, which bears some resemblance to alternative feature selection.
+Nevertheless, these scenarios are fundamentally different to ours, e.g., we are in a supervised-learning setting.
+
+\subsection{Alternative Clustering}
+
+Finding alternative solutions has been addressed extensively in the field of clustering.
+\cite{bailey2014alternative} gives a taxonomy and describes algorithms for alternative clustering.
+Our problem definition in Sections~\ref{sec:approach:problem} and~\ref{sec:approach:constraints} is, on a high level, inspired by the one in~\cite{bailey2014alternative}:
+Find one or multiple solutions that maximize quality while minimizing similarity.
+\cite{bailey2014alternative} also distinguishes between singular and multiple alternatives, found sequentially or simultaneously.
+Nevertheless, the concrete problem definition for a clustering scenario and our feature-selection scenario is different.
+Besides constraint-based search for alternatives, \cite{bailey2014alternative} also discuss other solution paradigms, e.g., using feature selection and data transformation~\cite{tao2012novel}.
+
+Two examples of alternative clustering are \emph{COALA}~\cite{bae2006coala} and \emph{MAXIMUS}~\cite{bae2010clustering}.
+COALA~\cite{bae2006coala} imposes \emph{cannot-link constraints} on pairs of data objects:
+Data objects from the same cluster should be assigned to different clusters in the alternative clustering.
+If observing the constraints is infeasible or violates a quality threshold, the algorithms proceeds without constraints.
+MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimilarity between clusterings, building on the value distributions in clusters, and uses a constrained clustering procedure.
+
+\subsection{Counterfactual Explanations}
+
+Counterfactual explanations~\cite{stepin2021survey, verma2020counterfactual} uncover solutions for alternative predictions.
+The search for counterfactuals can be formulated as an optimization problem, e.g., an integer problem~\cite{mohammadi2021scaling} or Satisfiability Modulo Theories (SMT)~\cite{karimi2020model}.
+Finding diverse counterfactuals~\cite{mothilal2020explaining} is a topic as well.
 However, there are crucial differences between counterfactuals and alternative feature sets:
 Counterfactual explanations target at predictions on single data objects rather than the global predictive quality of features.
 Also, counterfactuals want to alter the prediction outcome by changing feature values little, while alternative feature sets should keep the prediction quality while changing the selection of features significantly.
