@@ -529,8 +529,10 @@ However, not all solver calls might yield a valid feature set.
 
 If feature selection is embedded into training a prediction model, there is no general approach for finding alternative feature sets.
 Instead, one would need to embed the search for alternatives into training as well.
-For example, one could prevent decision trees from splitting on a feature if the resulting feature set was too similar to a given feature set.
-We leave the formulation of such specific approaches open for future work.
+For example, in the heuristic training procedure of decision trees, one could consider alternatives when creating splits, e.g., prevent splitting on a feature if the resulting feature set of the tree was too similar to a given feature set.
+As another example, there are various formal encodings of prediction models, e.g., SAT encodings~\cite{narodytska2018learning, schidler2021sat, yu2021learning}, where training already uses a solver.
+In such representations, one might directly add constraints for alternatives without modifying the training procedure.
+We leave the formulation of specific approaches open for future work.
 
 \section{Related Work}
 \label{sec:related-work}
