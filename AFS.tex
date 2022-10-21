@@ -323,6 +323,7 @@ If there is an existing feature set, i.e., we either know $s_1$ or $s_2$, Equati
 
 Overall, one can express alternative feature sets following Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
 This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
+One can also encode such constraints into propositional logic (SAT)~\cite{ulrich2022selecting}.
 
 \subsubsection{Multiple Alternatives}
 \label{sec:approach:constraints:multiple}
@@ -395,6 +396,8 @@ In this section, we present white-box optimization objectives for different feat
 
 For univariate filter feature selection, the objective function is linear.
 Thus, the optimization problem of alternative feature selection becomes a 0-1 integer linear problem.
+Alternatively, one could formulate a weighted partial maximum satisfiability (MaxSAT) problem~\cite{li2021maxsat}.
+
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
 \begin{equation}
