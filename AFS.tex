@@ -700,12 +700,6 @@ If the solver finishes before the timeout, it either finds an optimal solution o
 These two outcomes apply to 94\% of the feature sets in our evaluation.
 In the remaining cases, the solver either found a feasible but potentially suboptimal solution or found no solution though one might exist.
 
-%As a simple \emph{baseline} compared to optimization, we use iterative solving to obtain arbitrary feature sets that satisfy the constraints for being alternative.
-%In each iteration, the solver has to return a valid feature set that it did not return in a previous iteration.
-%To obtain a large sample, we conduct 100 iterations.
-%As we neither know nor influence how the solver chooses these solutions, we consider them to be random.
-%However, depending on how the solver obtains them, they might not be uniformly random from the space of valid feature sets.
-
 \subsubsection{Prediction}
 \label{sec:experimental-design:approaches:prediction}
 
