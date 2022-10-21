@@ -235,23 +235,24 @@ We consider a feature set to be an alternative to another feature set if it diff
 Mathematically, we express this with a set-dissimilarity measure~\cite{egghe2009new}.
 These measures typically assess how strongly two sets overlap and set this in relation to the size of the sets.
 For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
-Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
+Given two feature sets $F'$, $F''$, the Jaccard distance is defined as
 %
 \begin{equation}
-	d_{\text{Jacc}}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+	d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F' \cup F''|} = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|}
 	\label{eq:jaccard}
 \end{equation}
+%
 Another possible dissimilarity measure follows from the Dice coefficient:
 %
 \begin{equation}
-	d_{\text{Dice}}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|}
+	d_{\text{Dice}}(F',F'') = 1 - \frac{2 \cdot |F' \cap F''|}{|F'| + |F''|}
 	\label{eq:dice}
 \end{equation}
 %
 We leverage such a set-dissimilarity measure for the following definition:
 %
 \begin{definition}[Single alternative]
-	A feature set $F_2$ is an alternative to a feature set $F_1$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $d(F_1,F_2) \geq \tau$.
+	A feature set $F''$ is an alternative to a feature set $F'$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $d(F',F'') \geq \tau$.
 	\label{def:single-alternative}
 \end{definition}
 %
@@ -262,36 +263,36 @@ If the choice of $\tau$ is unclear a priori, users can try out different values 
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
 Setting $\tau=0$ allows the alternative feature set to be identical to the original one, while $\tau=1$ requires the two feature sets to have no overlap.
 
-If the feature-set sizes $|F_1|$ and $|F_2|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F_1 \cap F_2|$.
+If the feature-set sizes $|F'|$ and $|F''|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F' \cap F''|$.
 This follows from re-arranging Equation~\ref{eq:jaccard} and Equation~\ref{eq:dice} in combination with Definition~\ref{def:single-alternative}:
 %
 \begin{equation}
 	\begin{aligned}
-		d_{\text{Jacc}}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \\
-		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
+		d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|} &\geq \tau \\
+		\Leftrightarrow |F' \cap F''| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F'| + |F''|)
 		\end{aligned}
 	\label{eq:jaccard-rearranged}
 \end{equation}
 %
 The latter formulation also avoids having the feature-set sizes, and thereby the decision variables for feature selection, in a quotient.
-However, the effect of $\tau$ on the maximum overlap size $|F_1 \cap F_2|$ is non-linear for the Jaccard distance in Equation~\ref{eq:jaccard-rearranged}.
-Thus, we use the Dice dissimilarity in this article, where the effect of $\tau$ on the maximum overlap size $|F_1 \cap F_2|$ is linear:
+However, the effect of $\tau$ on the maximum overlap size $|F' \cap F''|$ is non-linear for the Jaccard distance in Equation~\ref{eq:jaccard-rearranged}.
+Thus, we use the Dice dissimilarity in this article, where the effect of $\tau$ on the maximum overlap size $|F' \cap F''|$ is linear:
 %
 \begin{equation}
 	\begin{aligned}
-		d_{\text{Dice}}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \\
-		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
+		d_{\text{Dice}}(F',F'') = 1 - \frac{2 \cdot |F' \cap F''|}{|F'| + |F''|} &\geq \tau \\
+		\Leftrightarrow |F' \cap F''| &\leq \frac{1 - \tau}{2} \cdot (|F'| + |F''|)
 	\end{aligned}
 	\label{eq:dice-rearranged}
 \end{equation}
 %
-If $|F_1| = |F_2|$, this measure is also identical to several further overlap measures.
+If $|F'| = |F''|$, this measure is also identical to several further overlap measures~\cite{egghe2009new}.
 In that case, $\tau$ directly controls which fraction of features in one set needs to differ from the other set, and vice versa:
 %
 \begin{equation}
 	\begin{aligned}
-		\text{If}~|F_1| = |F_2|: \quad d_{\text{Dice}}(F_1,F_2) &\geq \tau \\
-		\Leftrightarrow |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
+		\text{If}~|F'| = |F''|: \quad d_{\text{Dice}}(F',F'') &\geq \tau \\
+		\Leftrightarrow |F' \cap F''| &\leq (1 - \tau) \cdot |F'| = (1 - \tau) \cdot |F''|
 	\end{aligned}
 \end{equation}
 %
@@ -301,25 +302,25 @@ However, expressing the feature-set sizes in terms of $s$ is straightforward:
 \begin{equation}
 	\begin{aligned}
 		|F_s| =& \sum_{j=1}^n s_j \\
-		|F_{s_1} \cap F_{s_2}| =& \sum_{j=1}^n s_{1,j} \cdot s_{2,j}
+		|F_{s'} \cap F_{s''}| =& \sum_{j=1}^n s'_j \cdot s''_j
 	\end{aligned}
 	\label{eq:feature-set-size}
 \end{equation}
 %
 Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
-In fact, one can replace the product $s_{1,j} \cdot s_{2,j}$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
+In fact, one can replace the product $s'_j \cdot s''_j$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
 %
 \begin{equation}
 	\begin{aligned}
-		t_j \leq& s_{1,j} \\
-		t_j \leq& s_{2,j} \\
-		1 + t_j \geq& s_{1,j} + s_{2,j} \\
+		t_j \leq& s'_j \\
+		t_j \leq& s''_j \\
+		1 + t_j \geq& s'_j + s''_j \\
 		t_j \in& \{0,1\}
 	\end{aligned}
 	\label{eq:product-linear}
 \end{equation}
 %
-If there is an existing feature set, i.e., we either know $s_1$ or $s_2$, Equation~\ref{eq:feature-set-size} already is linear without Equation~\ref{eq:product-linear}.
+If there is an existing feature set, i.e., we either know $s'$ or $s''$, Equation~\ref{eq:feature-set-size} already is linear without Equation~\ref{eq:product-linear}.
 
 Overall, one can express alternative feature sets following Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
 This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
@@ -336,7 +337,7 @@ In the sequential case, the user gets several alternatives iteratively, with one
 We constrain this new feature set to be an alternative to all previously found feature sets:
 %
 \begin{definition}[Sequential alternative]
-	A feature set $F_2$ is an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}: d(F_1,F_2) \geq \tau$.
+	A feature set $F''$ is an alternative to a set of feature sets $\mathbb{F}$ (and vice versa) for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F' \in \mathbb{F}: d(F',F'') \geq \tau$.
 	\label{def:sequential-alternative}
 \end{definition}
 %
@@ -344,7 +345,7 @@ This definition duplicates the constraint from the base case and instantiates it
 One could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
 We do not consider this case in our article.
 
-The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F_2$.
+The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F''$.
 Thus, the number of variables in the optimization problem remains constant, independent of the number of alternatives.
 As we are alway comparing a new, variable feature set to existing feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
 Each alternative only adds one new constraint to the optimization problem.
@@ -361,7 +362,7 @@ The user needs to decide on the number of feature sets $\mathbb{F}$ beforehand.
 We formulate pairwise dissimilarity constraints:
 %
 \begin{definition}[Simultaneous alternatives]
-	A set of feature sets $\mathbb{F}$ contains simultaneous alternatives for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F_1 \in \mathbb{F}, F_2 \in \mathbb{F}, F_1 \neq F_2: d(F_1,F_2) \geq \tau$.
+	A set of feature sets $\mathbb{F}$ contains simultaneous alternatives for a dissimilarity threshold $\tau \in \mathbb{R}_{\geq 0}$ if $\forall F' \in \mathbb{F}, F'' \in \mathbb{F}, F' \neq F'': d(F',F'') \geq \tau$.
 	\label{def:simultaneous-alternative}
 \end{definition}
 %
