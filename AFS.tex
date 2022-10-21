@@ -239,13 +239,13 @@ For example, a simple and well-known set-dissimilarity measure is the Jaccard di
 Given two feature sets $F_1$, $F_2$, the Jaccard distance is defined as
 %
 \begin{equation}
-	d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
+	d_{\text{Jacc}}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1 \cup F_2|} = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|}
 	\label{eq:jaccard}
 \end{equation}
 Another possible dissimilarity measure follows from the Dice coefficient:
 %
 \begin{equation}
-	d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|}
+	d_{\text{Dice}}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|}
 	\label{eq:dice}
 \end{equation}
 %
@@ -268,7 +268,7 @@ This follows from re-arranging Equation~\ref{eq:jaccard} and Equation~\ref{eq:di
 %
 \begin{equation}
 	\begin{aligned}
-		d_{Jacc}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \\
+		d_{\text{Jacc}}(F_1,F_2) = 1 - \frac{|F_1 \cap F_2|}{|F_1| + |F_2| - |F_1 \cap F_2|} &\geq \tau \\
 		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F_1| + |F_2|)
 		\end{aligned}
 	\label{eq:jaccard-rearranged}
@@ -280,7 +280,7 @@ Thus, we use the Dice dissimilarity in this article, where the effect of $\tau$ 
 %
 \begin{equation}
 	\begin{aligned}
-		d_{Dice}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \\
+		d_{\text{Dice}}(F_1,F_2) = 1 - \frac{2 \cdot |F_1 \cap F_2|}{|F_1| + |F_2|} &\geq \tau \\
 		\Leftrightarrow |F_1 \cap F_2| &\leq \frac{1 - \tau}{2} \cdot (|F_1| + |F_2|)
 	\end{aligned}
 	\label{eq:dice-rearranged}
@@ -291,7 +291,7 @@ In that case, $\tau$ directly controls which fraction of features in one set nee
 %
 \begin{equation}
 	\begin{aligned}
-		\text{If}~|F_1| = |F_2|: \quad d_{Dice}(F_1,F_2) &\geq \tau \\
+		\text{If}~|F_1| = |F_2|: \quad d_{\text{Dice}}(F_1,F_2) &\geq \tau \\
 		\Leftrightarrow |F_1 \cap F_2| &\leq (1 - \tau) \cdot |F_1| = (1 - \tau) \cdot |F_2|
 	\end{aligned}
 \end{equation}
@@ -399,7 +399,7 @@ Thus, the optimization problem of alternative feature selection becomes a 0-1 in
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
 \begin{equation}
-	Q_{uni}(s,X,y) = \sum_{j=1}^{n} s_j  \cdot q(X_{\cdot{}j},y)
+	Q_{\text{uni}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j
 	\label{eq:univariate-filter}
 \end{equation}
 %
@@ -428,9 +428,9 @@ While the original FCBF algorithm uses a heuristic search, we propose a formulat
 %
 \begin{equation}
 	\begin{aligned}
-		\max_s &\quad Q_{FCBF}(s,X,y) = \sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y) \\
+		\max_s &\quad Q_{\text{FCBF}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
 		\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \\
-		&\quad s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) < q(X_{\cdot{}j_1},y)
+		&\quad q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2} < q(X_{\cdot{}j_1},y)
 	\end{aligned}
 	\label{eq:fcbf}
 \end{equation}
@@ -986,7 +986,7 @@ Redundancy is the correlation between features, acting as a normalization term.
 Using a bivariate dependency measure $q$ to quantify correlation, the objective is as follows:
 %
 \begin{equation}
-	Q_{CFS}(s,X,y) = \frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}}
+	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
 	\label{eq:cfs}
 \end{equation}
 %
@@ -995,7 +995,7 @@ Using a bivariate dependency measure $q$ to quantify correlation, the objective 
 Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} follows a similar principle as CFS, but uses the difference instead of the ratio between relevance and redundancy:
 %
 \begin{equation}
-	Q_{mRMR}(s,X,y) = \frac{\sum_{j=1}^{n} s_j \cdot q(X_{\cdot{}j},y)}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} s_{j_1} \cdot s_{j_2} \cdot q(X_{\cdot{}j_1}, X_{\cdot{}j_2})}{(\sum_{j=1}^{n} s_j)^2}
+	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
 	\label{eq:mrmr}
 \end{equation}
 %
