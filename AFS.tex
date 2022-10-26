@@ -805,6 +805,7 @@ In particular, we discuss the results for the different dimensions of our experi
 datasets, prediction models, feature-selection methods, and approaches to search for alternatives.
 
 \subsection{Datasets}
+\label{sec:evaluation:datasets}
 
 Naturally, feature-set quality depends on the datasets used, and several effects could occur.
 For example, the distribution of feature-set quality in the datasets might be relatively uniform or relatively skewed.
@@ -815,6 +816,7 @@ Indeed, our experiments show a broad variation of feature-set quality over datas
 Further, we do not observe a clear relationship between dataset dimensionality~$n$ and feature-set quality.
 
 \subsection{Prediction Models}
+\label{sec:evaluation:prediction}
 
 \begin{figure}[htb]
 	\centering
@@ -839,6 +841,7 @@ Further, the correlation between optimization objective~$Q$ and prediction MCC i
 I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
 
 \subsection{Feature-Selection Methods}
+\label{sec:evaluation:feature-selection}
 
 As the different feature-selection methods have different objective functions~$Q$, it does not make sense to compare objective values between feature-selection methods.
 Regarding the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
@@ -860,8 +863,10 @@ This displays that small feature sets can already achieve a large share of the p
 For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is less than proportional with~$k$ as well.
 
 \subsection{Searching Alternatives}
+\label{sec:evaluation:search}
 
 \subsubsection{Search Method}
+\label{sec:evaluation:search:method}
 
 \begin{figure}[htb]
 	\centering
@@ -904,6 +909,7 @@ For up to three alternatives in simultaneous search, less than 1\% of feature se
 Based on these results, we focus on the sequential search in the following.
 
 \subsubsection{Number of Alternatives}
+\label{sec:evaluation:search:num-alternatives}
 
 \begin{figure}[htb]
 	\centering
@@ -948,6 +954,7 @@ Thus, while the quality of feature-sets remains relatively stable with increased
 These figures also depend on the dissimilarity threshold $\tau$, which we analyze next.
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
+\label{sec:evaluation:search:tau}
 
 \begin{figure}[htb]
 	\centering
@@ -1008,10 +1015,32 @@ Thus, we recommend evaluating different dissimilarity thresholds for alternative
 \subsection{Future Work}
 
 While our work introduced alternative feature selection, one might vary several points of our approach.
-For example, one can combine the search for alternatives with other feature-selection methods.
-For embedded feature selection, one would need to customize our search routines and push them into model training.
-Further, one can vary the notion of alternatives, e.g., the set-dissimilarity measure, definition for multiple alternatives, or soft constraints instead of hard constraints.
-Finally, while our evaluation was domain-independent, the benefit of alternative feature sets for explainable predictions should be analyzed in domain-specific case studies.
+
+\paragraph{Feature selection (objective function)}
+
+One can search for alternatives with other feature-selection methods than the four we analyzed.
+In particular, there are multiple ways to adapt wrapper feature selection to alternatives (cf.~Section~\ref{sec:approach:objectives:black-box}).
+Further, our generic search procedures need adaptation to work for embedded feature selection (cf.~Section~\ref{sec:approach:objectives:embedding}).
+
+\paragraph{Alternatives (constraints)}
+
+One can vary the notion of alternatives (cf.~Sections~\ref{sec:approach:problem} and~\ref{sec:approach:constraints}), e.g., the set-dissimilarity measure, the definitions for multiple alternatives, or by using soft constraints instead of hard constraints.
+While we tried to make general and straightforward decisions for each of these points, particular applications might demand other formal definitions of alternatives.
+
+\paragraph{Simultaneous alternatives}
+
+Our experiments (cf.~Section~\ref{sec:evaluation:search:method}) as well as theoretical analysis (cf.~Section~\ref{sec:approach:constraints:multiple}) revealed that simultaneous search scales badly with the number of alternatives.
+One way to alleviate this is finding a more efficient problem formulation, e.g., by loosening the constraints for alternatives.
+However, looser constraints bear the danger of allowing identical feature sets as valid alternatives.
+Further, one can limit the solver runtime and take the intermediate results once the timeout is reached.
+We already used a fixed timeout in our experiments, but studying the exact impact of different timeouts one the feature-set quality is a topic for future work.
+Finally, one can use a different solver, e.g., one that supports non-linear terms so the interaction variables and constraints from Equation~\ref{eq:product-linear} become superfluous.
+
+\paragraph{Datasets}
+
+Our evaluation builds on benchmark datasets from various domains.
+While we could uncover several general trends, the existence and the quality of alternative feature sets clearly depends on the dataset (cf.~Section~\ref{sec:evaluation:datasets}).
+Thus, practitioners can use our generic approaches to search alternatives in domain-specific case studies.
 
 \appendix
 
