@@ -1047,47 +1047,6 @@ Thus, practitioners can use our generic approaches to search alternatives in dom
 \section{Appendix}
 \label{sec:appendix}
 
-\subsection{Objectives for Multivariate Filter Feature Selectors}
-\label{sec:appendix:multivariate-filter-objectives}
-
-While Section~\ref{sec:approach:objectives:white-box} already addressed FCBF, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation}, mRMR~\cite{peng2005feature}, and Relief~\cite{kira1992feature, robnik1997adaptation} here.
-
-\paragraph{CFS}
-
-Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} considers both relevance and redundancy of features.
-Relevance is the correlation between features and prediction target, similar to the univariate filter.
-Redundancy is the correlation between features, acting as a normalization term.
-Using a bivariate dependency measure $q$ to quantify correlation, the objective is as follows:
-%
-\begin{equation}
-	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
-	\label{eq:cfs}
-\end{equation}
-%
-This objective is non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
-However, one can linearize the objective with the help of additional variables and constraints~\cite{nguyen2010comparison}.
-
-\paragraph{mRMR}
-
-Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} follows a similar principle as CFS, but uses the difference instead of the ratio between a relevance term and a redundancy term:
-%
-\begin{equation}
-	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
-	\label{eq:mrmr}
-\end{equation}
-%
-If one knows the feature-set size, the denominators are constant and thus, Equation~\ref{eq:mrmr} is linear if one replaces the product terms with Equation~\ref{eq:product-linear}.
-Without this replacement, the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}, though there is a linearization as well~\cite{nguyen2009optimizing, nguyen2010comparison}.
-
-\paragraph{Relief}
-
-Relief~\cite{kira1992feature, robnik1997adaptation} assigns a score to each feature by sampling data objects and considering the difference in feature values compared to their nearest neighbors.
-The idea is that data objects with a similar value of the prediction target should have similar feature values.
-In contrast, data objects that differ in their prediction target should differ in their feature values as well.
-We consider Relief to be multivariate as the nearest-neighbor computations involve all features instead of considering features independently.
-However, the resulting scores for each feature can directly be put into the univariate-filter objective from Equation~\ref{eq:univariate-filter}.
-Further, one can use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
-
 \subsection{Alternative-Feature-Selection Problem for Univariate Feature Qualities}
 \label{sec:appendix:complete-optimization-problem}
 
@@ -1136,6 +1095,47 @@ Further, we introduce auxiliary variables according to Equation~\ref{eq:product-
 	\end{aligned}
 	\label{eq:afs-simultaneous-complete}
 \end{equation}
+
+\subsection{Objectives for Multivariate Filter Feature Selectors}
+\label{sec:appendix:multivariate-filter-objectives}
+
+While Section~\ref{sec:approach:objectives:white-box} already addressed FCBF, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation}, mRMR~\cite{peng2005feature}, and Relief~\cite{kira1992feature, robnik1997adaptation} here.
+
+\paragraph{CFS}
+
+Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} considers both relevance and redundancy of features.
+Relevance is the correlation between features and prediction target, similar to the univariate filter.
+Redundancy is the correlation between features, acting as a normalization term.
+Using a bivariate dependency measure $q$ to quantify correlation, the objective is as follows:
+%
+\begin{equation}
+	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
+	\label{eq:cfs}
+\end{equation}
+%
+This objective is non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
+However, one can linearize the objective with the help of additional variables and constraints~\cite{nguyen2010comparison}.
+
+\paragraph{mRMR}
+
+Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} follows a similar principle as CFS, but uses the difference instead of the ratio between a relevance term and a redundancy term:
+%
+\begin{equation}
+	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
+	\label{eq:mrmr}
+\end{equation}
+%
+If one knows the feature-set size, the denominators are constant and thus, Equation~\ref{eq:mrmr} is linear if one replaces the product terms with Equation~\ref{eq:product-linear}.
+Without this replacement, the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}, though there is a linearization as well~\cite{nguyen2009optimizing, nguyen2010comparison}.
+
+\paragraph{Relief}
+
+Relief~\cite{kira1992feature, robnik1997adaptation} assigns a score to each feature by sampling data objects and considering the difference in feature values compared to their nearest neighbors.
+The idea is that data objects with a similar value of the prediction target should have similar feature values.
+In contrast, data objects that differ in their prediction target should differ in their feature values as well.
+We consider Relief to be multivariate as the nearest-neighbor computations involve all features instead of considering features independently.
+However, the resulting scores for each feature can directly be put into the univariate-filter objective from Equation~\ref{eq:univariate-filter}.
+Further, one can use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
