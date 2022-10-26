@@ -16,6 +16,7 @@
 \usepackage{amsmath} % mathematical symbols
 \usepackage{amssymb} % mathematical symbols
 \usepackage{amsthm} % theorems, definitions etc.
+\usepackage{booktabs} % nicely formatted tables (with top, mid, and bottom rule)
 \usepackage{graphicx} % plots
 \usepackage{orcidlink} % ORCID icon
 \usepackage{subcaption} % figures with multiple sub-figures and sub-captions
@@ -211,14 +212,16 @@ Instead, the user can control how alternative the new feature set should be.
 This yields the following optimization problem:
 %
 \begin{equation}
-	\begin{split}
+	\begin{aligned}
 		\max_s &\quad Q(s,X,y) \\
 		\text{subject to:} &\quad F_s~\text{being alternative}
-	\end{split}
-	\label{eq:afs}
+	\end{aligned}
+	\label{eq:afs-general}
 \end{equation}
 %
 We discuss different constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
+Additionally, many feature-selection methods also limit the feature-set size $|F_s|$ to a user-defined value~$k \in \mathbb{N}$, as we do in our experiments as well.
+Such a requirement on feature-set cardinality adds a further, simple constraint to the optimization problem.
 
 \subsection{Constraints -- Defining Alternatives}
 \label{sec:approach:constraints}
@@ -228,14 +231,14 @@ This part of our work is independent of the feature-selection method.
 First, we discuss the base case where an individual feature set is an alternative to another one.
 Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
 
-\subsubsection{Single Alternatives}
+\subsubsection{Single Alternative}
 \label{sec:approach:constraints:single}
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this with a set-dissimilarity measure~\cite{egghe2009new}.
 These measures typically assess how strongly two sets overlap and set this in relation to the size of the sets.
 For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
-Given two feature sets $F'$, $F''$, the Jaccard distance is defined as
+Given two feature sets $F'$, $F''$, the Jaccard distance is defined as follows:
 %
 \begin{equation}
 	d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F' \cup F''|} = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|}
@@ -256,8 +259,8 @@ We leverage such a set-dissimilarity measure for the following definition:
 	\label{def:single-alternative}
 \end{definition}
 %
-$\tau$ controls how alternative the new feature set should be and depends on the preferences of the user.
-In particular, a feature set that differs strongly might cause a significant drop in feature-set quality.
+The threshold~$\tau$ controls how alternative the new feature set should be and depends on the preferences of the user.
+In particular, requiring the new feature set to differ strongly from the existing one might cause a significant drop in feature-set quality.
 Thus, we leave $\tau$ as a parameter.
 If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
@@ -286,14 +289,15 @@ Thus, we use the Dice dissimilarity in this article, where the effect of $\tau$ 
 	\label{eq:dice-rearranged}
 \end{equation}
 %
-If $|F'| = |F''|$, this measure is also identical to several further overlap measures~\cite{egghe2009new}.
-In that case, $\tau$ directly controls which fraction of features in one set needs to differ from the other set, and vice versa:
+If $|F'| = |F''|$, as in our experiments, the measure becomes identical to several other dissimilarity measures~\cite{egghe2009new}.
+Further, $\tau$ then directly controls which fraction of features in one set needs to differ from the other set, and vice versa:
 %
 \begin{equation}
 	\begin{aligned}
 		\text{If}~|F'| = |F''|: \quad d_{\text{Dice}}(F',F'') &\geq \tau \\
 		\Leftrightarrow |F' \cap F''| &\leq (1 - \tau) \cdot |F'| = (1 - \tau) \cdot |F''|
 	\end{aligned}
+	\label{eq:dice-rearranged-equal-size}
 \end{equation}
 %
 Up to now, we have used feature sets instead of the binary feature-selection vector $s$.
@@ -307,8 +311,9 @@ However, expressing the feature-set sizes in terms of $s$ is straightforward:
 	\label{eq:feature-set-size}
 \end{equation}
 %
-Combining Equation~\ref{eq:jaccard-rearranged} or Equation~\ref{eq:dice-rearranged} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
-In fact, one can replace the product $s'_j \cdot s''_j$ with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
+The expression from Equation~\ref{eq:feature-set-size} also helps to formulate a constraint for limiting the new feature set's size to a user-defined value~$k \in \mathbb{N}$.
+Further, combining Equation~\ref{eq:jaccard-rearranged},~\ref{eq:dice-rearranged},~or~\ref{eq:dice-rearranged-equal-size} with Equation~\ref{eq:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
+In fact, one can replace the product $s'_j \cdot s''_j$, which is non-linear, with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
 %
 \begin{equation}
 	\begin{aligned}
@@ -320,7 +325,7 @@ In fact, one can replace the product $s'_j \cdot s''_j$ with linear constraints 
 	\label{eq:product-linear}
 \end{equation}
 %
-If there is an existing feature set, i.e., we either know $s'$ or $s''$, Equation~\ref{eq:feature-set-size} already is linear without Equation~\ref{eq:product-linear}.
+If there is an existing feature set, i.e., either $s'$ or $s''$ is fixed to particular values, Equation~\ref{eq:feature-set-size} already is linear without Equation~\ref{eq:product-linear} since it only multiplies variables with constants in that case.
 
 Overall, one can express alternative feature sets following Definition~\ref{def:single-alternative} with 0-1 integer linear constraints.
 This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
@@ -330,7 +335,27 @@ One can also encode such constraints into propositional logic (SAT)~\cite{ulrich
 \label{sec:approach:constraints:multiple}
 
 If the user desires multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
-
+Table~\ref{tab:seq-sim-comparison} compares the sizes of the optimization problems for these two search procedures.
+%
+\begin{table}[htb]
+	\centering
+	\renewcommand*{\arraystretch}{1.3}
+	\begin{tabular}{lccc}
+		\toprule
+		& \multicolumn{2}{c}{Sequential search} & Simultaneous search \\
+		\cmidrule(r){2-3}
+		& Alternative $i$ & Summed & \\
+		\midrule
+		Decision variables~$s$ & $n$ & $ (a+1) \cdot n$ & $(a+1) \cdot n$ \\
+		Linearization variables~$t$ & $0$ & $0$ & $\frac{a \cdot (a+1) \cdot n}{2}$ \\
+		Alternative constraints & $i$ & $\frac{a \cdot (a+1)}{2}$ & $\frac{a \cdot (a+1)}{2}$ \\
+		Linearization constraints & $0$ & $0$ & $\frac{3 \cdot a \cdot (a+1) \cdot n}{2}$ \\
+		\bottomrule
+	\end{tabular}
+	\caption{Size of the optimization problems for $a$ alternatives ($a + 1$~feature sets overall, including the original one) and $n$ features.}
+	\label{tab:seq-sim-comparison}
+\end{table}
+%
 \paragraph{Sequential alternatives}
 
 In the sequential case, the user gets several alternatives iteratively, with one alternative feature set per iteration.
@@ -341,19 +366,30 @@ We constrain this new feature set to be an alternative to all previously found f
 	\label{def:sequential-alternative}
 \end{definition}
 %
-This definition duplicates the constraint from the base case and instantiates it for multiple existing feature sets.
-One could also use a less strict constraint, e.g., requiring only the average dissimilarity to all existing feature sets to pass the threshold.
-We do not consider this case in our article.
-
-The objective function remains the same as in the base case, i.e., we optimize the quality of the new feature set~$F''$.
-Thus, the number of variables in the optimization problem remains constant, independent of the number of alternatives.
-As we are alway comparing a new, variable feature set to existing feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
-Each alternative only adds one new constraint to the optimization problem.
-Thus, we expect the runtime of sequential search to scale well with the number of alternatives.
+This definition duplicates the constraint for a single alternative (cf.~Definition~\ref{def:single-alternative}) and instantiates it for multiple existing feature sets.
+One could also use a less strict constraint, e.g., based on aggregated dissimilarity, like requiring only the average dissimilarity to all existing feature sets to pass the threshold.
+However, definitions like the latter might allow some feature sets to heavily overlap or even be identical if other feature sets are very dissimilar.
+Thus, we require pairwise dissimilarity in Definition~\ref{def:sequential-alternative}.
+We obtain the following optimization problem, letting $\mathbb{F}$ denote the set of existing feature sets:
+%
+\begin{equation}
+	\begin{aligned}
+		\max_s &\quad Q(s,X,y) \\
+		\text{subject to:} &\quad \forall F' \in \mathbb{F}: d(F_s,F') \geq \tau
+	\end{aligned}
+	\label{eq:afs-sequential}
+\end{equation}
+%
+The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of the new feature set~$F_s$.
+Thus, the number of variables in the optimization problem is independent of the number of alternatives.
+Instead, we solve the optimization problem repeatedly; each alternative only adds one new constraint to the problem.
+As we always compare the new, variable feature set to existing, constant feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
+Overall, we expect the runtime of sequential search to scale well with the number of alternatives.
 Further runtime gains might be possible if the solver keeps a state between iterations and can warm-start.
 
-As the solution space becomes narrower over iterations, feature-set quality can drop with each further alternative.
-After each iteration, the user can decide if the feature-set quality is too low or if another alternative should be found.
+However, as the solution space becomes narrower over iterations, feature-set quality can deteriorate with each further alternative.
+In particular, multiple alternatives from the same sequential search might differ significantly in their quality.
+As a remedy, the user can decide after each iteration if the feature-set quality already is unacceptably low or if another alternative should be found.
 
 \paragraph{Simultaneous alternatives}
 
@@ -366,18 +402,27 @@ We formulate pairwise dissimilarity constraints:
 	\label{def:simultaneous-alternative}
 \end{definition}
 %
-Again, one could resort to less strict constraints, e.g., based on the average dissimilarity between alternatives.
-
+This definition leads to the following optimization problem, assuming we want to obtain $a$ alternative feature sets besides an `original' feature set (which can be any of the solutions since there is no order of feature sets).
+%
+\begin{equation}
+	\begin{aligned}
+		\max_{s^{(0)}, \dots, s^{(a)}} &\quad \sum_{i=0}^a Q(s^{(i)},X,y) \\
+		\text{subject to:} &\quad \forall i_1 \in \{0, \dots, a\}~\forall i_2 \in \{0, \dots, i_1-1\} : d(F_{s^{(i_1)}},F_{s^{(i_2)}}) \geq \tau
+	\end{aligned}
+	\label{eq:afs-simultaneous}
+\end{equation}
+%
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
 In this paper, we consider the summed quality of all feature sets as objective.
-
-Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search.
-The number of decision variables increases linearly with the number of alternatives while the number of constraints grows quadratically.
+Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as we need to tackle one large optimization problem instead of multiple smaller ones.
+In particular, the number of decision variables increases linearly with the number of alternatives and the number of constraints even grows quadratically.
 Also, for each feature and each pair of alternatives, we need to introduce an interaction variable as in Equation~\ref{eq:product-linear} if we want to obtain a linear problem.
 
 In contrast to the greedy procedure of sequential search, simultaneous search optimizes alternatives globally.
 Thus, the simultaneous procedure should yield same or higher average feature-set quality for the same number of alternatives.
-Also, we expect the qualities of the alternatives to be more evenly distributed, as opposed to the dropping quality over the course of the sequential procedure.
+Also, the quality can be more evenly distributed over the alternatives, as opposed to the dropping quality over the course of the sequential procedure.
+However, increasing the number of alternatives still has a negative effect on the average feature-set quality.
+Further, opposed to the sequential procedure, there are no intermediate steps where the user could interrupt the search.
 
 \subsection{Objective Functions -- Finding Alternatives}
 \label{sec:approach:objectives}
@@ -407,6 +452,7 @@ In particular, univariate filter methods decompose the quality of a feature set 
 \end{equation}
 %
 Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
+Appendix~\ref{sec:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
 
 \paragraph{Post-hoc feature importance}
 
@@ -1012,6 +1058,55 @@ In contrast, data objects that differ in their prediction target should differ i
 We consider Relief to be multivariate as the nearest-neighbor computations involve all features instead of considering features independently.
 However, the resulting scores for each feature can directly be put into the univariate-filter objective from Equation~\ref{eq:univariate-filter}.
 Further, one can use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
+
+\subsection{Alternative-Feature-Selection Problem for Univariate Feature Qualities}
+\label{sec:appendix:complete-optimization-problem}
+
+In this section, we provide a complete specification of the alternative-feature-selection problem for sequential and simultaneous search.
+In particular, we combine all relevant definitions and equations from Section~\ref{sec:approach}.
+For the objective, we consider an univariate filter feature selector, as defined in the Equation~\ref{eq:univariate-filter}.
+The corresponding feature qualities $q(\cdot)$ are constants in the optimization problem.
+To measure feature-set dissimilarity for alternatives, we use the Dice dissimilarity from Equation~\ref{eq:dice-rearranged-equal-size}.
+The dissimilarity threshold~$\tau \in [0,1]$ is a user-defined constant.
+Further, we assume that each feature set should have a fixed, user-defined size~$k \in \mathbb{N}$, as in our experiments.
+
+\paragraph{Sequential alternatives}
+
+In the sequential case, only one feature set~$F_s$ is variable.
+In contrast, the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their selection vectors $\bar{s}$ are constants in the optimization problem.
+%
+\begin{equation}
+	\begin{aligned}
+		\max_s &\quad & Q_{\text{uni}}(s,X,y) &= \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
+		\text{subject to:} &\quad \forall F_{\bar{s}} \in \mathbb{F} :& \sum_{j=1}^n s_j \cdot \bar{s}_j &\leq (1 - \tau) \cdot k \\
+		&\quad & \sum_{j=1}^n s_j &= k \\
+		&\quad & s &\in \{0,1\}^n
+	\end{aligned}
+	\label{eq:afs-sequential-complete}
+\end{equation}
+%
+\paragraph{Simultaneous alternatives}
+
+In the simultaneous case, all feature sets are variable.
+Let~$a \in \mathbb{N}$ denote the number of alternatives, which corresponds to the number of feature sets minus one.
+Further, we introduce auxiliary variables according to Equation~\ref{eq:product-linear} to linearize products between variables.
+%
+\begin{equation}
+	\begin{aligned}
+		\max_{s^{(0)}, \dots, s^{(a)}} &\quad & \sum_i Q_{\text{uni}}(s^{(i)},X,y) &= \sum_i \sum_j q(X_{\cdot{}j},y) \cdot s^{(i)}_j\\
+		\text{subject to:} &\quad \forall i_1~\forall i_2 :& \sum_j t^{(i_1,i_2)}_j &\leq (1 - \tau) \cdot k \\
+		&\quad \forall i_1~\forall i_2~\forall j :& t^{(i_1,i_2)}_j &\leq s^{(i_1)}_j \\
+		&\quad \forall i_1~\forall i_2~\forall j :& t^{(i_1,i_2)}_j &\leq s^{(i_2)}_j \\
+		&\quad \forall i_1~\forall i_2~\forall j :& 1 + t^{(i_1,i_2)}_j &\geq s^{(i_1)}_j + s^{(i_2)}_j \\
+		&\quad \forall i :& \sum_j s^{(i)}_j &= k \\
+		&\quad \forall i :& s^{(i)} &\in \{0,1\}^n \\
+		&\quad \forall i_1~\forall i_2 :& t^{(i_1,i_2)} &\in \{0,1\}^n \\
+		\text{with indices:} &\quad & i,~i_1 &\in \{0, \dots, a\} \\
+		&\quad & i_2 &\in \{0, \dots, i_1-1\} \\
+		&\quad & j &\in \{1, \dots, n\}
+	\end{aligned}
+	\label{eq:afs-simultaneous-complete}
+\end{equation}
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
