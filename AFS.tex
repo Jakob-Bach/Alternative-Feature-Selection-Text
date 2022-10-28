@@ -513,8 +513,9 @@ While such an approach is technically simple, it might very inefficient, as ther
 
 Instead of considering all possible alternatives, one can also sample a limited number of them.
 Again, the naive way is sampling from all feature sets, but removing those samples that are not alternative enough.
-If the number of valid alternatives is low to the total number of feature sets, this approach might need a lot of samples.
-In fact, uniform sampling from a constrained space is a computationally hard problem, believed to be harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
+If the number of valid alternatives is low relative to the total number of feature sets, this approach might need a lot of samples.
+One could also observe the constraints in the sampling procedure, e.g., by using a solver for sampling.
+One might abandon the idea of uniform sampling in that case since uniform sampling from a constrained space is a computationally hard problem, believed to be harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
 
 \paragraph{Multi-objective optimization}
 
@@ -527,7 +528,8 @@ One can adapt a search heuristic to consider the constraints for being alternati
 One idea is to prevent the search heuristic from producing feature sets that violate the constraints, or at least making the latter less likely, e.g., be penalizing the objective function accordingly.
 Another idea is to `repair' feature sets proposed by the search that are not alternative enough.
 For example, one can replace a feature set violating the constraint with the most similar feature set satisfying the constraints.
-Such solver-assisted search approaches are common in search procedure for valid configuration in software feature models~\cite{white2010automated,henard2015combining,guo2018preserve}.
+Such solver-assisted search approaches are common in search procedure for valid configuration in software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}.
+One could also apply solver-based repair to randomly sampled feature sets.
 
 As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy, as displayed in Algorithm~\ref{al:greedy-wrapper}.
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only evaluates feature sets that satisfy the constraints for alternatives.
