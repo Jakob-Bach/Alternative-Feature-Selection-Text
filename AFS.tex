@@ -454,6 +454,7 @@ In particular, univariate filter methods decompose the quality of a feature set 
 %
 Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
 Appendix~\ref{sec:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
+Appendix~\ref{sec:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver.
 
 \paragraph{Post-hoc feature importance}
 
@@ -1090,10 +1091,10 @@ However, we can linearize it with the help of an auxiliary variable~$Q_{\text{mi
 As we maximize~$Q_{\text{min}}$, this variable will implicitly assume the actual minimum value of~$Q(s^{(i)},X,y)$ with equality since the solution would not be optimal otherwise.
 This situation relives us from introducing further auxiliary variables that are usually necessary when linearizing maximum or minimum expressions~\cite{mosek2022modeling}.
 
-\subsection{Alternative-Feature-Selection Problem for Univariate Feature Qualities}
+\subsection{Complete Specifications of the Optimization Problem}
 \label{sec:appendix:complete-optimization-problem}
 
-In this section, we provide a complete specification of the alternative-feature-selection problem for sequential and simultaneous search.
+In this section, we provide complete specifications of the alternative-feature-selection problem for sequential and simultaneous search.
 In particular, we combine all relevant definitions and equations from Section~\ref{sec:approach}.
 For the objective, we consider an univariate filter feature selector, as defined in the Equation~\ref{eq:univariate-filter}.
 The corresponding feature qualities $q(\cdot)$ are constants in the optimization problem.
@@ -1138,6 +1139,40 @@ Further, we introduce auxiliary variables according to Equation~\ref{eq:product-
 	\end{aligned}
 	\label{eq:afs-simultaneous-complete}
 \end{equation}
+
+\subsection{Finding Alternatives for Univariate Feature Qualities}
+\label{sec:appendix:univariate-search-algorithm}
+
+For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:univariate-filter} and Section~\ref{sec:appendix:complete-optimization-problem}), one can easily find a certain number of optimal alternative feature sets without a solver.
+To this end, we propose the following \emph{greedy-replacement} procedure:
+The mentioned objective function does not contain interaction terms between features.
+Thus, one should sort the features decreasingly by their individual qualities~$q(\cdot)$.
+The optimal feature set of size $k$ simply consists of the top~$k$ features from this ordering.
+Knowing the feature-set size $k$ and using a simple set-dissimilarity measure like the Dice dissimilarity, one can determine how many features needs to differ for a valid alternative (cf.~Equation~\ref{eq:dice-rearranged-equal-size}), i.e., $\tau \cdot k$ features.
+Thus, one should pick this number of features from the current feature set, choosing the features with the lowest qualities, and replace them with the highest-quality features that were not part of any feature set yet.
+To obtain multiple alternatives, one can continue this procedure iteratively.
+
+For example, with $n=10$ features, feature-set size~$k=5$, and $\tau=0.4$, each feature set has to differ by two features from the other feature sets.
+The original feature set consists of the five best features regarding quality~$q(\cdot)$.
+The first alternative consists of the three best features plus the sixth- and seventh-best feature.
+The seconds alternative consists of the three best features plus the eight- and ninth-best feature.
+In general, the $(1 - \tau) \cdot k$ best features plus the $k + (i-1) \cdot \tau \cdot k + 1$ to $k + i \cdot \tau \cdot k$ best features form the $i$-th alternative.
+
+The summed quality of the solutions yielded by this greedy sequential procedure cannot even be surpassed by simultaneous search, though the latter might compose the feature sets differently.
+However, greedy replacement only works as long as some features have not been part of any feature set yet, i.e., $k + i \cdot \tau \cdot k \leq n$.
+Once this pool of unused features is exhausted, one would need another strategy to find further alternatives.
+From that point on, a continuation of the sequential procedure might perform worse than a simultaneous search.
+
+Obtaining a high number of alternatives from greedy replacement favors scenarios with a high number of features $n$, a small feature-set size $k$, and a low dissimilarity threshold~$\tau$.
+These conditions align well with classical feature-selection scenarios where~$k \ll n$.
+
+Beside the drawback of potentially running out of unused features, there are further disadvantages.
+In particular, greedy replacement does not work once the optimization problem gets more involved.
+For example, there might be further constraints on feature sets, e.g,, based on domain knowledge.
+Also, the objective function becomes more complex for other feature selectors than univariate filters.
+Simultaneous search with the objective from Appendix~\ref{sec:appendix:min-quality-objective} also is unsuitable for greedy replacement.
+Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
+Our experiments in Section~\ref{sec:evaluation} consistently use a solver.
 
 \subsection{Objectives for Multivariate Filter Feature Selectors}
 \label{sec:appendix:multivariate-filter-objectives}
