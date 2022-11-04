@@ -1058,7 +1058,7 @@ In this section, we present another objective for simultaneous search.
 In Equation~\ref{eq:afs-simultaneous}, we use the summed feature-set quality over alternatives as the objective.
 While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality, though the latter could be a goal for searching simultaneously.
 For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:univariate-filter}) with five features, the feature qualities~$q = (1,2,3,4,5)$, desired feature-set size $k=2$, and dissimilarity threshold $\tau = 1$, i.e., allowing no overlap of feature sets.
-The feature selection $s^{(0)} = (0,0,0,1,1)$, $s^{(1)} = (0,1,1,0,0)$ yields the optimal summed quality of $9+5=14$, while the quality of the two feature sets differs significantly.
+The feature selection $s^{(0)} = (0,0,0,1,1)$, $s^{(1)} = (0,1,1,0,0)$ yields the optimal summed quality of $9+5=14$, while the quality of these two feature sets differs significantly.
 The feature selection $s^{(0)} = (0,1,0,0,1)$, $s^{(1)} = (0,0,1,1,0)$ yields the same summed quality of $7+7=14$ but with balanced feature-set qualities.
 Sequential search for alternatives can only yield the first, quality-imbalanced solution due to the greedy search procedure.
 Simultaneous search with the summed-quality objective could yield both solutions, due to the identical objective value, so we still cannot be sure to get balanced qualities.
@@ -1066,7 +1066,10 @@ Simultaneous search with the summed-quality objective could yield both solutions
 To actively foster balanced feature-set qualities in simultaneous search, we can use the minimum instead of the sum over $Q(\cdot)$ in the objective:
 %
 \begin{equation}
-	\max_{s^{(0)}, \dots, s^{(a)}} \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y)~\left(\text{rather than:} \max_{s^{(0)}, \dots, s^{(a)}} \sum_{i=0}^a Q(s^{(i)},X,y) \right)
+	\begin{aligned}[t]
+		&\quad \max_{s^{(0)}, \dots, s^{(a)}} & \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
+		\text{instead of:} &\quad \max_{s^{(0)}, \dots, s^{(a)}} & \sum_{i=0}^a Q(s^{(i)},X,y)
+	\end{aligned}
 	\label{eq:afs-simultaneous-min-objective}
 \end{equation}
 %
