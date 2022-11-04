@@ -1148,34 +1148,74 @@ Further, we introduce auxiliary variables according to Equation~\ref{eq:product-
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:appendix:univariate-search-algorithm}
 
-For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:univariate-filter} and Section~\ref{sec:appendix:complete-optimization-problem}), one can easily find a certain number of optimal alternative feature sets without a solver.
-To this end, we propose the following \emph{greedy-replacement} procedure:
-The mentioned objective function does not contain interaction terms between features.
-Thus, one should sort the features decreasingly by their individual qualities~$q(\cdot)$.
-The optimal feature set of size $k$ simply consists of the top~$k$ features from this ordering.
-Knowing the feature-set size $k$ and using a simple set-dissimilarity measure like the Dice dissimilarity, one can determine how many features needs to differ for a valid alternative (cf.~Equation~\ref{eq:dice-rearranged-equal-size}), i.e., $\tau \cdot k$ features.
-Thus, one should pick this number of features from the current feature set, choosing the features with the lowest qualities, and replace them with the highest-quality features that were not part of any feature set yet.
-To obtain multiple alternatives, one can continue this procedure iteratively.
+For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:univariate-filter} and Section~\ref{sec:appendix:complete-optimization-problem}), one can easily find a limited number of optimal alternative feature sets without a solver.
+To this end, we propose the following \emph{greedy-replacement} procedure, displayed in Algorithm~\ref{al:greedy-replacement}:
+
+The univariate objective function does not contain interaction terms between features.
+Thus, we start by sorting the features decreasingly according to their individual qualities~$q_j(\cdot)$.
+Given a desired feature-set size~$k$, the optimal original feature set, i.e., the zeroth alternative, simply consists of the first~$k$ features from this quality-based ordering.
+Depending on the set-dissimilarity measure defining alternatives, one can then determine how many features needs to differ for obtaining a valid alternative.
+For the Dice dissimilarity we use in our paper, including Algorithm~\ref{al:greedy-replacement}, $\lceil \tau \cdot k \rceil$~features need to differ between feature sets (cf.~Equation~\ref{eq:dice-rearranged-equal-size}).
+Consequently, a fixed subset of $\lfloor (1 - \tau) \cdot k \rfloor$~features can be contained in all alternatives without violating the dissimilarity threshold.
+Thus, for each alternative, we always select the best $\lfloor (1 - \tau) \cdot k \rfloor$~features regarding quality~$q_j(\cdot)$.
+We only replace the remaining $\lceil \tau \cdot k \rceil$~features from alternative to alternative.
+To this end, we fill up the feature sets with the highest-quality features that were not part of any feature set yet, which ensures a sufficient pairwise dissimilarity between feature sets.
+We continue this procedure till we reach the desired number of alternatives or till there are not enough unused features to form further alternatives.
+
+\begin{algorithm}[htb]
+	\DontPrintSemicolon
+	\KwIn{Univariate feature qualities~$q_j(\cdot)$ with $j \in \{1, \dots, n\}$, \newline
+		Feature-set size~$k$, \newline
+		Number of alternatives~$a$, \newline
+		Dissimilarity threshold~$\tau$}
+	\KwOut{Feature-selection decision vectors~$s^{(\cdot)}$}
+	\BlankLine
+	\If(\tcp*[f]{Not enough features for selection}){$k > n$}{
+		\Return{$\emptyset$}
+	}
+	$indices \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities}
+	$s \leftarrow \{0\}^n$ \tcp*{Initial selection for all alternatives}
+	$position \leftarrow 1$ \tcp*{Index of index of currently selected feature}
+	\While{$position < \lfloor (1 - \tau) \cdot k \rfloor$}{
+		$j \leftarrow indices[position]$\;
+		$s_j \leftarrow 1$ \;
+		$position \leftarrow position + 1$\;
+	}
+	$i \leftarrow 0$\ \tcp*{Number of current alternative}
+	\While{$i \leq a$ \textbf{and} $i \leq \frac{n - k}{\lceil \tau \cdot k \rceil}$}{
+		$s^{(i)} \leftarrow s$ \tcp*{Select best $\lfloor (1 - \tau) \cdot k \rfloor$ features}
+		\For(\tcp*[f]{Select remaining $\lceil \tau \cdot k \rceil$ features}){$\_ \leftarrow 1$ \KwTo $\lceil \tau \cdot k \rceil$}{
+			$j \leftarrow indices[position]$\;
+			$s^{(i)}_j \leftarrow 1$\;
+			$position \leftarrow position + 1$\;
+		}
+		$i \leftarrow i + 1$\;
+	}
+	\Return{$s^{(0)}, \dots, s^{(i)}$}
+	\caption{Greedy-replacement search for alternative feature sets based on Dice dissimilarity.}
+	\label{al:greedy-replacement}
+\end{algorithm}
 
 For example, with $n=10$ features, feature-set size~$k=5$, and $\tau=0.4$, each feature set has to differ by two features from the other feature sets.
 The original feature set consists of the five best features regarding quality~$q(\cdot)$.
 The first alternative consists of the three best features plus the sixth- and seventh-best feature.
-The seconds alternative consists of the three best features plus the eight- and ninth-best feature.
-In general, the $(1 - \tau) \cdot k$ best features plus the $k + (i-1) \cdot \tau \cdot k + 1$ to $k + i \cdot \tau \cdot k$ best features form the $i$-th alternative.
+The second alternative consists of the three best features plus the eight- and ninth-best feature.
+After that alternative, the greedy-replacement procedure has to stop, as there are not enough unused features to form further alternatives.
+In general, the $\lfloor (1 - \tau) \cdot k \rfloor$~best features plus the $k + (i-1) \cdot \lceil \tau \cdot k \rceil + 1$ to $k + i \cdot \lceil \tau \cdot k \rceil$~best features form the $i$-th alternative.
 
-The summed quality of the solutions yielded by this greedy sequential procedure cannot even be surpassed by simultaneous search, though the latter might compose the feature sets differently.
-However, greedy replacement only works as long as some features have not been part of any feature set yet, i.e., $k + i \cdot \tau \cdot k \leq n$.
+Not even a simultaneous search can surpass the summed quality of the solutions yielded by this greedy sequential procedure, though the former might compose the feature sets differently.
+However, greedy replacement only works as long as some features have not been part of any feature set yet, i.e., $k + i \cdot \lceil \tau \cdot k \rceil \leq n$.
 Once this pool of unused features is exhausted, one would need another strategy to find further alternatives.
-From that point on, a continuation of the sequential procedure might perform worse than a simultaneous search.
+Additionally, continuing search from the results of greedy replacement might then perform worse than a simultaneous search.
 
-Obtaining a high number of alternatives from greedy replacement favors scenarios with a high number of features $n$, a small feature-set size $k$, and a low dissimilarity threshold~$\tau$.
+To obtain a high number of alternatives with greedy replacement, the number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
 These conditions align well with classical feature-selection scenarios where~$k \ll n$.
 
-Beside the drawback of potentially running out of unused features, there are further disadvantages.
+However, besides the drawback of potentially running out of unused features, there are further disadvantages of greedy replacement compared to solver-based optimization.
 In particular, greedy replacement does not work once the optimization problem gets more involved.
-For example, there might be further constraints on feature sets, e.g,, based on domain knowledge.
-Also, the objective function becomes more complex for other feature selectors than univariate filters.
-Simultaneous search with the objective from Appendix~\ref{sec:appendix:min-quality-objective} also is unsuitable for greedy replacement.
+For example, there might be further constraints on feature sets, e.g,, based on domain knowledge, which are not accounted for in Algorithm~\ref{al:greedy-replacement}.
+Also, the objective function becomes more complex for other feature selectors than univariate filters, which makes the quality-based feature ordering impossible or suboptimal.
+Simultaneous search with the min-quality objective from Appendix~\ref{sec:appendix:min-quality-objective} also is unsuitable for greedy replacement.
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:evaluation} consistently use a solver.
 
