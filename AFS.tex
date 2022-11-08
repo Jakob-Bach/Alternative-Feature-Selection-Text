@@ -473,24 +473,28 @@ Several multivariate filter methods allow for a simple white-box formulation as 
 In the following, we describe FCBF~\cite{yu2003feature}, which we use in our experiments.
 Appendix~\ref{sec:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation}, mRMR~\cite{peng2005feature}, and Relief~\cite{kira1992feature, robnik1997adaptation}.
 
-The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance:
-It strives to select features that have at least a certain correlation to the prediction target but a lower correlation to all other features.
-While the original FCBF algorithm uses a heuristic search, we propose a formulation as a constrained optimization problem:
+The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance, expressed by two conditions on selected features:
+First, a selected feature's correlation to the prediction target needs to pass a pre-defined threshold.
+Second, a selected feature's correlation to the target needs to be higher than each other selected feature's correlation to the given feature.
+While the original FCBF algorithm uses a heuristic search to find predominant features, we propose a formulation as a constrained optimization problem:
 %
 \begin{equation}
 	\begin{aligned}
 		\max_s &\quad Q_{\text{FCBF}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
-		\text{subject to:} &\quad \forall (j_1,j_2) \in \{1, \dots, n\}^2, j_1 \neq j_2: \\
-		&\quad q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2} < q(X_{\cdot{}j_1},y)
+		\text{subject to:} &\quad \forall j_1 \in \{2, \dots, n\}, \forall j_2 \in \{1, \dots, j_2 - 1\}: \\
+		&\quad \quad\quad \text{If } q(X_{\cdot{}j_1},y) \leq q(X_{\cdot{}j_2}, X_{\cdot{}j_1}): s_{j_1} + s_{j_2} \leq 1
 	\end{aligned}
 	\label{eq:fcbf}
 \end{equation}
 %
-In particular, we drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate filter case.
-To limit the size of the resulting feature set, one can put a constraint on the feature set size.
-Also, if one still wants to definitely prevent selection of features with low correlation to the prediction target, one can filter out these features before optimization.
-With the constraint in Equation~\ref{eq:fcbf}, we enforce that if two feature are selected, their correlation has to be lower than each feature's target correlation.
-The optimization problem is linear if one appropriately handles the product term between decision variables.
+Our formulation still addresses the two aspects of predominance.
+First, we drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate-filter case.
+This change can lead to large feature sets, which might containing many low-quality features.
+As a countermeasure, one can add a constraint on the feature-set size, as we do in our experiments.
+If one still wants to prevent the selection of features with low correlation to the prediction target, one can also filter out these features before optimization.
+Second, we keep FCBF's constraints on feature-feature correlation.
+In particular, we prevent the simultaneous selection of two features if the correlation between them is at least as high as one of the features' correlation to the target.
+As the if-condition in Equation~\ref{eq:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the subsequent linear constraint on~$s$ only if needed.
 
 \subsubsection{Black-Box Optimization}
 \label{sec:approach:objectives:black-box}
