@@ -100,9 +100,11 @@ Our contribution is threefold.
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we foster the search for alternatives via constraints on feature sets.
 This formulation also allows integrating other constraints on feature sets~\cite{bach2022empirical, groves2015toward}.
+We only require users to set two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative.
+In fact, these parameters allow users to control the search for alternatives according to their needs.
 Second, we propose heuristic and exact approaches to solve this optimization problem.
 To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
-Our notion of alternatives is general and thus not tailored to specific feature-selection methods.
+Our notion of alternatives is general and thus independent of specific feature-selection methods.
 Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
 We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
@@ -227,9 +229,11 @@ Such a requirement on feature-set cardinality adds a further, simple constraint 
 \label{sec:approach:constraints}
 
 In this section, we formalize alternative feature sets.
-This part of our work is independent of the feature-selection method.
 First, we discuss the base case where an individual feature set is an alternative to another one.
-Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures for alternatives.
+Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures.
+
+Our notion of alternatives is independent of the feature-selection method.
+We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number of alternatives~$a$, which both allow users to control the search for alternatives.
 
 \subsubsection{Single Alternative}
 \label{sec:approach:constraints:single}
@@ -259,9 +263,12 @@ We leverage such a set-dissimilarity measure for the following definition:
 	\label{def:single-alternative}
 \end{definition}
 %
-The threshold~$\tau$ controls how alternative the new feature set should be and depends on the preferences of the user.
+The threshold~$\tau$ controls how alternative the new feature set should be and depends on the dataset as well as the preferences of the user.
 In particular, requiring the new feature set to differ strongly from the existing one might cause a significant drop in feature-set quality.
+Some datasets might contain many features of similar utility, thereby enabling many alternatives of similar quality, while predictions on other datasets might depend on a few key features.
+Only users can decide which drop in feature-set quality is acceptable for them as a tradeoff for obtaining an alternative feature set.
 Thus, we leave $\tau$ as a parameter.
+In fact, it is the only parameter for our definition of single alternatives, unless one wants to vary the dissimilarity measure for feature sets as well.
 If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
 Setting $\tau=0$ allows the alternative feature set to be identical to the original one, while $\tau=1$ requires the two feature sets to have no overlap.
@@ -335,6 +342,7 @@ One can also encode such constraints into propositional logic (SAT)~\cite{ulrich
 \label{sec:approach:constraints:multiple}
 
 If the user desires multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
+The number of alternatives~$a$ is a parameter to be set by the user.
 Table~\ref{tab:seq-sim-comparison} compares the sizes of the optimization problems for these two search procedures.
 %
 \begin{table}[htb]
@@ -381,7 +389,7 @@ We obtain the following optimization problem, letting $\mathbb{F}$ denote the se
 \end{equation}
 %
 The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of the new feature set~$F_s$.
-Thus, the number of variables in the optimization problem is independent of the number of alternatives.
+Thus, the number of variables in the optimization problem is independent of the number of alternatives~$a$.
 Instead, we solve the optimization problem repeatedly; each alternative only adds one new constraint to the problem.
 As we always compare the new, variable feature set to existing, constant feature sets, we also do not need to introduce interaction variables as in Equation~\ref{eq:product-linear}.
 Overall, we expect the runtime of sequential search to scale well with the number of alternatives.
@@ -416,7 +424,7 @@ In contrast to the sequential case, we need to introduce further decision variab
 In Equation~\ref{eq:afs-simultaneous} and our experiments, we consider the summed quality of all feature sets as objective.
 Appendix~\ref{sec:appendix:min-quality-objective} presents another objective, which actively balances the quality of all feature sets.
 Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as we need to tackle one large optimization problem instead of multiple smaller ones.
-In particular, the number of decision variables increases linearly with the number of alternatives and the number of constraints even grows quadratically.
+In particular, the number of decision variables increases linearly with the number of alternatives~$a$ and the number of constraints even grows quadratically.
 Also, for each feature and each pair of alternatives, we need to introduce an interaction variable as in Equation~\ref{eq:product-linear} if we want to obtain a linear problem.
 
 In contrast to the greedy procedure of sequential search, simultaneous search optimizes alternatives globally.
@@ -707,8 +715,7 @@ See Section~\ref{sec:approach:objectives} for details on the objective function 
 One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
 As explained in Section~\ref{sec:approach:objectives:embedding}, we do not include an embedded feature-selection method.
 
-For each feature-selection method, we set the number of selected features to $k \in \{5,10\}$.
-These values yield small feature sets, fostering interpretability.
+With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
 We enforce the desired $k$ with a simple constraint in our optimization problems.
 
 \paragraph{MI}
@@ -744,7 +751,7 @@ Here, the scores originate from trees trained with all features rather than asse
 \label{sec:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:approach:constraints:multiple}.
-We evaluate 1 to 10 alternatives for sequential search, while we examine 1 to 5 alternatives for simultaneous search.
+We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
 This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
 For the dissimilarity threshold $\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
 Thus, for $k=5$, we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
