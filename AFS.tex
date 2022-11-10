@@ -239,7 +239,7 @@ We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number
 \label{sec:approach:constraints:single}
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
-Mathematically, we express this with a set-dissimilarity measure~\cite{egghe2009new}.
+Mathematically, we express this with a set-dissimilarity measure~\cite{choi2010survey, egghe2009new}.
 These measures typically assess how strongly two sets overlap and set this in relation to the size of the sets.
 For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
 Given two feature sets $F'$, $F''$, the Jaccard distance is defined as follows:
@@ -269,9 +269,15 @@ Some datasets might contain many features of similar utility, thereby enabling m
 Only users can decide which drop in feature-set quality is acceptable for them as a tradeoff for obtaining an alternative feature set.
 Thus, we leave $\tau$ as a parameter.
 In fact, it is the only parameter for our definition of single alternatives, unless one wants to vary the dissimilarity measure for feature sets as well.
-If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
 Setting $\tau=0$ allows the alternative feature set to be identical to the original one, while $\tau=1$ requires the two feature sets to have no overlap.
+
+If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
+One potential approach is a binary search:
+Start with the mid-range value of $\tau=0$, i.e., 0.5 for $\tau \in [0,1]$.
+If the quality of the resulting alternative is too low, decrease $\tau$ to 0.25, i.e., allow more similarity.
+If the quality of the resulting alternative is acceptably high, increase $\tau$ to 0.75, i.e., check a more dissimilar feature set.
+Continue this procedure till an alternative with an acceptable quality-dissimilarity tradeoff is found.
 
 If the feature-set sizes $|F'|$ and $|F''|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F' \cap F''|$.
 This follows from re-arranging Equation~\ref{eq:jaccard} and Equation~\ref{eq:dice} in combination with Definition~\ref{def:single-alternative}:
@@ -307,6 +313,9 @@ Further, $\tau$ then directly controls which fraction of features in one set nee
 	\label{eq:dice-rearranged-equal-size}
 \end{equation}
 %
+Thus, if users are uncertain how to choose $\tau$ and $|F''|$ is reasonably small, they can try out all values of $\tau \in \{i / |F''|\}$ with $i \in \{0, 1, \dots, |F''|\}$.
+Put differently, $|F''| + 1$ values of $\tau$ cover all potential overlap sizes of the two feature sets.
+
 Up to now, we have used feature sets instead of the binary feature-selection vector $s$.
 However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
@@ -644,6 +653,7 @@ Nevertheless, one can also add constraints to our optimization problem to exclud
 
 There already is work on considering various kinds of constraints in feature selection, e.g., for feature cost~\cite{paclik2002feature}, feature groups~\cite{yuan2006model}, or domain knowledge~\cite{bach2022empirical, groves2015toward}.
 These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
+While introducing any kind of constraints on feature sets might implicitly lead to alternative solutions~\cite{bach2022empirical}, existing approaches for constrained feature selection do not search for optimal alternatives.
 
 \subsection{Fields Related to Feature Selection}
 
@@ -1226,6 +1236,7 @@ However, besides the drawback of potentially running out of unused features, the
 In particular, greedy replacement does not work once the optimization problem gets more involved.
 For example, there might be further constraints on feature sets, e.g,, based on domain knowledge, which are not accounted for in Algorithm~\ref{al:greedy-replacement}.
 Also, the objective function becomes more complex for other feature selectors than univariate filters, which makes the quality-based feature ordering impossible or suboptimal.
+At most, one could start with the original feature set from a sophisticated feature selector and then continue with greedy replacement based on univariate qualities.
 Simultaneous search with the min-quality objective from Appendix~\ref{sec:appendix:min-quality-objective} also is unsuitable for greedy replacement.
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:evaluation} consistently use a solver.
