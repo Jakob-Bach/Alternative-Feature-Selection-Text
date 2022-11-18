@@ -892,7 +892,7 @@ Further, we do not observe a clear relationship between dataset dimensionality~$
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=0.7\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
+	\includegraphics[width=0.55\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
 	\caption{Correlation between evaluation metrics over all experimental settings.}
 	\label{fig:evaluation-metrics-correlation}
 \end{figure}
@@ -944,14 +944,14 @@ For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is less th
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 25 10 10, clip]{plots/impact-search-stddev-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-objective.pdf}
 		\caption{Standard deviation of objective.}
 		\label{fig:impact-search-stddev-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 25 10 10, clip]{plots/impact-search-mean-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-objective.pdf}
 		\caption{Mean objective.}
 		\label{fig:impact-search-mean-objective}
 	\end{subfigure}
@@ -987,18 +987,18 @@ Based on these results, we focus on the sequential search in the following.
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 25 10 5, clip]{plots/impact-num-alternatives-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max.pdf}
 		\caption{Max-normalization.}
 		\label{fig:impact-num-alternatives-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 25 10 5, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
 		\caption{Min-max-normalization.}
 		\label{fig:impact-num-alternatives-objective-min-max}
 	\end{subfigure}
-	\caption{Objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector.
+	\caption{Training-set objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector.
 	Outliers removed for readability reasons.}
 	\label{fig:impact-num-alternatives-objective}
 \end{figure}
@@ -1032,14 +1032,14 @@ These figures also depend on the dissimilarity threshold $\tau$, which we analyz
 	\centering
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 15 30 10, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
 		\caption{Training set.}
 		\label{fig:impact-num-alternatives-train-objective-tau}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=5 15 30 10, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
 		\caption{Test set.}
 		\label{fig:impact-num-alternatives-test-objective-tau}
 	\end{subfigure}
