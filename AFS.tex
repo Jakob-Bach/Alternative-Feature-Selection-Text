@@ -42,7 +42,7 @@ Finally, we evaluate these approaches in a study with 30 classification datasets
 In our experiments, we can determine alternative feature sets with similar prediction quality as the original ones.
 \end{abstract}
 %
-\textbf{Keywords:} feature selection, alternatives, constraints, mixed-integer programming, explainability, interpretability
+\textbf{Keywords:} feature selection, alternatives, constraints, mixed-integer programming, explainability, interpretability, XAI
 
 \section{Introduction}
 \label{sec:afs:introduction}
@@ -687,10 +687,13 @@ MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimi
 
 \subsection{Explainable Artificial Intelligence (XAI)}
 
-In the field of XAI, finding diverse explanations is an issue, e.g., for criticisms~\cite{kim2016examples} or semifactual explanations~\cite{artelt2022even}.
+In the field of XAI, alternative explanations might provide additional insights about predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust into the predictive system~\cite{bansal2021does, kim2021multi, wang2019designing}.
+In contrast, significantly different explanations for the same prediction might also raise doubts how meaningful the explanations are~\cite{jain2019attention}.
+Finding diverse explanations is an issue for different explainers, e.g., for counterfactuals~\cite{dandl2020multi, guidotti2022counterfactual, mothilal2020explaining, russell2019efficient}, criticisms~\cite{kim2016examples}, or semifactual explanations~\cite{artelt2022even}.
+One can also ensemble different kinds of explanations~\cite{silva2019produce}.
+
 The idea behind alternative feature sets bears some resemblance to counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual}, which uncover solutions for alternative predictions.
 The search for counterfactuals can be formulated as an optimization problem, e.g., an integer problem~\cite{mohammadi2021scaling} or Satisfiability Modulo Theories (SMT)~\cite{karimi2020model}.
-Fostering diversity of counterfactuals is a dedicated goal~\cite{dandl2020multi, guidotti2022counterfactual, mothilal2020explaining, russell2019efficient}.
 However, there are crucial differences between counterfactuals and alternative feature sets:
 Counterfactual explanations target at predictions on single data objects rather than the global predictive quality of features.
 Also, counterfactuals want to alter the prediction outcome by changing feature values little, while alternative feature sets should keep the prediction quality while changing the selection of features significantly.
