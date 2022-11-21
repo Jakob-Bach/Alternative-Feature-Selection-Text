@@ -35,11 +35,10 @@
 Feature-selection methods are popular to obtain small, interpretable, yet highly accurate prediction models.
 Existing feature-selection methods typically yield only one feature set, which might not be sufficient in some cases.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
-In this article, we formalize alternative feature selection as an optimization problem.
-Next, we propose several general approaches to solve this problem.
-In particular, we show how to integrate various categories of existing feature-selection methods.
-Finally, we evaluate these approaches in a study with 30 classification datasets.
-In our experiments, we can determine alternative feature sets with similar prediction quality as the original ones.
+In this article, we introduce and formalize alternative feature selection as an optimization problem.
+Next, we show how to integrate various categories of existing feature-selection methods.
+Finally, we evaluate alternative feature selection in a study with 30 classification datasets.
+In our experiments, we observe a trade-off between the feature-set quality and how alternative the feature sets should be.
 \end{abstract}
 %
 \textbf{Keywords:} feature selection, alternatives, constraints, mixed-integer programming, explainability, interpretability, XAI
@@ -72,7 +71,7 @@ This article addresses the problem of alternative feature selection, which we in
 	\label{def:afs:alternative-feature-selection}
 \end{definition}
 %
-We will provide formal definitions later.
+We provide formal definitions in Section~\ref{sec:afs:approach:constraints}.
 Ideally, the alternative feature set should have a similar quality as the original one.
 However, depending on how different the alternative feature set should be, one might have to compromise on quality.
 E.g., if there are only a few highly predictive features and most of them are part of the original feature set, the alternative feature set might have significantly lower prediction quality.
@@ -86,37 +85,36 @@ Ideally, the approach should be general, i.e., cover a broad range of existing f
 
 \paragraph{Related work}
 
-Finding alternative solutions has already been addressed extensively in the field of clustering~\cite{bailey2014alternative}.
-However, there is a lack of such approaches for feature selection.
-Only a few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
-Techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets but do not focus on optimal alternatives.
-In the field of explainable AI, counterfactual explanations have massively gained popularity in the last few years~\cite{stepin2021survey, verma2020counterfactual}.
-Such explanations involve data objects with similar feature values but a different prediction outcome.
-In contrast, we target at sets with different features but similar quality, e.g., prediction performance.
+While finding alternative solutions has already been addressed extensively in the field of clustering~\cite{bailey2014alternative}, there is a lack of such approaches for feature selection.
+Only few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
+In particular, techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets but not optimal alternatives.
+In fields related to feature selection, the goal of obtaining multiple, diverse solutions has been studied as well, e.g., for subspace clustering~\cite{mueller2009relevant}, subspace search~\cite{trittenbach2019dimension}, or explainable-AI techniques~\cite{artelt2022even, kim2016examples, mothilal2020explaining, russell2019efficient} like counterfactuals.
+Nevertheless, these works differ from alternative feature selection in their problem definitions as well as solution approaches.
 
 \paragraph{Contributions}
 
 Our contribution is threefold.
 First, we formalize alternative feature selection as an optimization problem.
-In particular, we foster the search for alternatives via constraints on feature sets.
-This formulation also allows integrating other constraints on feature sets~\cite{bach2022empirical, groves2015toward}.
-We only require users to set two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative.
-In fact, these parameters allow users to control the search for alternatives according to their needs.
-Second, we propose heuristic and exact approaches to solve this optimization problem.
-To that end, we discuss how to integrate different categories of feature-selection methods in the objective function.
-Our notion of alternatives is general and thus independent of specific feature-selection methods.
-Third, we evaluate our approaches for alternative feature selection with comprehensive experiments.
+In particular, we define alternatives via constraints on feature sets.
+Second, we discuss approaches to solve this optimization problem.
+To that end, we describe how to integrate different categories of feature-selection methods in the objective function.
+Third, we evaluate alternative feature selection with comprehensive experiments.
 We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
+Our definition of alternatives is orthogonal to existing feature-selection methods, i.e., not tailored towards specific techniques.
+Further, this formulation allows integrating other constraints on feature sets, e.g., based on domain knowledge~\cite{bach2022empirical, groves2015toward}.
+Finally, we only require users to set two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative.
+In fact, one can see existence of these parameters positively, as they allow users to control the search for alternatives according to their needs.
+
 \paragraph{Results}
 
-Our experiments show that finding alternative feature sets with similar quality is possible indeed.
+Depending on the dataset and the parameters for searching alternatives, we could find alternative feature sets with similar quality as the original ones.
 This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions.
 As expected, feature-set quality tends to decrease with the number of alternatives.
-The exact decrease depends on the dataset and how the feature-set quality is distributed in it.
-Further, we note that the quality of alternative feature sets significantly depends on the dissimilarity threshold for being alternative.
-Thereby, this threshold allows the user to exercise control over alternatives and make use-case-specific choices.
+The exact decrease depends on how the feature-set quality is distributed in the dataset.
+Further, we observed that the quality of alternative feature sets significantly depends on the dissimilarity threshold for being alternative.
+Thereby, this threshold allows the user to exercise use-case-specific control on the trade-off between feature sets being alternative and having high feature-set quality.
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and our experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
 
 \paragraph{Outline}
@@ -182,7 +180,7 @@ For example, tree-based models often use information gain or the Gini index to s
 
 Apart from traditional feature selection, there are various methods that assess feature importance after training a model.
 These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
-In particular, assessing feature importance plays a crucial role in the emerging field of ML interpretability~\cite{carvalho2019machine}.
+In particular, assessing feature importance plays a crucial role in the emerging field of ML interpretability~\cite{carvalho2019machine, molnar2020interpretable}.
 
 \section{Alternative Feature Selection}
 \label{sec:afs:approach}
@@ -266,7 +264,7 @@ We leverage such a set-dissimilarity measure for the following definition:
 The threshold~$\tau$ controls how alternative the new feature set should be and depends on the dataset as well as the preferences of the user.
 In particular, requiring the new feature set to differ strongly from the existing one might cause a significant drop in feature-set quality.
 Some datasets might contain many features of similar utility, thereby enabling many alternatives of similar quality, while predictions on other datasets might depend on a few key features.
-Only users can decide which drop in feature-set quality is acceptable for them as a tradeoff for obtaining an alternative feature set.
+Only users can decide which drop in feature-set quality is acceptable for them as a trade-off for obtaining an alternative feature set.
 Thus, we leave $\tau$ as a parameter.
 In fact, it is the only parameter for our definition of single alternatives, unless one wants to vary the dissimilarity measure for feature sets as well.
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
@@ -277,7 +275,7 @@ One potential approach is a binary search:
 Start with the mid-range value of $\tau=0$, i.e., 0.5 for $\tau \in [0,1]$.
 If the quality of the resulting alternative is too low, decrease $\tau$ to 0.25, i.e., allow more similarity.
 If the quality of the resulting alternative is acceptably high, increase $\tau$ to 0.75, i.e., check a more dissimilar feature set.
-Continue this procedure till an alternative with an acceptable quality-dissimilarity tradeoff is found.
+Continue this procedure till an alternative with an acceptable quality-dissimilarity trade-off is found.
 
 If the feature-set sizes $|F'|$ and $|F''|$ are known, a threshold $\tau$ corresponds to a particular maximum number of overlapping features $|F' \cap F''|$.
 This follows from re-arranging Equation~\ref{eq:afs:jaccard} and Equation~\ref{eq:afs:dice} in combination with Definition~\ref{def:afs:single-alternative}:
@@ -1068,7 +1066,7 @@ For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \e
 
 \subsection{Conclusions}
 
-Obtaining interpretable solutions is a highly active area of research in machine learning.
+Obtaining interpretable solutions is a highly active research area in machine learning.
 One way to foster interpretability is by selecting a small set of features for predictions.
 Traditional feature-selection methods yield \emph{one} feature set with high quality, e.g., regarding prediction performance.
 However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
@@ -1080,16 +1078,16 @@ Further, we presented approaches to solve this optimization problem for differen
 Finally, we ran an evaluation with 30 classification datasets and four feature-selection methods.
 We compared two search strategies for alternatives and varied the threshold for being alternative.
 
-In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original ones.
-This worked with simultaneous search as well as sequential search for alternatives.
-The latter procedure was significantly faster and allows stopping the search once the user does not want any more alternatives.
-As expected, the quality of alternatives drops the more alternatives one desires, and the more alternatives should differ from existing feature sets.
+In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original ones, depending on the dataset and the parametrization for searching alternatives.
+On average, simultaneous search and sequential search for alternatives yielded similar feature-set quality.
+However, the latter procedure was significantly faster and generally allows stopping the search once the user does not want any more alternatives, so we recommend using it.
+As expected, the quality of alternatives dropped the more alternatives one desired, and the more alternatives should differ from existing feature sets.
 The ultimate decision on which trade-off between feature-set quality and alternatives is acceptable lies with the user.
 Thus, we recommend evaluating different dissimilarity thresholds for alternatives to find a suitable value.
 
 \subsection{Future Work}
 
-While our work introduced alternative feature selection, one might vary several points of our approach.
+While our work introduced alternative feature selection, there are several points for applying, extending, or modifying the latter.
 
 \paragraph{Feature selection (objective function)}
 
