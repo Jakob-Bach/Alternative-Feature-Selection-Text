@@ -1274,15 +1274,20 @@ The second alternative consists of the three best features plus the eight- and n
 After that alternative, the greedy-replacement procedure has to stop, as there are not enough unused features to form further alternatives.
 In general, the $\lfloor (1 - \tau) \cdot k \rfloor$~best features plus the $k + (i-1) \cdot \lceil \tau \cdot k \rceil + 1$ to $k + i \cdot \lceil \tau \cdot k \rceil$~best features form the $i$-th alternative.
 
-Not even a simultaneous search can surpass the summed quality of the solutions yielded by this greedy sequential procedure, though the former might compose the feature sets differently.
+One can also adapt this procedure to permit varying feature-set sizes~$k^{(i)}$ over alternatives rather than using a constant~$k$.
+Especially, if one knows the values of all~$k^{(i)}$ beforehand, one can still compute the admissible overlap of feature sets (cf. Equation~\ref{eq:afs:dice-rearranged}) and thereby determine the number of features to be replaced per iteration.
+However, if the order of the $k^{(i)}$-values is flexible, the situation becomes more involved.
+In particular, assembling feature sets of different sizes in different order can result in a different overall objective value, i.e., summed feature-set quality.
+
+In contrast, for a fixed~$k$, not even a simultaneous search can surpass the summed quality of the solutions yielded by the sequential greedy-replacement procedure, though the former might compose the feature sets differently.
 However, greedy replacement only works as long as some features have not been part of any feature set yet, i.e., $k + i \cdot \lceil \tau \cdot k \rceil \leq n$.
 Once this pool of unused features is exhausted, one would need another strategy to find further alternatives.
 Additionally, continuing search from the results of greedy replacement might then perform worse than a simultaneous search.
-
-To obtain a high number of alternatives with greedy replacement, the number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
+Thus, to obtain a high number of alternatives with greedy replacement, the following conditions are beneficial:
+The number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
 These conditions align well with classical feature-selection scenarios where~$k \ll n$.
 
-However, besides the drawback of potentially running out of unused features, there are further disadvantages of greedy replacement compared to solver-based optimization.
+Besides the drawback of potentially running out of unused features, there are further disadvantages of greedy replacement compared to solver-based optimization.
 In particular, greedy replacement does not work once the optimization problem gets more involved.
 For example, there might be further constraints on feature sets, e.g,, based on domain knowledge, which are not accounted for in Algorithm~\ref{al:afs:greedy-replacement}.
 Also, the objective function becomes more complex for other feature selectors than univariate filters, which makes the quality-based feature ordering impossible or suboptimal.
