@@ -89,7 +89,7 @@ While finding alternative solutions has already been addressed extensively in th
 Only few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
 In particular, techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets but not optimal alternatives.
 In fields related to feature selection, the goal of obtaining multiple, diverse solutions has been studied as well, e.g., for subspace clustering~\cite{mueller2009relevant}, subspace search~\cite{trittenbach2019dimension}, or explainable-AI techniques~\cite{artelt2022even, kim2016examples, mothilal2020explaining, russell2019efficient} like counterfactuals.
-Nevertheless, these works differ from alternative feature selection in their problem definitions as well as solution approaches.
+However, these works address different problems than alternative feature selection, as we discuss in Section~\ref{sec:afs:related-work}.
 
 \paragraph{Contributions}
 
@@ -685,16 +685,18 @@ MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimi
 
 \subsection{Explainable Artificial Intelligence (XAI)}
 
-In the field of XAI, alternative explanations might provide additional insights about predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust into the predictive system~\cite{bansal2021does, kim2021multi, wang2019designing}.
-In contrast, significantly different explanations for the same prediction might also raise doubts how meaningful the explanations are~\cite{jain2019attention}.
-Finding diverse explanations is an issue for different explainers, e.g., for counterfactuals~\cite{dandl2020multi, guidotti2022counterfactual, mothilal2020explaining, russell2019efficient}, criticisms~\cite{kim2016examples}, or semifactual explanations~\cite{artelt2022even}.
+In the field of XAI, alternative explanations might provide additional insights into predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust into the predictions~\cite{kim2021multi, wang2019designing}.
+In contrast, obtaining significantly different explanations for the same prediction might also raise doubts about how meaningful the explanations are~\cite{jain2019attention}.
+Finding diverse explanations is an issue for various explainers, e.g., for counterfactuals~\cite{dandl2020multi, karimi2020model, mohammadi2021scaling, mothilal2020explaining, russell2019efficient, wachter2017counterfactual}, criticisms~\cite{kim2016examples}, or semifactual explanations~\cite{artelt2022even}.
+There are several approaches to foster diversity, e.g., extending the optimization objective~\cite{artelt2022even, kim2016examples, mothilal2020explaining}, considering multiple local minima~\cite{wachter2017counterfactual}, using a search algorithm that maintains diversity~\cite{dandl2020multi}, or introducing constraints~\cite{karimi2020model, mohammadi2021scaling, russell2019efficient}.
+The last option is similar to the way we enforce alternatives.
 One can also ensemble different kinds of explanations~\cite{silva2019produce}.
 
-The idea behind alternative feature sets bears some resemblance to counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual}, which uncover solutions for alternative predictions.
-The search for counterfactuals can be formulated as an optimization problem, e.g., an integer problem~\cite{mohammadi2021scaling} or Satisfiability Modulo Theories (SMT)~\cite{karimi2020model}.
-However, there are crucial differences between counterfactuals and alternative feature sets:
-Counterfactual explanations target at predictions on single data objects rather than the global predictive quality of features.
-Also, counterfactuals want to alter the prediction outcome by changing feature values little, while alternative feature sets should keep the prediction quality while changing the selection of features significantly.
+Despite similarities, all these XAI techniques tackle different problems than alternative feature selection.
+In particular, all the previously mentioned techniques provide local explanations, i.e., they target at prediction outcomes for individual data objects and build on individual feature values.
+In contrast, we are interested in the global prediction quality of feature sets.
+For example, counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual} are an XAI technique that alters feature values as little as possible to produce an alternative prediction outcome.
+In contrast, alternative feature sets might alter the feature selection significantly while trying to maintain the original prediction quality.
 
 \section{Experimental Design}
 \label{sec:afs:experimental-design}
