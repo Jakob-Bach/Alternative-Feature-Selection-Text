@@ -1094,8 +1094,9 @@ While our work introduced alternative feature selection, there are several point
 \paragraph{Feature selection (objective function)}
 
 One can search for alternatives with other feature-selection methods than the four we analyzed.
-In particular, there are multiple ways to adapt wrapper feature selection to alternatives (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
-Further, our generic search procedures need adaptation to work for embedded feature selection (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
+For wrapper feature selection, which requires black-box optimization, there are multiple ways to consider alternatives (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
+As we saw in our experiments, achieving a high feature-set quality within a reasonable time frame poses a particular challenge for this category of feature-selection methods.
+Further, our generic search procedures need adaptation to work for the category of embedded feature selection (cf.~Section~\ref{sec:afs:approach:objectives:embedding}), which we did not consider in our experiments.
 
 \paragraph{Alternatives (constraints)}
 
