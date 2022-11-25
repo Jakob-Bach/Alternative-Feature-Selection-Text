@@ -859,8 +859,9 @@ Table~\ref{tab:afs:datasets} lists these datasets.
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Datasets from PMLB used in our experiments. $m$~denotes the number of instances and $n$~is the number of features.
-		Dataset names starting with \emph{G\_} actually start with \emph{GAMETES\_}; we truncated them due to limited space.
+		Datasets from PMLB used in our experiments.
+		$m$~denotes the number of instances and $n$ the number of features.
+		Dataset names starting with `G\_' actually start with `GAMETES\_'; we truncated them to reduce the table's width.
 	}
 	\label{tab:afs:datasets}
 \end{table}
@@ -988,20 +989,35 @@ Based on these results, we focus on the sequential search in the following.
 
 \begin{figure}[htb]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max.pdf}
-		\caption{Max-normalization.}
+		\caption{Max-normalization. Objective values of infeasible feature sets excluded.}
 		\label{fig:afs:impact-num-alternatives-objective-max}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max-fillna.pdf}
+		\caption{Max-normalization. Objective values of infeasible feature sets set to zero.}
+		\label{fig:afs:impact-num-alternatives-objective-max-fillna}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
-		\caption{Min-max-normalization.}
+		\caption{Min-max-normalization. Objective values of infeasible feature sets excluded.}
 		\label{fig:afs:impact-num-alternatives-objective-min-max}
 	\end{subfigure}
-	\caption{Training-set objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector.
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max-fillna.pdf}
+		\caption{Min-max-normalization. Objective values of infeasible feature sets set to zero.}
+		\label{fig:afs:impact-num-alternatives-objective-min-max-fillna}
+	\end{subfigure}
+
+	\caption{Training-set objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.
 	Outliers removed for readability reasons.}
 	\label{fig:afs:impact-num-alternatives-objective}
 \end{figure}
@@ -1025,37 +1041,58 @@ Be aware that these observations refer to the quality of the found feature sets.
 However, the more alternatives are desired, the more likely an infeasible optimization problem is.
 For example, the \emph{MI} feature selector in sequential search always finds an original feature set.
 However, the problem is infeasible in 2\% of the cases for the first alternative, 14\% for the second alternative, 24\% for the fifth alternative, and 30\% for the tenth alternative.
-Thus, while the quality of feature-sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
-These figures also depend on the dissimilarity threshold $\tau$, which we analyze next.
+Thus, while the quality of feature sets remains relatively stable with increased number of alternatives, valid alternatives might simply not exist.
+Figures~\ref{fig:afs:impact-num-alternatives-objective-max-fillna} and~\ref{fig:afs:impact-num-alternatives-objective-min-max-fillna} show the same data as Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} but with the objective of infeasible feature sets set to zero.
+This makes sense since selecting no features leads to such an objective value for \emph{MI}-based feature selection.
+In these figures, the downward trend of feature-set quality over the number of alternatives becomes more prominent.
+This trend also depends on the dissimilarity threshold $\tau$, which we analyze next.
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
 \label{sec:afs:evaluation:search:tau}
 
 \begin{figure}[htb]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-tau.pdf}
-		\caption{Training set.}
-		\label{fig:afs:impact-num-alternatives-train-objective-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-max-tau.pdf}
+		\caption{Training set. Objective values of infeasible feature sets excluded.}
+		\label{fig:afs:impact-num-alternatives-train-objective-max-tau}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-tau.pdf}
-		\caption{Test set.}
-		\label{fig:afs:impact-num-alternatives-test-objective-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-max-fillna-tau.pdf}
+		\caption{Training set. Objective values of infeasible feature sets set to zero.}
+		\label{fig:afs:impact-num-alternatives-train-objective-max-fillna-tau}
 	\end{subfigure}
-	\caption{Median objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
-	\label{fig:afs:impact-num-alternatives-objective-tau}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-max-tau.pdf}
+		\caption{Test set. Objective values of infeasible feature sets excluded.}
+		\label{fig:afs:impact-num-alternatives-test-objective-max-tau}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-max-fillna-tau.pdf}
+		\caption{Test set. Objective values of infeasible feature sets set to zero.}
+		\label{fig:afs:impact-num-alternatives-test-objective-max-fillna-tau}
+	\end{subfigure}
+	\caption{Mean objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
+	\label{fig:afs:impact-num-alternatives-objective-max-tau}
 \end{figure}
 
-As Figure~\ref{fig:afs:impact-num-alternatives-objective-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives can strongly depend on the dissimilarity threshold $\tau$.
+As Figure~\ref{fig:afs:impact-num-alternatives-objective-max-tau} shows for \emph{MI} as feature selector, the decrease of the objective value $Q$ over the number of alternatives strongly depends on the dissimilarity threshold $\tau$.
 For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
 In contrast, the objective decrease significantly for a high dissimilarity threshold, e.g., $\tau=1$.
 This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent.
 Also, the fraction of infeasible optimization problems, i.e., lack of valid alternative feature sets, increases with $\tau$:
 For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
+Figures~\ref{fig:afs:impact-num-alternatives-train-objective-max-fillna-tau} and~\ref{fig:afs:impact-num-alternatives-test-objective-max-fillna-tau} demonstrate this by setting the objective value to zero if no feasible feature set could be found.
+Compared to Figures~\ref{fig:afs:impact-num-alternatives-train-objective-max-tau} and~\ref{fig:afs:impact-num-alternatives-test-objective-max-tau}, the decrease in objective value is stronger.
+In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-train-objective-max-tau} for $\tau=1.0$.
+This is because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different datasets at each number of alternatives.
 
 While the previous observation were made for \emph{MI} as feature selector, they do not hold universally.
 Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on \emph{tau} as well.
