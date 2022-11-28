@@ -883,13 +883,40 @@ datasets, prediction models, feature-selection methods, and approaches to search
 \subsection{Datasets}
 \label{sec:afs:evaluation:datasets}
 
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-dataset-k-train-objective.pdf}
+		\caption{Training-set objective value.}
+		\label{fig:afs:impact-dataset-k-train-objective}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-dataset-k-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance for decision trees.}
+		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
+	\end{subfigure}
+	\caption{
+		Quality of the original feature set over feature-set size~$k$ and datasets with sizes~$n$.
+		Results from sequential search  with \emph{MI} as feature selector.
+	}
+	\label{fig:afs:impact-dataset-k}
+\end{figure}
+
 Naturally, feature-set quality depends on the datasets used, and several effects could occur.
 For example, the distribution of feature-set quality in the datasets might be relatively uniform or relatively skewed.
 Datasets with more features $n$ give way to more alternative feature sets.
-At the same time, the (normalized) feature quality $q(X_{\cdot{}j},y)$ can be spread over more features than for smaller datasets, making it harder to compose a small high-quality feature set.
+At the same time, the feature quality can be spread over more features than for smaller datasets, making it harder to compose a small high-quality feature set.
 
-Indeed, our experiments show a broad variation of feature-set quality over datasets.
-Further, we do not observe a clear relationship between dataset dimensionality~$n$ and feature-set quality.
+Indeed, our experiments show a broad variation of feature-set quality over the datasets.
+Figure~\ref{fig:afs:impact-dataset-k} depicts the relationship between datasets and quality of the original feature set in sequential search.
+To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis.
+As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature selector approximately increases linearly with $k/n$.
+However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
+Further, the quality of a prediction model does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
+Due to this observed variation of feature-set quality between datasets, we normalize feature-set quality in some of the following analyses.
 
 \subsection{Prediction Models}
 \label{sec:afs:evaluation:prediction}
@@ -1017,8 +1044,11 @@ Based on these results, we focus on the sequential search in the following.
 		\label{fig:afs:impact-num-alternatives-objective-min-max-fillna}
 	\end{subfigure}
 
-	\caption{Training-set objective value $Q$, normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.
-	Outliers removed for readability reasons.}
+	\caption{
+		Objective value $Q$, normalized per experimental setting, over the number of alternatives.
+		Results from sequential search with \emph{MI} as feature selector and $k=10$.
+		Outliers removed for readability reasons.
+	}
 	\label{fig:afs:impact-num-alternatives-objective}
 \end{figure}
 
@@ -1079,7 +1109,11 @@ This trend also depends on the dissimilarity threshold $\tau$, which we analyze 
 		\caption{Test set. Objective values of infeasible feature sets set to zero.}
 		\label{fig:afs:impact-num-alternatives-test-objective-max-fillna-tau}
 	\end{subfigure}
-	\caption{Mean objective value $Q$, max-normalized per experimental setting, in sequential search, using \emph{MI} as feature selector and $k=10$.}
+	\caption{
+		Mean objective value $Q$, max-normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$.
+		Results from sequential search with \emph{MI} as feature selector and $k=10$.
+		Outliers removed for readability reasons.
+	}
 	\label{fig:afs:impact-num-alternatives-objective-max-tau}
 \end{figure}
 
