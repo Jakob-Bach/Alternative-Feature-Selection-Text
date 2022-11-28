@@ -807,19 +807,6 @@ Not only model training but also the search for alternative feature sets is limi
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
 
-We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
-To focus on one machine-learning task type, we only consider binary-classification datasets.
-However, alternative feature selection is possible for regression and multi-class problems as well.
-We filter out datasets containing less than 100 data objects.
-Also, we filter out datasets with less than 15 features to leave some room for alternatives.
-Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments.
-Finally, we manually remove datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
-
-In consequence, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features.
-The datasets contain no missing values.
-Categorical features have an ordinal encoding by default.
-Table~\ref{tab:afs:datasets} lists these datasets.
-%
 \begin{table}[htbp]
 	\centering
 	\begin{tabular}{lrr}
@@ -865,6 +852,19 @@ Table~\ref{tab:afs:datasets} lists these datasets.
 	}
 	\label{tab:afs:datasets}
 \end{table}
+%
+We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
+To focus on one machine-learning task type, we only consider binary-classification datasets.
+However, alternative feature selection is possible for regression and multi-class problems as well.
+We filter out datasets containing less than 100 data objects.
+Also, we filter out datasets with less than 15 features to leave some room for alternatives.
+Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments.
+Finally, we manually remove datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
+
+In consequence, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features.
+The datasets contain no missing values.
+Categorical features have an ordinal encoding by default.
+Table~\ref{tab:afs:datasets} lists these datasets.
 
 \subsection{Implementation}
 \label{sec:afs:experimental-design:implementation}
