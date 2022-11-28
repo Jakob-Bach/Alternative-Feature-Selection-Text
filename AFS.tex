@@ -923,16 +923,37 @@ Due to this observed variation of feature-set quality between datasets, we norma
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=0.55\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
-	\caption{Correlation between evaluation metrics over all experimental settings.}
-	\label{fig:afs:evaluation-metrics-correlation}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-overfitting.pdf}
+		\caption{
+			Training-test difference over evaluation metrics and feature selectors.
+			Outliers removed for readability reasons.
+		}
+		\label{fig:afs:evaluation-metrics-overfitting}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
+		\caption{Correlation between the evaluation metrics calculated on the training set and the test set.}
+		\label{fig:afs:evaluation-metrics-correlation}
+	\end{subfigure}
+	\caption{Comparison of evaluation metrics over all experimental settings.}
+	\label{fig:afs:evaluation-metrics}
 \end{figure}
 
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
 Also, overfitting occurs for both model types, i.e., there is a gap between training-set and test-set prediction performance.
-This observation makes sense as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
+In particular, over all experimental settings, decision trees and random forests both have a mean training-set MCC of 0.86 and a median training-set MCC of 1.0.
+In contrast, on the test set, decision trees have a mean training-set MCC of 0.48 (median: 0.54), while random forests have a slightly higher mean training-set MCC of 0.53 (median: 0.63).
+Thus, test-set prediction performance is significantly worse on average.
+For more details, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of difference between training-set quality and test-set quality over the different experimental settings.
+Again, we observe that training-set quality usually is higher, though there are a few cases where the difference becomes negative, i.e., test-set quality is higher.
+
+The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
 However, this will not invalidate our analysis of how prediction performance develops over alternatives.
-The optimization objective $Q$ also shows overfitting for all feature-selection methods, though to a lesser extent than prediction performance.
+The optimization objective $Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than prediction performance.
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
 As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
