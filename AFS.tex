@@ -900,7 +900,7 @@ datasets, prediction models, feature-selection methods, and approaches to search
 	\end{subfigure}
 	\caption{
 		Quality of the original feature set over feature-set size~$k$ and datasets with sizes~$n$.
-		Results from sequential search  with \emph{MI} as feature selector.
+		Results from sequential search with \emph{MI} as feature selector.
 	}
 	\label{fig:afs:impact-dataset-k}
 \end{figure}
@@ -945,15 +945,15 @@ Due to this observed variation of feature-set quality between datasets, we norma
 
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
 Also, overfitting occurs for both model types, i.e., there is a gap between training-set and test-set prediction performance.
-In particular, over all experimental settings, decision trees and random forests both have a mean training-set MCC of 0.86 and a median training-set MCC of 1.0.
-In contrast, on the test set, decision trees have a mean training-set MCC of 0.48 (median: 0.54), while random forests have a slightly higher mean training-set MCC of 0.53 (median: 0.63).
-Thus, test-set prediction performance is significantly worse on average.
-For more details, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of difference between training-set quality and test-set quality over the different experimental settings.
-Again, we observe that training-set quality usually is higher, though there are a few cases where the difference becomes negative, i.e., test-set quality is higher.
+In particular, over all experimental settings, decision trees and random forests both have a mean training-set MCC of 0.86 (median: 1.0).
+In contrast, on the test set, decision trees have a mean MCC of 0.48 (median: 0.54), while random forests have a slightly higher mean MCC of 0.53 (median: 0.63).
+Thus, average prediction performance is significantly worse on the test set than on the training set.
+For a more detailed comparison, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of the difference between training-set quality and test-set quality, again over all experimental settings.
+Once more, we observe that training-set quality is usually higher, though there are a few cases where the difference becomes negative, i.e., test-set quality is higher.
 
 The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
 However, this will not invalidate our analysis of how prediction performance develops over alternatives.
-The optimization objective $Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than prediction performance.
+The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than for prediction performance.
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
 As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
@@ -967,24 +967,56 @@ I.e., the objective of feature selection is only partially indicative of predict
 \subsection{Feature-Selection Methods}
 \label{sec:afs:evaluation:feature-selection}
 
-As the different feature-selection methods have different objective functions~$Q$, it does not make sense to compare objective values between feature-selection methods.
-Regarding the optimization status, we note that 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
-In contrast, this figure only is 19\% for MI.
-In particular,the feature-correlation constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:afs:fcbf}) seemingly made it hard to find valid feature sets.
-This point needs to be considered when applying this \emph{FCBF} feature selector.
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-fs-method-k-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance for decision trees.}
+		\label{fig:afs:impact-fs-method-k-decision-tree-test-mcc}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-fs-method-k-metric-diff.pdf}
+		\caption{
+			Difference in feature-set quality between $k=10$ and $k=5$.
+			Y-axis truncated for readability reasons.
+		}
+		\label{fig:afs:impact-fs-method-k-metric-diff}
+	\end{subfigure}
+	\caption{
+		Comparison of feature selectors and feature-set sizes~$k$.
+		Results from the original feature sets of sequential search.
+	}
+	\label{fig:afs:impact-fs-method-k}
+\end{figure}
 
-Regarding test-set prediction performance, \emph{Model Gain} beats \emph{MI} and \emph{Greedy Wrapper} on average.
-The median test-set MCC for decision trees is 0.57 for \emph{Model Gain}, 0.54 for \emph{MI}, and 0.51 for \emph{Greedy Wrapper}.
-Unsurprisingly, model-based importance yields better feature sets than univariate, model-free feature scoring with \emph{MI}.
+As the different feature-selection methods have different objective functions~$Q$, it does not make sense to compare absolute objective values between feature-selection methods.
+However, we can compare how useful the obtained feature sets are for predictions.
+Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set prediction performance on the original feature sets of sequential search for different feature selectors.
+On average, \emph{Model Gain} is the best feature selector, though not clearly better than the other selectors.
+In particular, the median test-set MCC of decision trees is 0.59 for \emph{Model Gain}, 0.57 for \emph{FCBF}, and 0.54 for \emph{MI} and \emph{Greedy Wrapper}.
+In particular, the univariate, model-free feature scoring with \emph{MI} keeps up surprisingly well with the more sophisticated methods.
+
 The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
 The wrapper search can only evaluate a fraction of all feasible feature sets and might get stuck in local optima, while the remaining feature-selection methods optimize globally.
+In particular, \emph{Greedy Wrapper} only performed 63 iterations on average (median: 43) over all experimental settings.
+Thus, it usually stayed significantly below the 1000~iterations we granted it.
 
-The feature-set size $k$ shows the expected effect:
-Larger feature sets, i.e., $k=10$, exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
-However, doubling the number of features does not double the prediction performance.
-Over all experimental settings, the median test-set MCC of decision trees is 0.50 for $k=5$ and 0.60 for $k=10$.
-This displays that small feature sets can already achieve a large share of the possible prediction performance.
-For the optimization objective $Q$, the increase from $k=5$ to $k=10$ is less than proportional with~$k$ as well.
+Further, the results for \emph{FCBF} have to be taken with a grain of salt:
+Over all experimental settings, 89\% of feature sets for \emph{FCBF} could not be determined, as the solver timed out or the optimization problem was infeasible.
+In contrast, this figure only is 19\% for \emph{MI}.
+Even the original feature set in sequential search is infeasible in 76\% of the cases for \emph{FCBF} but never for the other feature selectors.
+In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint seemingly made it hard to find valid feature sets.
+
+As expected, larger feature sets, i.e., with~$k=10$, usually exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
+However, the increase in feature-set quality with $k$ is not proportional, and there might even be a decrease.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of sequential search, the exactly optimized feature selectors exhibit a slight increase of the training-set objective value~$Q_\mathrm{train}$ from~$k=5$ to~$k=10$.
+As these objectives are monotonic in the feature selection, a decrease in quality is not possible.
+In contrast, the heuristic \emph{Greedy Wrapper} does not necessarily benefit from selecting more features.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance, no matter which feature selector is used.
+Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 
 \subsection{Searching Alternatives}
 \label{sec:afs:evaluation:search}
