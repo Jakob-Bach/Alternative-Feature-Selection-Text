@@ -912,8 +912,8 @@ At the same time, the feature quality can be spread over more features than for 
 
 Indeed, our experiments show a broad variation of feature-set quality over the datasets.
 Figure~\ref{fig:afs:impact-dataset-k} depicts the relationship between datasets and quality of the original feature set in sequential search.
-To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis.
-As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature selector approximately increases linearly with $k/n$.
+To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis, which is a measure of relative feature-set sizes.
+As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature selector approximately increases linearly with~$k/n$.
 However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
 Further, the quality of a prediction model does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
 Due to this observed variation of feature-set quality between datasets, we normalize feature-set quality in some of the following analyses.
@@ -992,7 +992,7 @@ I.e., the objective of feature selection is only partially indicative of predict
 	\label{fig:afs:impact-fs-method-k}
 \end{figure}
 
-As the different feature-selection methods have different objective functions~$Q$, it does not make sense to compare absolute objective values between feature-selection methods.
+As the different feature-selection methods employ different objective functions~$Q$, it does not make sense to compare absolute objective values between feature-selection methods.
 However, we can compare how useful the obtained feature sets are for predictions.
 Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set prediction performance on the original feature sets of sequential search for different feature selectors.
 On average, \emph{Model Gain} is the best feature selector, though not clearly better than the other selectors.
@@ -1024,45 +1024,171 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 \subsubsection{Search Method}
 \label{sec:afs:evaluation:search:method}
 
-\begin{figure}[htb]
+\begin{figure}[p]
 	\centering
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-objective.pdf}
-		\caption{Standard deviation of objective.}
-		\label{fig:afs:impact-search-stddev-objective}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-train-objective.pdf}
+		\caption{Standard deviation of training-set objective value within individual search runs.}
+		\label{fig:afs:impact-search-stddev-train-objective}
 	\end{subfigure}
 	\hfill
-	\begin{subfigure}{0.48\textwidth}
+	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-objective.pdf}
-		\caption{Mean objective.}
-		\label{fig:afs:impact-search-mean-objective}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-train-objective.pdf}
+		\caption{Mean of training-set objective value within individual search runs.}
+		\label{fig:afs:impact-search-mean-train-objective}
 	\end{subfigure}
-	\caption{Training-set objective value $Q$ in experimental runs of sequential or simultaneous search.
-	Outliers removed for readability reasons.}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-test-objective.pdf}
+		\caption{Standard deviation of test-set objective value within individual search runs.}
+		\label{fig:afs:impact-search-stddev-test-objective}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-test-objective.pdf}
+		\caption{Mean of test-set objective value within individual search runs.}
+		\label{fig:afs:impact-search-mean-test-objective}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-decision-tree-test-mcc.pdf}
+		\caption{Standard deviation of test-set prediction performance for decision trees within individual search runs.}
+		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-decision-tree-test-mcc.pdf}
+		\caption{Mean of test-set prediction performance for decision trees within individual search runs.}
+		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
+	\end{subfigure}
+
+	\caption{
+		Comparison of search methods for alternatives over the number of alternatives.
+		Results with \emph{MI} as feature selector and $k=5$.
+		Outliers removed for readability reasons.
+	}
 	\label{fig:afs:impact-search-objective}
 \end{figure}
 
-As we expected, the training-set objective value $Q$ of feature sets within a particular search run varies more for sequential search than for simultaneous search.
-Figure~\ref{fig:afs:impact-search-stddev-objective} visualizes this observation.
-Also, the variance slightly increases with the number of alternatives for sequential search, but decreases for simultaneous search.
-I.e., simultaneous search finds more quality-homogeneous feature sets, in particular, if many alternatives are desired.
-However, on the test set, the variance of $Q$ also increases with the number of alternatives for simultaneous search.
-This effect might be a result of overfitting.
-Regarding test-set prediction performance, simultaneous search does not even show a lower variance than sequential search anymore.
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance for decision trees.}
+		\label{fig:afs:impact-search-fs-method-decision-tree-test-mcc}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-metric-diff.pdf}
+		\caption{
+			Difference in feature-set quality between simultaneous and sequential search.
+			Y-axis truncated for readability reasons.
+		}
+		\label{fig:afs:impact-search-fs-method-metric-diff}
+	\end{subfigure}
+	\caption{
+		Comparison of feature selectors and search methods with $k=5$ and up to five alternatives.
+	}
+	\label{fig:afs:impact-search-fs-method}
+\end{figure}
 
-Surprisingly, the average feature-set quality of simultaneous search is not higher than for sequential search, neither regarding objective value $Q$ nor prediction performance.
-Figure~\ref{fig:afs:impact-search-mean-objective} shows this behavior for the mean training-set objective of search runs.
-Depending on the concrete search setting, either of the two search types might yield better-performing feature sets.
-An explanation for this phenomenon is that search results can be sub-optimal.
-For \emph{Greedy Wrapper}, the search is heuristic per se.
-Additionally, the exact optimization of the other three feature-selection methods can time out.
-As simultaneous search is harder than sequential search, it is affected stronger by this phenomenon.
-In particular, 10\% of the feature sets from simultaneous search were feasible but potentially sub-optimal, but no feature sets for sequential search.
-This figure strongly depends on the number of alternatives:
-For up to three alternatives in simultaneous search, less than 1\% of feature sets are potentially sub-optimal but 4\% for four alternatives and 32\% for five alternatives.
-Based on these results, we focus on the sequential search in the following.
+As we expected, the training-set objective value~$Q$ of feature sets within each particular search run usually varies more for sequential search than for simultaneous search.
+I.e., simultaneous search tends to return alternatives with more homogeneous quality than sequential search.
+Also, this variance decreases with the number of alternatives~$a$ for simultaneous search, but remains stable or slightly increases for sequential search.
+Figure~\ref{fig:afs:impact-search-stddev-train-objective} visualizes these observations for \emph{MI} as feature selector and $k=5$.
+These findings also apply to \emph{Model Gain} and partly to \emph{FCBF}, but not the heuristic \emph{Greedy Wrapper}.
+We discuss the reasons for these inconsistencies later.
+In contrast, using $k=10$ instead of $k=5$ does not change the general trends.
+
+As Figure~\ref{fig:afs:impact-search-stddev-test-objective} shows, the difference in variance between sequential and simultaneous search is less prominent for the test-set objective value.
+This effect might be a result of overfitting.
+For the test-set prediction performance, visualized in Figure~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc}, the median variance within a search run differs even less between sequential and simultaneous search.
+Thus, the actual prediction performance of multiple alternatives found by simultaneous search is not more homogeneous than for sequential search.
+
+While obtaining alternatives of more homogeneous quality can be one goal of simultaneous search, the main selling point would be obtaining alternatives of higher average quality.
+However, we found that simultaneous search is not clearly better than sequential search in that regard.
+In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective in search runs for \emph{MI} as feature selector and $k=5$.
+We can see that simultaneous search only develops a slight comparative advantage against sequential search if the number of alternatives increases.
+The same holds for \emph{Model Gain} as feature selector, while \emph{FBCF} does not show an advantage of simultaneous search on average and \emph{Greedy Wrapper} even tends to favor sequential search.
+
+The negligible advantage of simultaneous search for \emph{MI} also is visible for the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc}.
+In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} shows, other aspects than the search method, e.g., dataset, dissimilarity threshold~$tau$, etc. cause a significantly larger variation in prediction performance.
+Further, regarding the test-set objective value, the median for simultaneous search even tends to become slightly worse than for sequential search, as Figure~\ref{fig:afs:impact-search-mean-test-objective}.
+
+As a final comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in evaluation metrics between the two search approaches if they are compared on each search setting separately, e.g., each dataset, fold, or dissimilarity threshold~$tau$.
+The figure again shows that all feature selectors except \emph{Greedy Wrapper} exhibit little variation in quality between the two search approaches, apart from some outlying experimental settings.
+Additionally, the figure highlights that outliers can occur in both directions:
+While simultaneous search can yield better-performing feature sets in some situations, sequential search can be significantly better in other scenarios.
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{llrrrr}
+		\toprule
+		Selector & Search & \multicolumn{4}{c}{Optimization status} \\
+		\cmidrule(r){3-6}
+		& & Infeasible & Not solved & Feasible & Optimal \\
+		\midrule
+		FCBF & sequential & 70.25\% & 0.00\% & 0.00\% & 29.75\% \\
+		FCBF & simultaneous & 67.47\% & 7.13\% & 5.01\% & 20.39\% \\
+		MI & sequential & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		MI & simultaneous & 4.67\% & 0.00\% & 8.49\% & 86.84\% \\
+		Model Gain & sequential & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		Model Gain & simultaneous & 4.67\% & 0.00\% & 7.16\% & 88.17\% \\
+		\bottomrule
+	\end{tabular}
+	\caption{
+		Frequency of optimization statuses by feature-selection method and search method with $k=5$ and up to five alternatives.
+		Excluding \emph{Greddy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
+		Each row sums to 100\%.
+	}
+	\label{tab:afs:impact-search-fs-method-optimization-status}
+\end{table}
+%
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{rrrrr}
+		\toprule
+		$a$ & \multicolumn{4}{c}{Optimization status} \\
+		\cmidrule(r){2-5}
+		& Infeasible & Not solved & Feasible & Optimal \\
+		\midrule
+		1 & 21.33\% & 1.18\% & 0.00\% & 77.49\% \\
+		2 & 21.73\% & 2.22\% & 0.02\% & 76.02\% \\
+		3 & 23.96\% & 2.31\% & 1.07\% & 72.67\% \\
+		4 & 29.96\% & 2.82\% & 3.04\% & 64.18\% \\
+		5 & 31.02\% & 3.36\% & 30.31\% & 35.31\% \\
+		\bottomrule
+	\end{tabular}
+	\caption{
+		Frequency of optimization statuses by number of alternatives~$a$ in simultaneous search with $k=5$, excluding results from \emph{Greedy Wrapper} as feature selector.
+		Each row sums to 100\%.
+	}
+	\label{tab:afs:impact-num-alternatives-optimization-status}
+\end{table}
+%
+A major reason for simultaneous search not being advantageous is that results can be sub-optimal.
+For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fraction of the search space is covered.
+For the three exactly optimized feature-selection methods, the solver can time out.
+As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
+Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
+In particular, for up to five alternatives and $k=5$, all sequential searches for the three white-box feature selectors finished within the timeout, i.e., yielded the optimal feature set or ascertain infeasibility.
+In contrast, 5.01\% of the simultaneous searches for \emph{FBCF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
+Such a solution can be worse than an optimal sequential solutions.
+Further, 7.13\% of the simultaneous searches for \emph{FBCF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
+Note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
+For up to two alternatives in simultaneous search with $k=5$, barely any search runs yield feasible but potentially suboptimal results.
+In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alternatives and 30\% for five alternatives.
+
+Based on all results described in this section, we focus on the sequential search in the following.
+In particular, it appeared to be faster than simultaneous search while yielding similar feature-set quality.
 
 \subsubsection{Number of Alternatives}
 \label{sec:afs:evaluation:search:num-alternatives}
