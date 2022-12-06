@@ -902,7 +902,7 @@ datasets, prediction models, feature-selection methods, and approaches to search
 		Quality of the original feature set over feature-set size~$k$ and datasets with sizes~$n$.
 		Results from sequential search with \emph{MI} as feature selector.
 	}
-	\label{fig:afs:impact-dataset-k}
+	\label{fig:afs:impact-dataset-k-quality}
 \end{figure}
 
 Naturally, feature-set quality depends on the datasets used, and several effects could occur.
@@ -911,7 +911,7 @@ Datasets with more features $n$ give way to more alternative feature sets.
 At the same time, the feature quality can be spread over more features than for smaller datasets, making it harder to compose a small high-quality feature set.
 
 Indeed, our experiments show a broad variation of feature-set quality over the datasets.
-Figure~\ref{fig:afs:impact-dataset-k} depicts the relationship between datasets and quality of the original feature set in sequential search.
+Figure~\ref{fig:afs:impact-dataset-k-quality} depicts the relationship between datasets and quality of the original feature set in sequential search.
 To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis, which is a measure of relative feature-set sizes.
 As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature selector approximately increases linearly with~$k/n$.
 However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
@@ -989,7 +989,7 @@ I.e., the objective of feature selection is only partially indicative of predict
 		Comparison of feature selectors and feature-set sizes~$k$.
 		Results from the original feature sets of sequential search.
 	}
-	\label{fig:afs:impact-fs-method-k}
+	\label{fig:afs:impact-fs-method-k-quality}
 \end{figure}
 
 As the different feature-selection methods employ different objective functions~$Q$, it does not make sense to compare absolute objective values between feature-selection methods.
@@ -1067,13 +1067,12 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 		\caption{Mean of test-set prediction performance for decision trees within individual search runs.}
 		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
 	\end{subfigure}
-
 	\caption{
 		Comparison of search methods for alternatives over the number of alternatives.
 		Results with \emph{MI} as feature selector and $k=5$.
 		Y-axes truncated for readability reasons.
 	}
-	\label{fig:afs:impact-search}
+	\label{fig:afs:impact-search-quality}
 \end{figure}
 
 \begin{figure}[htb]
@@ -1097,7 +1096,7 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\caption{
 		Comparison of feature selectors and search methods with $k=5$ and up to five alternatives.
 	}
-	\label{fig:afs:impact-search-fs-method}
+	\label{fig:afs:impact-search-fs-method-quality}
 \end{figure}
 
 As we expected, the training-set objective value~$Q$ of feature sets within each particular search run usually varies more for sequential search than for simultaneous search.
@@ -1117,13 +1116,13 @@ While obtaining alternatives of more homogeneous quality can be one goal of simu
 However, we found that simultaneous search is not clearly better than sequential search in that regard.
 In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective in search runs for \emph{MI} as feature selector and $k=5$.
 We can see that simultaneous search only develops a slight comparative advantage against sequential search if the number of alternatives increases.
-The same holds for \emph{Model Gain} as feature selector, while \emph{FBCF} does not show an advantage of simultaneous search on average and \emph{Greedy Wrapper} even tends to favor sequential search.
+The same holds for \emph{Model Gain} as feature selector, while \emph{FCBF} does not show an advantage of simultaneous search on average and \emph{Greedy Wrapper} even tends to favor sequential search.
 
 The negligible advantage of simultaneous search for \emph{MI} also is visible for the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc}.
-In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} shows, other aspects than the search method, e.g., dataset, dissimilarity threshold~$\tau$, etc. cause a significantly larger variation in prediction performance.
-Further, regarding the test-set objective value, the median for simultaneous search even tends to become slightly worse than for sequential search, as Figure~\ref{fig:afs:impact-search-mean-test-objective}.
+In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, other aspects than the search method, e.g., dataset, dissimilarity threshold~$\tau$, etc. cause a significantly larger variation in prediction performance.
+Further, regarding the test-set objective value, the median quality for simultaneous search even tends to become slightly worse than for sequential search, as Figure~\ref{fig:afs:impact-search-mean-test-objective} shows.
 
-As a final comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in evaluation metrics between the two search approaches if they are compared on each search setting separately, e.g., each dataset, fold, or dissimilarity threshold~$tau$.
+As a final comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in evaluation metrics between the two search approaches if they are compared on each search setting separately, e.g., each dataset, fold, or dissimilarity threshold~$\tau$.
 The figure again shows that all feature selectors except \emph{Greedy Wrapper} exhibit little variation in quality between the two search approaches, apart from some outlying experimental settings.
 Additionally, the figure highlights that outliers can occur in both directions:
 While simultaneous search can yield better-performing feature sets in some situations, sequential search can be significantly better in other scenarios.
@@ -1180,9 +1179,9 @@ For the three exactly optimized feature-selection methods, the solver can time o
 As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
 In particular, for up to five alternatives and $k=5$, all sequential searches for the three white-box feature selectors finished within the timeout, i.e., yielded the optimal feature set or ascertain infeasibility.
-In contrast, 5.01\% of the simultaneous searches for \emph{FBCF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
+In contrast, 5.01\% of the simultaneous searches for \emph{FCBF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
 Such a solution can be worse than an optimal sequential solutions.
-Further, 7.13\% of the simultaneous searches for \emph{FBCF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
+Further, 7.13\% of the simultaneous searches for \emph{FCBF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
 Note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
 For up to two alternatives in simultaneous search with $k=5$, barely any search runs yield feasible but potentially suboptimal results.
 In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alternatives and 30\% for five alternatives.
@@ -1193,7 +1192,7 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 \subsubsection{Number of Alternatives}
 \label{sec:afs:evaluation:search:num-alternatives}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1254,16 +1253,16 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		}
 		\label{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max-fillna}
 	\end{subfigure}
-
 	\caption{
 		Feature-set quality, normalized per experimental setting, over the number of alternatives.
 		Results from sequential search with \emph{MI} as feature selector and $k=5$.
 	}
-	\label{fig:afs:impact-num-alternatives}
+	\label{fig:afs:impact-num-alternatives-quality}
 \end{figure}
 
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
-Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} illustrate this for \emph{MI}-based feature selection.
+In particular, each found feature set adds another constraint to the optimization problem.
+Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} illustrate this trend for \emph{MI}-based feature selection.
 The other feature-selection methods exhibit similar effects.
 As feature-set quality varies between datasets, we apply normalization:
 In Figure~\ref{fig:afs:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., the highest objective value in the search run is scaled to~1 and the other feature-set qualities are scaled accordingly.
@@ -1281,7 +1280,7 @@ Be aware that these observations refer to the quality of the found feature sets.
 However, the more alternatives are desired, the more likely an infeasible optimization problem is.
 For example, the \emph{MI} feature selector in sequential search always finds an original feature set.
 However, with $k=5$, the problem is infeasible in 2\% of the cases for the third alternative, 12\% for the fifth alternative, and 18\% for the tenth alternative.
-Increasing the feature-set size $k$, e.g., to $k=10$, or decreasing the dataset dimensionality~$n$, naturally increase the number of infeasibilities, as less features become available for alternatives.
+Increasing the feature-set size $k$, e.g., to $k=10$, or decreasing the dataset dimensionality~$n$, naturally increases the number of infeasibilities, as less features become available for alternatives.
 Thus, while the quality of actually found feature sets seems to remain relatively stable with an increased number of alternatives, valid alternatives might simply not exist.
 Figures~\ref{fig:afs:impact-num-alternatives-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-objective-min-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max-fillna} show the same data as Figures~\ref{fig:afs:impact-num-alternatives-objective-max},~\ref{fig:afs:impact-num-alternatives-objective-min-max}, and~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max} but with the objective of infeasible feature sets set to zero.
 This makes sense since selecting no features leads to such an objective value for \emph{MI}-based feature selection, and MCC is zero for randomly guessing predictions.
@@ -1291,58 +1290,117 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
 \label{sec:afs:evaluation:search:tau}
 
-\begin{figure}[htb]
+\begin{figure}[p]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-max-tau.pdf}
-		\caption{Training set. Objective values of infeasible feature sets excluded.}
-		\label{fig:afs:impact-num-alternatives-train-objective-max-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max.pdf}
+		\caption{
+			Training-set objective value with max-normalization.
+			Objective values of infeasible feature sets excluded.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-train-objective-max-fillna-tau.pdf}
-		\caption{Training set. Objective values of infeasible feature sets set to zero.}
-		\label{fig:afs:impact-num-alternatives-train-objective-max-fillna-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max-fillna.pdf}
+		\caption{
+			Training-set objective value with max-normalization.
+			Objective values of infeasible feature sets set to zero.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-max-tau.pdf}
-		\caption{Test set. Objective values of infeasible feature sets excluded.}
-		\label{fig:afs:impact-num-alternatives-test-objective-max-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max.pdf}
+		\caption{
+			Test-set objective value with max-normalization.
+			Objective values of infeasible feature sets excluded.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-test-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-test-objective-max-fillna-tau.pdf}
-		\caption{Test set. Objective values of infeasible feature sets set to zero.}
-		\label{fig:afs:impact-num-alternatives-test-objective-max-fillna-tau}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max-fillna.pdf}
+		\caption{
+			Test-set objective value with max-normalization.
+			Objective values of infeasible feature sets set to zero.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
+		\caption{
+			Test set prediction performance with min-max-normalization.
+			Prediction performance of infeasible feature sets excluded.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
+		\caption{
+			Test set prediction performance with min-max-normalization.
+			Prediction performance of infeasible feature sets set to zero.
+		}
+		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean objective value $Q$, max-normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$.
+		Mean feature-set quality, normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$.
 		Results from sequential search with \emph{MI} as feature selector and $k=10$.
 	}
-	\label{fig:afs:impact-num-alternatives-objective-max-tau}
+	\label{fig:afs:impact-num-alternatives-tau-quality}
 \end{figure}
 
-As Figure~\ref{fig:afs:impact-num-alternatives-objective-max-tau} shows for \emph{MI} as feature selector, the decrease of the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
+\begin{figure}[htbp]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-optimization-status-k-5.pdf}
+		\caption{Feature-set size~$k=5$.}
+		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-5}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-optimization-status-k-10.pdf}
+		\caption{Feature-set size~$k=10$.}
+		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-10}
+	\end{subfigure}
+	\caption{
+		Fraction of optimization runs yielding a valid feature set over the number of alternatives and dissimilarity threshold~$\tau$.
+		Results from sequential search with \emph{MI} as feature selector.
+	}
+	\label{fig:afs:impact-num-alternatives-tau-optimization-status}
+\end{figure}
+
+As Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} shows for \emph{MI} as feature selector, the decrease of the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
 For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
 In contrast, the objective decrease significantly for a high dissimilarity threshold, e.g., $\tau=1$.
-This phenomenon also holds for test-set objective and test-set prediction performance, though the decrease with $\tau$ is less prominent.
-Also, the fraction of infeasible optimization problems, i.e., lack of valid alternative feature sets, increases with $\tau$:
-For a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
-Figures~\ref{fig:afs:impact-num-alternatives-train-objective-max-fillna-tau} and~\ref{fig:afs:impact-num-alternatives-test-objective-max-fillna-tau} demonstrate this by setting the objective value to zero if no feasible feature set could be found.
-Compared to Figures~\ref{fig:afs:impact-num-alternatives-train-objective-max-tau} and~\ref{fig:afs:impact-num-alternatives-test-objective-max-tau}, the decrease in objective value is stronger.
-In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-train-objective-max-tau} for $\tau=1.0$.
-This is because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different datasets at each number of alternatives.
+This is expected, since a higher~$\tau$ constrains the feature selection more by preventing the selection of previously selected features more strongly. 
+As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, this phenomenon also holds for test-set objective, though the dependency on~$\tau$ is less prominent there.
+In contrast, the effect of~$\tau$ on prediction performance does not exhibit a clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
+This result underlines our previous observation that the objective value is only partially indicate of prediction performance.
 
-While the previous observation were made for \emph{MI} as feature selector, they do not hold universally.
-Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on \emph{tau} as well.
-In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of $\tau$ on feature-set quality.
-For \emph{Greedy Wrapper}, this can be explained by its heuristic search procedure.
-For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so adding further constraints has less impact.
+Similar to varying the number of alternatives, one also needs to consider that setting~$\tau$ to certain values can make the optimization problem infeasible.
+In particular, for a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
+Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes how the fraction of valid feature sets develops over the number of alternatives and dissimilarity threshold~$\tau$.
+Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna} account for infeasible feature sets by setting their feature-set quality to zero.
+Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}, the decrease in objective value is noticeably stronger.
+In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$.
+This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
+
+While the previous observations were made for \emph{MI} as feature selector, they do not hold universally.
+Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on~$\tau$ as well and show similar trends.
+In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of~$\tau$ on the quality of found feature sets, while the effect on feature-set infeasibility remains.
+For \emph{Greedy Wrapper}, this outcome can be explained by the heuristic search procedure to find feature sets.
+For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so this aspect plays a larger role than the quality variation of found feature sets.
 
 \section{Conclusions and Future Work}
 \label{sec:afs:conclusion}
