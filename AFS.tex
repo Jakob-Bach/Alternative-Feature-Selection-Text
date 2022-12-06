@@ -1148,7 +1148,7 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Frequency of optimization statuses by feature-selection method and search method.
+		Frequency of optimization statuses by feature-selection method and search method for alternatives.
 		Results with $k=5$ and up to five alternatives.
 		Excluding \emph{Greedy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
 		Each row sums to 100\%.
@@ -1184,13 +1184,68 @@ For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fract
 For the three exactly optimized feature-selection methods, the solver can time out.
 As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
-In particular, for up to five alternatives and $k=5$, all sequential searches for the three white-box feature-selection methods finished within the timeout, i.e., yielded the optimal feature set or ascertain infeasibility.
+In particular, for up to five alternatives and $k=5$, all sequential searches for the three white-box feature-selection methods finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
 In contrast, 5.01\% of the simultaneous searches for \emph{FCBF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
 Such a solution can be worse than an optimal sequential solutions.
 Further, 7.13\% of the simultaneous searches for \emph{FCBF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
+
 Note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
 For up to two alternatives in simultaneous search with $k=5$, barely any search runs yield feasible but potentially suboptimal results.
 In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alternatives and 30\% for five alternatives.
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{lrr}
+		\toprule
+		Selection & \multicolumn{2}{c}{Optimization time} \\
+		\cmidrule(r){2-3}
+		& sequential & simultaneous \\
+		\midrule
+		FCBF & 1.90~s & 10.12~s \\
+		Greedy Wrapper & 1.26~s & 8.00~s \\
+		MI & 0.01~s & 10.53~s \\
+		Model Gain & 0.01~s & 9.18~s \\
+		\bottomrule
+	\end{tabular}
+	\caption{
+		Average optimization time by feature-selection method and search method for alternatives.
+		Results with $k=5$.
+	}
+	\label{tab:afs:impact-search-fs-method-optimization-time}
+\end{table}
+%
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{lrrrr}
+		\toprule
+		$a$ & \multicolumn{4}{c}{Optimization time} \\
+		\cmidrule(r){2-5}
+		& FCBF & Wrapper & MI & Model Gain \\
+		\midrule
+		1 & 3.75~s & 2.47~s & 0.01~s & 0.01~s \\
+		2 & 5.30~s & 3.56~s & 0.08~s & 0.07~s \\
+		3 & 8.07~s & 5.40~s & 0.26~s & 0.23~s \\
+		4 & 11.17~s & 11.43~s & 2.86~s & 2.31~s \\
+		5 & 15.15~s & 10.92~s & 32.49~s & 28.48~s \\
+		\bottomrule
+	\end{tabular}
+	\caption{
+		Average optimization time by feature-selection method and number of alternatives~$a$.
+		Results from simultaneous search with $k=5$.
+	}
+	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
+\end{table}
+%
+Analyzing the actual runtimes instead of the optimization status also underlines the superiority of sequential search.
+As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the average optimization time of sequential search is significantly shorter for all feature-selection methods.
+Note that the table only displays the runtime of the search for alternatives, i.e., excluding the feature-quality computations for white-box feature selectors.
+In particular, these computations only need to be conducted once before searching the original feature set and can be re-used in each search for alternatives.
+In contrast, \emph{Greedy Wrapper} only evaluates feature-set quality on-the-fly within the search for alternatives.
+
+For the fastest feature selection-methods, \emph{MI} and \emph{Model Gain}, the runtime difference between sequential and simultaneous search is three orders of magnitude.
+Further, these two feature-selection methods experiences a dramatic runtime increase with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} visualizes.
+This increase is considerably less for sequential search, e.g., from 0.003~s to 0.005~s from the first to fifth alternative for both these feature-selection methods.
+Further, \emph{FCBF} and \emph{Greedy Wrapper} show no clear trend of optimization time over the number of alternatives in sequential search, while exhibiting a clear increase in simultaneous search.
 
 Based on all results described in this section, we focus on the sequential search in the following.
 In particular, it appeared to be faster than simultaneous search while yielding similar feature-set quality.
