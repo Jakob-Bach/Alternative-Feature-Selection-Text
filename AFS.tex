@@ -895,12 +895,12 @@ datasets, prediction models, feature-selection methods, and approaches to search
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-dataset-k-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance for decision trees.}
+		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\caption{
-		Quality of the original feature set over feature-set size~$k$ and datasets with sizes~$n$.
-		Results from sequential search with \emph{MI} as feature-selection method.
+		Feature-set quality over feature-set size~$k$ relative to dataset size~$n$.
+		Results from the original feature sets of sequential search with \emph{MI} as feature-selection method.
 	}
 	\label{fig:afs:impact-dataset-k-quality}
 \end{figure}
@@ -915,7 +915,7 @@ Figure~\ref{fig:afs:impact-dataset-k-quality} depicts the relationship between d
 To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis, which is a measure of relative feature-set sizes.
 As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature-selection method approximately increases linearly with~$k/n$.
 However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
-Further, the quality of a prediction model does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
+Further, the quality of a prediction model, i.e., decision trees, does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
 Due to this observed variation of feature-set quality between datasets, we normalize feature-set quality in some of the following analyses.
 
 \subsection{Prediction Models}
@@ -927,8 +927,8 @@ Due to this observed variation of feature-set quality between datasets, we norma
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-overfitting.pdf}
 		\caption{
-			Training-test difference over evaluation metrics and feature-selection methods.
-			Y-axis truncated for readability reasons.
+			Training-test difference in quality by evaluation metric and feature-selection method.
+			Y-axis truncated for better readability.
 		}
 		\label{fig:afs:evaluation-metrics-overfitting}
 	\end{subfigure}
@@ -936,10 +936,13 @@ Due to this observed variation of feature-set quality between datasets, we norma
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
-		\caption{Correlation between the evaluation metrics calculated on the training set and the test set.}
+		\caption{Correlation between evaluation metrics, each calculated on the training set and the test set.}
 		\label{fig:afs:evaluation-metrics-correlation}
 	\end{subfigure}
-	\caption{Comparison of evaluation metrics over all experimental settings.}
+	\caption{
+		Feature-set quality by evaluation metric.
+		Results from all search runs.
+	}
 	\label{fig:afs:evaluation-metrics}
 \end{figure}
 
@@ -956,7 +959,7 @@ However, this will not invalidate our analysis of how prediction performance dev
 The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than for prediction performance.
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
-As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only focus on one prediction model in the following:
+As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only report prediction performance of one model in the following:
 We choose decision trees, as they always consider all features during training, while random forests involve random sampling of features.
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlation between training-set quality and test-set quality is moderate, but not high, for the optimization objective~$Q$ as well as prediction performance in terms of MCC.
@@ -972,7 +975,7 @@ I.e., the objective of feature selection is only partially indicative of predict
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-fs-method-k-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance for decision trees.}
+		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-fs-method-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
@@ -980,13 +983,13 @@ I.e., the objective of feature selection is only partially indicative of predict
 		\centering
 		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-fs-method-k-metric-diff.pdf}
 		\caption{
-			Difference in feature-set quality between $k=10$ and $k=5$.
-			Y-axis truncated for readability reasons.
+			Difference in quality between $k=10$ and $k=5$ by evaluation metric.
+			Y-axis truncated for better readability.
 		}
 		\label{fig:afs:impact-fs-method-k-metric-diff}
 	\end{subfigure}
 	\caption{
-		Comparison of feature-selection methods and feature-set sizes~$k$.
+		Feature-set quality by feature-selection method and feature-set size~$k$.
 		Results from the original feature sets of sequential search.
 	}
 	\label{fig:afs:impact-fs-method-k-quality}
@@ -1029,48 +1032,48 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-train-objective.pdf}
-		\caption{Standard deviation of training-set objective value within individual search runs.}
+		\caption{Standard deviation of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-stddev-train-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-train-objective.pdf}
-		\caption{Mean of training-set objective value within individual search runs.}
+		\caption{Mean of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-mean-train-objective}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-test-objective.pdf}
-		\caption{Standard deviation of test-set objective value within individual search runs.}
+		\caption{Standard deviation of test-set objective value within search runs.}
 		\label{fig:afs:impact-search-stddev-test-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-test-objective.pdf}
-		\caption{Mean of test-set objective value within individual search runs.}
+		\caption{Mean of test-set objective value with\-in search runs.}
 		\label{fig:afs:impact-search-mean-test-objective}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-decision-tree-test-mcc.pdf}
-		\caption{Standard deviation of test-set prediction performance for decision trees within individual search runs.}
+		\caption{Standard deviation of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-decision-tree-test-mcc.pdf}
-		\caption{Mean of test-set prediction performance for decision trees within individual search runs.}
+		\caption{Mean of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
 	\end{subfigure}
 	\caption{
-		Comparison of search methods for alternatives over the number of alternatives.
+		Feature-set quality over the number of alternatives, by evaluation metric and search method for alternatives.
 		Results with \emph{MI} as feature-selection method and $k=5$.
-		Y-axes truncated for readability reasons.
+		Y-axes truncated for better readability.
 	}
 	\label{fig:afs:impact-search-quality}
 \end{figure}
@@ -1080,7 +1083,7 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance for decision trees.}
+		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-search-fs-method-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
@@ -1088,13 +1091,14 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 		\centering
 		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-metric-diff.pdf}
 		\caption{
-			Difference in feature-set quality between simultaneous and sequential search.
-			Y-axis truncated for readability reasons.
+			Difference in quality between simultaneous and sequential search by evaluation metric.
+			Y-axis truncated for better readability.
 		}
 		\label{fig:afs:impact-search-fs-method-metric-diff}
 	\end{subfigure}
 	\caption{
-		Comparison of feature-selection methods and search methods with $k=5$ and up to five alternatives.
+		Feature-set quality by feature-selection method and search method for alternatives.
+		Results with $k=5$ and up to five alternatives.
 	}
 	\label{fig:afs:impact-search-fs-method-quality}
 \end{figure}
@@ -1144,8 +1148,9 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Frequency of optimization statuses by feature-selection method and search method with $k=5$ and up to five alternatives.
-		Excluding \emph{Greddy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
+		Frequency of optimization statuses by feature-selection method and search method.
+		Results with $k=5$ and up to five alternatives.
+		Excluding \emph{Greedy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
 		Each row sums to 100\%.
 	}
 	\label{tab:afs:impact-search-fs-method-optimization-status}
@@ -1167,7 +1172,8 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Frequency of optimization statuses by number of alternatives~$a$ in simultaneous search with $k=5$, excluding results from \emph{Greedy Wrapper} as feature-selection method.
+		Frequency of optimization statuses by number of alternatives~$a$.
+		Results from simultaneous search with $k=5$, excluding \emph{Greedy Wrapper} as feature-selection method.
 		Each row sums to 100\%.
 	}
 	\label{tab:afs:impact-num-alternatives-optimization-status}
@@ -1198,8 +1204,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max.pdf}
 		\caption{
-			Objective value with max-normalization.
-			Objective values of infeasible feature sets excluded.
+			Objective value, max-normalized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-objective-max}
 	\end{subfigure}
@@ -1208,8 +1214,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max-fillna.pdf}
 		\caption{
-			Objective value with max-normalization.
-			Objective values of infeasible feature sets set to zero.
+			Objective value, max-normalized.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-objective-max-fillna}
 	\end{subfigure}
@@ -1218,8 +1224,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
 		\caption{
-			Objective value with min-max-normalization.
-			Objective values of infeasible feature sets excluded.
+			Objective value, min-max-normalized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-objective-min-max}
 	\end{subfigure}
@@ -1228,8 +1234,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max-fillna.pdf}
 		\caption{
-			Objective value with min-max-normalization.
-			Objective values of infeasible feature sets set to zero.
+		 	Objective value, min-max-normali\-zed.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-objective-min-max-fillna}
 	\end{subfigure}
@@ -1238,8 +1244,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/impact-num-alternatives-decision-tree-test-mcc-min-max.pdf}
 		\caption{
-			Test-set prediction performance with min-max-normalization.
-			Prediction performance of infeasible feature sets excluded.
+			Test-set prediction performance, min-max-normalized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max}
 	\end{subfigure}
@@ -1248,13 +1254,13 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/impact-num-alternatives-decision-tree-test-mcc-min-max-fillna.pdf}
 		\caption{
-			Test-set prediction performance with min-max-normalization.
-			Prediction performance of infeasible feature sets set to zero.
+			Test-set prediction performance, min-max-normalized.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max-fillna}
 	\end{subfigure}
 	\caption{
-		Feature-set quality, normalized per experimental setting, over the number of alternatives.
+		Feature-set quality, normalized per experimental setting, over the number of alternatives, by evaluation metric.
 		Results from sequential search with \emph{MI} as feature-selection method and $k=5$.
 	}
 	\label{fig:afs:impact-num-alternatives-quality}
@@ -1296,8 +1302,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max.pdf}
 		\caption{
-			Training-set objective value with max-normalization.
-			Objective values of infeasible feature sets excluded.
+			Training-set objective value, max-normalized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-train-objective-max}
 	\end{subfigure}
@@ -1306,8 +1312,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max-fillna.pdf}
 		\caption{
-			Training-set objective value with max-normalization.
-			Objective values of infeasible feature sets set to zero.
+			Training-set objective value, max-normalized.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna}
 	\end{subfigure}
@@ -1316,8 +1322,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max.pdf}
 		\caption{
-			Test-set objective value with max-normalization.
-			Objective values of infeasible feature sets excluded.
+			Test-set objective value, max-norma\-lized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-test-objective-max}
 	\end{subfigure}
@@ -1326,8 +1332,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max-fillna.pdf}
 		\caption{
-			Test-set objective value with max-normalization.
-			Objective values of infeasible feature sets set to zero.
+			Test-set objective value, max-norma\-lized.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}
 	\end{subfigure}
@@ -1336,8 +1342,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
 		\caption{
-			Test set prediction performance with min-max-normalization.
-			Prediction performance of infeasible feature sets excluded.
+			Test set prediction performance, min-max-normalized.
+			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}
 	\end{subfigure}
@@ -1346,13 +1352,13 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
 		\caption{
-			Test set prediction performance with min-max-normalization.
-			Prediction performance of infeasible feature sets set to zero.
+			Test set prediction performance, min-max-normalized.
+			Infeasible feature sets assigned~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean feature-set quality, normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$.
+		Mean of feature-set quality, normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric.
 		Results from sequential search with \emph{MI} as feature-selection method and $k=10$.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-quality}
@@ -1396,7 +1402,7 @@ Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max
 In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
 
-While the previous observations were made for \emph{MI} as feature-selection method, they do not hold universally.
+While the previous observations applied to \emph{MI} as feature-selection method, they do not hold universally.
 Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on~$\tau$ as well and show similar trends.
 In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of~$\tau$ on the quality of found feature sets, while the effect on feature-set infeasibility remains.
 For \emph{Greedy Wrapper}, this outcome can be explained by the heuristic search procedure to find feature sets.
