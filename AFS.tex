@@ -773,9 +773,7 @@ For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
 Naturally, we exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
 As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
-If the solver finishes before the timeout, it either finds an optimal solution or proves no solution exists.
-These two outcomes apply to 94\% of the feature sets in our evaluation.
-In the remaining cases, the solver either found a feasible but potentially suboptimal solution or found no solution though one might exist.
+For 94\% of the feature sets in our evaluation, the solver finishes within the timeout.
 
 \subsubsection{Prediction}
 \label{sec:afs:experimental-design:approaches:prediction}
@@ -794,15 +792,34 @@ We are interested in which performance the models achieve if they are limited to
 \subsection{Evaluation Metrics}
 \label{sec:afs:experimental-design:evaluation}
 
+Our evaluation focuses on the quality of alternative feature sets.
+To a lesser extent, we evaluate runtime of the search for alternatives.
+
+\paragraph{Feature-set quality}
+
 We use two kinds of metrics for feature-set quality.
 We focus on on how these metrics evolve for different configurations of alternative feature selection, cf. Section~\ref{sec:afs:experimental-design:approaches:alternatives}.
-First, we evaluate the objective functions~$Q(s,X,y)$ of the feature-selection methods, which guided the search for feature sets.
+First, we evaluate the objective functions~$Q(s,X,y)$ of the feature-selection methods, which guided the search for feature sets, and report their \emph{objective value}.
 Second, we train predictions models with the found feature sets.
-We report prediction performance in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
+We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
 This coefficient reaches its maximum of 1 for perfect predictions and is 0 for random guessing.
 
 To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
 Not only model training but also the search for alternative feature sets is limited to the training data.
+
+\paragraph{Runtime}
+
+We consider two metrics related to runtime.
+
+First, we analyze the \emph{optimization time}.
+For white-box feature selectors, this corresponds to the runtime of one solver call.
+We exclude the time for computing the feature-feature and feature-target dependencies before optimization.
+In particular, one only needs to conduct such computations once before searching the original feature set and can then re-use them in each search for alternatives.
+For \emph{Greedy Wrapper}, we measure the runtime of the full black-box optimization procedure, involving multiple solver calls and model trainings.
+
+As second runtime metric, we examine the \emph{optimization status}, which can take four values.
+If the solver finished before reaching its timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., that no solution exists.
+If the solver reached its timeout, is either found a \emph{feasible} solution, whose optimality is unproven, or found no solution though one might exist, which corresponds to the optimization status \emph{not solved}.
 
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
@@ -1155,7 +1172,7 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Frequency of optimization statuses by feature-selection method and search method for alternatives.
+		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by feature-selection method and search method for alternatives.
 		Results with $k=5$ and up to five alternatives.
 		Excluding \emph{Greedy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
 		Each row sums to 100\%.
@@ -1179,7 +1196,7 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Frequency of optimization statuses by number of alternatives~$a$.
+		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by number of alternatives~$a$.
 		Results from simultaneous search with $k=5$, excluding \emph{Greedy Wrapper} as feature-selection method.
 		Each row sums to 100\%.
 	}
@@ -1243,14 +1260,12 @@ In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alt
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
 \end{table}
 %
-Analyzing the actual runtimes instead of the optimization status also underlines the superiority of sequential search.
+Analyzing the actual optimization time instead of the optimization status also underlines the superiority of sequential search.
 As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the average optimization time of sequential search is significantly shorter for all feature-selection methods.
-Note that the table only displays the runtime of the search for alternatives, i.e., excluding the feature-quality computations for white-box feature selectors.
-In particular, these computations only need to be conducted once before searching the original feature set and can be re-used in each search for alternatives.
 In contrast, \emph{Greedy Wrapper} only evaluates feature-set quality on-the-fly within the search for alternatives.
 
-For the fastest feature selection-methods, \emph{MI} and \emph{Model Gain}, the runtime difference between sequential and simultaneous search is three orders of magnitude.
-Further, these two feature-selection methods experiences a dramatic runtime increase with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} visualizes.
+For the fastest feature selection-methods, \emph{MI} and \emph{Model Gain}, the difference in optimization time between sequential and simultaneous search is three orders of magnitude.
+Further, these two feature-selection methods experiences a dramatic increase in optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} visualizes.
 This increase is considerably less for sequential search, e.g., from 0.003~s to 0.005~s from the first to fifth alternative for both these feature-selection methods.
 Further, \emph{FCBF} and \emph{Greedy Wrapper} show no clear trend of optimization time over the number of alternatives in sequential search, while exhibiting a clear increase in simultaneous search.
 
