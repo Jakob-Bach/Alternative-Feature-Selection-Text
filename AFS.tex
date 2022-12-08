@@ -902,7 +902,7 @@ With this setup, running the parallelized pipeline took roughly 141~hours, i.e.,
 
 In this section, we evaluate our experiments.
 In particular, we discuss the results for the different dimensions of our experimental design:
-datasets, prediction models, feature-selection methods, and approaches to search for alternatives.
+datasets, feature-selection methods, approaches to search for alternatives, and evaluation metrics.
 
 \subsection{Datasets}
 \label{sec:afs:evaluation:datasets}
@@ -942,8 +942,8 @@ However, there still is some variation exclusively caused by the dataset rather 
 Further, the quality of a prediction model, i.e., decision trees, does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
 Due to this observed variation of feature-set quality between datasets, we normalize feature-set quality in some of the following analyses.
 
-\subsection{Prediction Models}
-\label{sec:afs:evaluation:prediction}
+\subsection{Feature-Set Quality Metrics}
+\label{sec:afs:evaluation:metrics}
 
 \begin{figure}[htb]
 	\centering
@@ -970,6 +970,8 @@ Due to this observed variation of feature-set quality between datasets, we norma
 	\label{fig:afs:evaluation-metrics}
 \end{figure}
 
+\paragraph{Prediction models and overfitting}
+
 As one can expect, the average prediction performance of random forests is higher than that of decision trees.
 Also, overfitting occurs for both model types, i.e., there is a gap between training-set and test-set prediction performance.
 In particular, over all experimental settings, decision trees and random forests both have a mean training-set MCC of 0.86 (median: 1.0).
@@ -981,6 +983,8 @@ Once more, we observe that training-set quality is usually higher, though there 
 The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
 However, this will not invalidate our analysis of how prediction performance develops over alternatives.
 The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than for prediction performance.
+
+\paragraph{Correlation between evaluation metrics}
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics.
 As the performance of decision trees and random forests is highly correlated on training set as well as test set, we only report prediction performance of one model in the following:
@@ -1019,6 +1023,8 @@ I.e., the objective of feature selection is only partially indicative of predict
 	\label{fig:afs:impact-fs-method-k-quality}
 \end{figure}
 
+\paragraph{Prediction performance}
+
 As the different feature-selection methods employ different objective functions~$Q$, it does not make sense to compare absolute objective values between feature-selection methods.
 However, we can compare how useful the obtained feature sets are for predictions.
 Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set prediction performance on the original feature sets of sequential search for different feature-selection methods.
@@ -1036,6 +1042,8 @@ Over all experimental settings, 89\% of feature sets for \emph{FCBF} could not b
 In contrast, this figure only is 19\% for \emph{MI}.
 Even the original feature set in sequential search is infeasible in 76\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
 In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint seemingly made it hard to find valid feature sets.
+
+\paragraph{Influence of feature-set size~$k$}
 
 As expected, larger feature sets, i.e., with~$k=10$, usually exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
 However, the increase in feature-set quality with $k$ is not proportional, and there might even be a decrease.
@@ -1127,6 +1135,8 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\label{fig:afs:impact-search-fs-method-quality}
 \end{figure}
 
+\paragraph{Variance in feature-set quality}
+
 As we expected, the training-set objective value~$Q$ of feature sets within each particular search run usually varies more for sequential search than for simultaneous search.
 I.e., simultaneous search tends to return alternatives with more homogeneous quality than sequential search.
 Also, this variance decreases with the number of alternatives~$a$ for simultaneous search, but remains stable or slightly increases for sequential search.
@@ -1139,6 +1149,8 @@ As Figure~\ref{fig:afs:impact-search-stddev-test-objective} shows, the differenc
 This effect might be a result of overfitting.
 For the test-set prediction performance, visualized in Figure~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc}, the median variance within a search run differs even less between sequential and simultaneous search.
 Thus, the actual prediction performance of multiple alternatives found by simultaneous search is not more homogeneous than for sequential search.
+
+\paragraph{Average value of feature-set quality}
 
 While obtaining alternatives of more homogeneous quality can be one goal of simultaneous search, the main selling point would be obtaining alternatives of higher average quality.
 However, we found that simultaneous search is not clearly better than sequential search in that regard.
@@ -1202,7 +1214,9 @@ While simultaneous search can yield better-performing feature sets in some situa
 	}
 	\label{tab:afs:impact-num-alternatives-optimization-status}
 \end{table}
-%
+
+\paragraph{Optimization status}
+
 A major reason for simultaneous search not being advantageous is that results can be sub-optimal.
 For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fraction of the search space is covered.
 For the three exactly optimized feature-selection methods, the solver can time out.
@@ -1259,7 +1273,9 @@ In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alt
 	}
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
 \end{table}
-%
+
+\paragraph{Optimization time}
+
 Analyzing the actual optimization time instead of the optimization status also underlines the superiority of sequential search.
 As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the average optimization time of sequential search is significantly shorter for all feature-selection methods.
 In contrast, \emph{Greedy Wrapper} only evaluates feature-set quality on-the-fly within the search for alternatives.
@@ -1343,6 +1359,8 @@ In particular, it appeared to be faster than simultaneous search while yielding 
 	\label{fig:afs:impact-num-alternatives-quality}
 \end{figure}
 
+\paragraph{Feature-set quality}
+
 For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 In particular, each found feature set adds another constraint to the optimization problem.
 Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} illustrate this trend for \emph{MI}-based feature selection.
@@ -1358,6 +1376,8 @@ However, the decrease in objective value over the alternatives is less prominent
 In particular, alternatives can even have a higher test-set objective value than the original feature set due to overfitting.
 Similar findings hold for test-set prediction performance displayed in Figure~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max}.
 Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
+
+\paragraph{Optimization status}
 
 Be aware that these observations refer to the quality of the found feature sets.
 However, the more alternatives are desired, the more likely an infeasible optimization problem is.
@@ -1463,6 +1483,8 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 	\label{fig:afs:impact-num-alternatives-tau-optimization-status}
 \end{figure}
 
+\paragraph{Feature-set quality}
+
 As Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} shows for \emph{MI} as feature-selection method, the decrease of the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
 For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
 In contrast, the objective decrease significantly for a high dissimilarity threshold, e.g., $\tau=1$.
@@ -1471,6 +1493,8 @@ As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays,
 In contrast, the effect of~$\tau$ on prediction performance does not exhibit a clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
 This result underlines our previous observation that the objective value is only partially indicate of prediction performance.
 
+\paragraph{Optimization status}
+
 Similar to varying the number of alternatives, one also needs to consider that setting~$\tau$ to certain values can make the optimization problem infeasible.
 In particular, for a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
 Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes how the fraction of valid feature sets develops over the number of alternatives and dissimilarity threshold~$\tau$.
@@ -1478,6 +1502,8 @@ Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\r
 Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}, the decrease in objective value is noticeably stronger.
 In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
+
+\paragraph{Influence of feature-selection method}
 
 While the previous observations applied to \emph{MI} as feature-selection method, they do not hold universally.
 Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on~$\tau$ as well and show similar trends.
@@ -1531,7 +1557,7 @@ Our experiments (cf.~Section~\ref{sec:afs:evaluation:search:method}) as well as 
 One way to alleviate this is finding a more efficient problem formulation, e.g., by loosening the constraints for alternatives.
 However, looser constraints bear the danger of allowing identical feature sets as valid alternatives.
 Further, one can limit the solver runtime and take the intermediate results once the timeout is reached.
-We already used a fixed timeout in our experiments, but studying the exact impact of different timeouts one the feature-set quality is a topic for future work.
+We already used a fixed timeout in our experiments, but studying the exact influence of different timeouts one the feature-set quality is a topic for future work.
 Finally, one can use a different solver, e.g., one that supports non-linear terms so the interaction variables and constraints from Equation~\ref{eq:afs:product-linear} become superfluous.
 
 \paragraph{Datasets}
