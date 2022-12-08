@@ -866,12 +866,19 @@ The datasets contain no missing values.
 Categorical features have an ordinal encoding by default.
 Table~\ref{tab:afs:datasets} lists these datasets.
 
-\subsection{Implementation}
+\subsection{Implementation and Execution}
 \label{sec:afs:experimental-design:implementation}
 
-We implement our experimental pipeline in Python.
+We implement our experimental pipeline in Python~3.8.
 For machine learning, we use the package \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
-To express and solve the constraint optimization problems, we use the solver \emph{CBC} via the package \emph{OR-Tools}~\cite{perron2022or-tools}.
+To express and solve the constrained optimization problems, we use the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools}.
+A requirements file in our GitHub repository specifies the versions of all software dependencies.
+All calls of solvers and machine-learning routines are single-threaded in our implementation.
+However, the experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods.
+
+We ran the pipeline on a server with an \emph{AMD EPYC 7551} CPU, having 32 physical cores and a base clock of 2.0~GHz.
+The server had 128~GB RAM and \emph{Ubuntu 20.04.5 LTS} as operating system.
+With this setup, running the parallelized pipeline took roughly 141~hours, i.e., nearly six days.
 
 \section{Evaluation}
 \label{sec:afs:evaluation}
