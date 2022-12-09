@@ -417,19 +417,22 @@ We formulate pairwise dissimilarity constraints:
 	\label{def:afs:simultaneous-alternative}
 \end{definition}
 %
-This definition leads to the following optimization problem, assuming we want to obtain $a$ alternative feature sets besides an `original' feature set (which can be any of the solutions since there is no order of feature sets).
+This definition leads to the following optimization problem, assuming we want to obtain $a$ alternative feature sets besides an `original' feature set.
+Since there is no order of feature sets here, opposed to sequential search, the original feature set is no dedicated feature set but can be any of the solutions.
 %
 \begin{equation}
 	\begin{aligned}
-		\max_{s^{(0)}, \dots, s^{(a)}} &\quad \sum_{i=0}^a Q(s^{(i)},X,y) \\
-		\text{subject to:} &\quad \forall i_1 \in \{0, \dots, a\}~\forall i_2 \in \{0, \dots, i_1-1\} : d(F_{s^{(i_1)}},F_{s^{(i_2)}}) \geq \tau
+		\max_{s^{(0)}, \dots, s^{(a)}} &\quad \operatorname*{agg}_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
+		\text{subject to:} &\quad \forall i_1 \in \{1, \dots, a\}~\forall i_2 \in \{0, \dots, i_1-1\} : d(F_{s^{(i_1)}},F_{s^{(i_2)}}) \geq \tau
 	\end{aligned}
 	\label{eq:afs:afs-simultaneous}
 \end{equation}
 %
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
-In Equation~\ref{eq:afs:afs-simultaneous} and our experiments, we consider the summed quality of all feature sets as objective.
-Appendix~\ref{sec:afs:appendix:min-quality-objective} presents another objective, which actively balances the quality of all feature sets.
+The operator $\mathrm{agg}(\cdot)$ defines how to aggregate the qualities of these feature sets in the objective.
+In our experiments, we consider the sum as well as the minimum for aggregation.
+Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation functions and ideas for further formulations in detail.
+
 Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as we need to tackle one large optimization problem instead of multiple smaller ones.
 In particular, the number of decision variables increases linearly with the number of alternatives~$a$ and the number of constraints even grows quadratically.
 Also, for each feature and each pair of alternatives, we need to introduce an interaction variable as in Equation~\ref{eq:afs:product-linear} if we want to obtain a linear problem.
@@ -765,6 +768,7 @@ Here, the scores originate from trees trained with all features rather than asse
 \label{sec:afs:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
+For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the min-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
 We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
 This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
@@ -1575,11 +1579,22 @@ Thus, practitioners can use our generic approaches to search alternatives in dom
 \section{Appendix}
 \label{sec:afs:appendix}
 
-\subsection{Min-Quality Objective for Simultaneous Alternatives}
-\label{sec:afs:appendix:min-quality-objective}
+\subsection{Aggregation Functions for Simultaneous Search}
+\label{sec:afs:appendix:simultaneous-objective-aggregation}
 
-In this section, we present another objective for simultaneous search.
-In Equation~\ref{eq:afs:afs-simultaneous}, we use the summed feature-set quality over alternatives as the objective.
+Equation~\ref{eq:afs:afs-simultaneous} introduced the optimization problem of simultaneous search but did not define the aggregation function~$\mathrm{agg}(\cdot)$ in the objective.
+In this section, we discusses the two functions we use in our experiments, sum and minimum, as well as further approaches for handling the quality of multiple alternatives.
+
+\paragraph{Summed-quality objective}
+
+The arguably simplest way to aggregate the qualities of multiple feature sets is to sum them up.
+This leads to the following \emph{summed-quality objective}:
+%
+\begin{equation}
+	\max_{s^{(0)}, \dots, s^{(a)}} \sum_{i=0}^a Q(s^{(i)},X,y)
+	\label{eq:afs:afs-simultaneous-sum-objective}
+\end{equation}
+%
 While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality, though the latter could be a goal for searching simultaneously.
 For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with five features, the feature qualities~$q = (1,2,3,4,5)$, desired feature-set size $k=2$, and dissimilarity threshold $\tau = 1$, i.e., allowing no overlap of feature sets.
 The feature selection $s^{(0)} = (0,0,0,1,1)$, $s^{(1)} = (0,1,1,0,0)$ yields the optimal summed quality of $9+5=14$, while the quality of these two feature sets differs significantly.
@@ -1587,23 +1602,17 @@ The feature selection $s^{(0)} = (0,1,0,0,1)$, $s^{(1)} = (0,0,1,1,0)$ yields th
 Sequential search for alternatives can only yield the first, quality-imbalanced solution due to the greedy search procedure.
 Simultaneous search with the summed-quality objective could yield both solutions, due to the identical objective value, so we still cannot be sure to get balanced qualities.
 
-To actively foster balanced feature-set qualities in simultaneous search, we can use the minimum instead of the sum over $Q(\cdot)$ in the objective:
+\paragraph{Min-quality objective}
+
+To actively foster balanced feature-set qualities in simultaneous search, we propose the following \emph{min-quality objective}:
 %
 \begin{equation}
-	\begin{aligned}[t]
-		&\quad \max_{s^{(0)}, \dots, s^{(a)}} & \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
-		\text{instead of:} &\quad \max_{s^{(0)}, \dots, s^{(a)}} & \sum_{i=0}^a Q(s^{(i)},X,y)
-	\end{aligned}
+	\max_{s^{(0)}, \dots, s^{(a)}} \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
 	\label{eq:afs:afs-simultaneous-min-objective}
 \end{equation}
 %
 In the terms of social choice theory, this re-formulated objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
 As a downside, the summed feature-set quality can decrease under this new objective.
-Also, we have no control or guarantee how much the feature-set qualities will actually differ since we only incentive high quality for all feature sets.
-As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
-However, this formulation would introduce a new parameter for the allowed quality difference.
-Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, which also introduces one or several parameters that are difficult to determine a priori.
-Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality, but then the user would have to handle an implicit trade-off between the objectives.
 
 From the technical perspective, Equation~\ref{eq:afs:afs-simultaneous-min-objective} has the disadvantage of being a non-linear expression regarding the decision variables $s^{(0)}, \dots, s^{(a)}$.
 However, we can linearize it with the help of an auxiliary variable~$Q_{\text{min}}$ and one additional constraint per feature set:
@@ -1618,7 +1627,15 @@ However, we can linearize it with the help of an auxiliary variable~$Q_{\text{mi
 \end{equation}
 %
 As we maximize~$Q_{\text{min}}$, this variable will implicitly assume the actual minimum value of~$Q(s^{(i)},X,y)$ with equality since the solution would not be optimal otherwise.
-This situation relives us from introducing further auxiliary variables that are usually necessary when linearizing maximum or minimum expressions~\cite{mosek2022modeling}.
+This situation relieves us from introducing further auxiliary variables that are usually necessary when linearizing maximum or minimum expressions~\cite{mosek2022modeling}.
+
+\paragraph{Further approaches for balancing quality}
+
+The min-quality objective provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
+As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
+However, this formulation would introduce a new parameter for the allowed quality difference.
+Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, which also introduces one or several parameters that are difficult to determine a priori.
+Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality, but then the user would have to handle an implicit trade-off between the objectives.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
@@ -1651,6 +1668,7 @@ In contrast, the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their s
 In the simultaneous case, all feature sets are variable.
 Let~$a \in \mathbb{N}$ denote the number of alternatives, which corresponds to the number of feature sets minus one.
 Further, we introduce auxiliary variables according to Equation~\ref{eq:afs:product-linear} to linearize products between variables.
+Also, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective}.
 %
 \begin{equation}
 	\begin{aligned}
@@ -1662,7 +1680,8 @@ Further, we introduce auxiliary variables according to Equation~\ref{eq:afs:prod
 		&\quad \forall i :& \sum_j s^{(i)}_j &= k \\
 		&\quad \forall i :& s^{(i)} &\in \{0,1\}^n \\
 		&\quad \forall i_1~\forall i_2 :& t^{(i_1,i_2)} &\in \{0,1\}^n \\
-		\text{with indices:} &\quad & i,~i_1 &\in \{0, \dots, a\} \\
+		\text{with indices:} &\quad & i &\in \{0, \dots, a\} \\
+		&\quad & i_1 &\in \{1, \dots, a\} \\
 		&\quad & i_2 &\in \{0, \dots, i_1-1\} \\
 		&\quad & j &\in \{1, \dots, n\}
 	\end{aligned}
@@ -1745,7 +1764,7 @@ In particular, greedy replacement does not work once the optimization problem ge
 For example, there might be further constraints on feature sets, e.g,, based on domain knowledge, which are not accounted for in Algorithm~\ref{al:afs:greedy-replacement}.
 Also, the objective function becomes more complex for other feature-selection methods than univariate filters, which makes the quality-based feature ordering impossible or suboptimal.
 At most, one could start with the original feature set from a sophisticated feature-selection method and then continue with greedy replacement based on univariate qualities.
-Simultaneous search with the min-quality objective from Appendix~\ref{sec:afs:appendix:min-quality-objective} also is unsuitable for greedy replacement.
+Simultaneous search with the min-quality objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective} also is unsuitable for greedy replacement.
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:afs:evaluation} consistently use a solver.
 
