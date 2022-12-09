@@ -254,7 +254,11 @@ Another possible dissimilarity measure follows from the Dice coefficient:
 	\label{eq:afs:dice}
 \end{equation}
 %
-We leverage such a set-dissimilarity measure for the following definition:
+We do not have strong requirements on the set-dissimilarity measure~$d(\cdot)$.
+Our definitions of alternatives only assume symmetry, i.e., $d(F',F'')=d(F'',F')$, and non-negativity, i.e., $d(F',F'') \geq 0$, though one could adapt them to other conditions as well.
+In particular, the measure does not need to be a metric, but can also be a semi-metric~\cite{wilson1931semi} etc.
+
+We leverage the set-dissimilarity measure for the following definition:
 %
 \begin{definition}[Single alternative]
 	A feature set $F''$ is an alternative to a feature set $F'$ (and vice versa) for a dissimilarity threshold~$\tau \in \mathbb{R}_{\geq 0}$ if $d(F',F'') \geq \tau$.
