@@ -772,8 +772,12 @@ Thus, for $k=5$, we consider values of $\tau$ from 0.2 to 1 with a step size of 
 For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
 Naturally, we exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
-As solver runtime may vary considerably even for optimization problems of the same size, we set a timeout of 60~s on each solver run.
-For 94\% of the feature sets in our evaluation, the solver finishes within the timeout.
+Since solver runtime may vary considerably, even for optimization problems of the same size, we employ a timeout for the solver.
+In particular, we grant each solver call 60~seconds multiplied with the number of desired feature sets.
+Thus, sequential search, which optimizes feature sets one at a time, conducts multiple solver calls with 60~s timeout.
+In contrast, simultaneous search, which optimizes multiple feature sets at once, proportionally gets more time.
+The summed timeout for a fixed number of alternatives still is the same for both search methods.
+For 94\% of the feature sets in our evaluation, the solver finishes within the given timeout.
 
 \subsubsection{Prediction}
 \label{sec:afs:experimental-design:approaches:prediction}
@@ -819,7 +823,7 @@ For \emph{Greedy Wrapper}, we measure the runtime of the full black-box optimiza
 
 As second runtime metric, we examine the \emph{optimization status}, which can take four values.
 If the solver finished before reaching its timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., that no solution exists.
-If the solver reached its timeout, is either found a \emph{feasible} solution, whose optimality is unproven, or found no solution though one might exist, which corresponds to the optimization status \emph{not solved}.
+If the solver reached its timeout, it either found a \emph{feasible} solution, whose optimality it could not prove, or found no valid solution though one might exist, so the problem is \emph{not solved}.
 
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
@@ -1696,7 +1700,7 @@ We continue this procedure till we reach the desired number of alternatives or t
 	$indices \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities}
 	$s \leftarrow \{0\}^n$ \tcp*{Initial selection for all alternatives}
 	$position \leftarrow 1$ \tcp*{Index of index of currently selected feature}
-	\While{$position < \lfloor (1 - \tau) \cdot k \rfloor$}{
+	\While{$position \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
 		$j \leftarrow indices[position]$\;
 		$s_j \leftarrow 1$ \;
 		$position \leftarrow position + 1$\;
