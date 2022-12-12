@@ -99,7 +99,7 @@ In particular, we define alternatives via constraints on feature sets.
 Second, we discuss approaches to solve this optimization problem.
 To that end, we describe how to integrate different categories of feature-selection methods in the objective function.
 Third, we evaluate alternative feature selection with comprehensive experiments.
-We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and four feature-selection methods.
+We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 Our definition of alternatives is orthogonal to existing feature-selection methods, i.e., not tailored towards specific techniques.
@@ -427,13 +427,13 @@ Since there is no order of feature sets here, opposed to sequential search, the 
 \begin{equation}
 	\begin{aligned}
 		\max_{s^{(0)}, \dots, s^{(a)}} &\quad \operatorname*{agg}_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
-		\text{subject to:} &\quad \forall i_1 \in \{1, \dots, a\}~\forall i_2 \in \{0, \dots, i_1-1\} : d(F_{s^{(i_1)}},F_{s^{(i_2)}}) \geq \tau
+		\text{subject to:} &\quad \forall i_1 \in \{1, \dots, a\}~\forall i_2 \in \{0, \dots, i_1-1\}: d(F_{s^{(i_1)}},F_{s^{(i_2)}}) \geq \tau
 	\end{aligned}
 	\label{eq:afs:afs-simultaneous}
 \end{equation}
 %
 In contrast to the sequential case, we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
-The operator $\mathrm{agg}(\cdot)$ defines how to aggregate the qualities of these feature sets in the objective.
+The operator~$\text{agg}(\cdot)$ defines how to aggregate the qualities of these feature sets in the objective.
 In our experiments, we consider the sum as well as the minimum for aggregation.
 Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation functions and ideas for further formulations in detail.
 
@@ -492,8 +492,10 @@ One only needs to be aware that such an approach might not represent feature int
 \paragraph{Multivariate filter feature selection}
 
 Several multivariate filter methods allow for a simple white-box formulation as well, though not necessarily a linear one.
-In the following, we describe FCBF~\cite{yu2003feature}, which we use in our experiments.
-Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation}, mRMR~\cite{peng2005feature}, and Relief~\cite{kira1992feature, robnik1997adaptation}.
+In the following, we describe FCBF~\cite{yu2003feature} and mRMR~\cite{peng2005feature}, which we use in our experiments.
+Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation} and and Relief~\cite{kira1992feature, robnik1997adaptation}.
+
+\paragraph{FCBF}
 
 The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance, expressed by two conditions on selected features:
 First, a selected feature's correlation to the prediction target needs to pass a pre-defined threshold.
@@ -502,9 +504,11 @@ While the original FCBF algorithm uses a heuristic search to find predominant fe
 %
 \begin{equation}
 	\begin{aligned}
-		\max_s &\quad Q_{\text{FCBF}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
-		\text{subject to:} &\quad \forall j_1 \in \{2, \dots, n\}, \forall j_2 \in \{1, \dots, j_2 - 1\}: \\
-		&\quad \quad\quad \text{If } q(X_{\cdot{}j_1},y) \leq q(X_{\cdot{}j_2}, X_{\cdot{}j_1}): s_{j_1} + s_{j_2} \leq 1
+		\max_s &\quad & Q_{\text{FCBF}}(s,X,y) &= \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
+		\text{subject to:} &\quad \forall j_1 \forall j_2 & \text{with } q(X_{\cdot{}j_1},y) &\leq q(X_{\cdot{}j_2}, X_{\cdot{}j_1}): \\
+		&\quad & s_{j_1} + s_{j_2} &\leq 1 \\
+		\text{with indices:} &\quad & j_1 &\in \{2, \dots, n\} \\
+		&\quad & j_2 &\in \{1, \dots, j_1 - 1\}
 	\end{aligned}
 	\label{eq:afs:fcbf}
 \end{equation}
@@ -516,7 +520,43 @@ As a countermeasure, one can add a constraint on the feature-set size, as we do 
 If one still wants to prevent the selection of features with low correlation to the prediction target, one can also filter out these features before optimization.
 Second, we keep FCBF's constraints on feature-feature correlation.
 In particular, we prevent the simultaneous selection of two features if the correlation between them is at least as high as one of the features' correlation to the target.
-As the if-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the subsequent linear constraint on~$s$ only if needed.
+As the if-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the related linear constraint on~$s$ only if needed.
+
+\paragraph{mRMR}
+
+Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} combines two criteria, i.e., feature relevance and feature redundancy.
+Relevance corresponds to the correlation between features and prediction target, which should be maximized, similar to the univariate filter.
+Redundancy corresponds to the correlation between features, which should be minimized.
+Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the objective is maximizing the following difference between relevance and redundancy:
+%
+\begin{equation}
+	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
+	\label{eq:afs:mrmr}
+\end{equation}
+%
+If one knows the feature-set size $\sum_{j=1}^{n} s_j$ to be a constant~$k$, the denominators of both fractions are constant, so the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}.
+If one additionally replaces the product terms $s_{j_1} \cdot s_{j_2}$ according to Equation~\ref{eq:afs:product-linear}, the problem becomes linear.
+However, there is a more efficient linearization~\cite{nguyen2009optimizing, nguyen2010towards}, which we use in our experiments:
+%
+\begin{equation}
+	\begin{aligned}
+		\max_s &\quad & Q_{\text{mRMR}}(s,X,y) &= \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{k} - \frac{\sum_{j=1}^{n} z_j}{k \cdot (k-1)} \\
+		\text{subject to:} &\quad \forall j_1: & A_{j_1} &= \sum_{j_2 \neq j_1} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_2} \\
+		&\quad \forall j: & z_j &\geq M \cdot (s_j - 1) + A_j \\
+		&\quad \forall j: & z_j &\in \mathbb{R}_{\geq 0} \\
+		\text{with indices:} &\quad & j, j_1, j_2 &\in \{1, \dots, n\}
+	\end{aligned}
+	\label{eq:afs:mrmr-linear}
+\end{equation}
+%
+Here, the term $A_{j_1}$ is the sum of all redundancy terms related to the feature with index~$j_1$.
+Thus, one can use one real-valued auxiliary variable $z_j$ for each feature instead of one new binary variable for each pair of features.
+Since redundancy should be minimized, $z_j$ assumes the value of $A_j$ with equality if the feature with index~$j$ is selected~($s_j=1$) and is zero else ($s_j=0$).
+To that end, $M$ is a large positive value that deactivates the constraint on $z_j$ if $s_j=0$.
+
+Since we assume the feature-set size~$k \in \mathbb{N}$ to be user-defined before optimization, Equation~\ref{eq:afs:mrmr-linear} requires less auxiliary variables and constraints than the more general formulation in~\cite{nguyen2009optimizing, nguyen2010towards}.
+Further, following~\cite{nguyen2014effective}, we set the self-redundancy terms, i.e., the dependency of a feature to itself, to zero and thereby exclude them from the objective.
+Thus, the redundancy term uses $k \cdot (k-1)$ instead of $k^2$ for averaging.
 
 \subsubsection{Black-Box Optimization}
 \label{sec:afs:approach:objectives:black-box}
@@ -716,7 +756,7 @@ We give a brief overview of its goal and components before elaborating on the co
 
 We conduct experiments with 30 binary-classification datasets.
 In our evaluation, we focus on the trade-off between feature-set quality and obtaining alternative feature sets.
-We compare four feature-selection methods, representing different notions of feature-set quality.
+We compare five feature-selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets and analyze prediction performance.
 To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
 We systematically vary the number of alternatives and the dissimilarity threshold for being alternative.
@@ -731,9 +771,9 @@ Our experimental design comprises multiple approaches for feature selection, def
 
 We search for alternatives under different notions of feature-set quality as objective function.
 To have a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:afs:fundamentals:quality}.
-We choose four well-known feature-selection methods that are either parameter-free or easy to parameterize.
+We choose five well-known feature-selection methods that are either parameter-free or easy to parameterize.
 See Section~\ref{sec:afs:approach:objectives} for details on the objective function of each method.
-One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other three methods have white-box objectives.
+One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four methods have white-box objectives.
 As explained in Section~\ref{sec:afs:approach:objectives:embedding}, we do not include an embedded feature-selection method.
 
 With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
@@ -747,8 +787,15 @@ To improve comparability between datasets and values of $k$, we normalize the qu
 
 \paragraph{FCBF}
 
-As a multivariate filter method, we use our constrained formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:afs:fcbf}.
+As one multivariate filter method, we use our constrained formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:afs:fcbf}.
 As bivariate dependency measure within FCBF, we rely on mutual information again, normalized to sum up to 1.
+
+\paragraph{mRMR}
+
+As second multivariate filter method, we use the linearized formulation of mRMR~\cite{peng2005feature} from Equation~\ref{eq:afs:mrmr-linear}.
+Again, we measure bivariate dependencies with mutual information.
+While the objective of mRMR already normalizes with the number of features, we also min-max-normalize all mutual-information values such that they are in $[0,1]$.
+Thus, the overall objective is in $[-1,1]$.
 
 \paragraph{Greedy Wrapper}
 
@@ -1059,7 +1106,7 @@ In particular, the combination of feature-correlation constraints in our formula
 
 As expected, larger feature sets, i.e., with~$k=10$, usually exhibit higher feature-set quality than smaller feature sets, i.e., $k=5$.
 However, the increase in feature-set quality with $k$ is not proportional, and there might even be a decrease.
-As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of sequential search, the exactly optimized feature-selection methods exhibit a slight increase of the training-set objective value~$Q_\mathrm{train}$ from~$k=5$ to~$k=10$.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of sequential search, the exactly optimized feature-selection methods exhibit a slight increase of the training-set objective value~$Q_\text{train}$ from~$k=5$ to~$k=10$.
 As these objectives are monotonic in the feature selection, a decrease in quality is not possible.
 In contrast, the heuristic \emph{Greedy Wrapper} does not necessarily benefit from selecting more features.
 As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance, no matter which feature-selection method is used.
@@ -1231,10 +1278,10 @@ While simultaneous search can yield better-performing feature sets in some situa
 
 A major reason for simultaneous search not being advantageous is that results can be sub-optimal.
 For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fraction of the search space is covered.
-For the three exactly optimized feature-selection methods, the solver can time out.
+For the four exactly optimized feature-selection methods, the solver can time out.
 As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
-In particular, for up to five alternatives and $k=5$, all sequential searches for the three white-box feature-selection methods finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
+In particular, for up to five alternatives and $k=5$, all sequential searches for the four white-box feature-selection methods finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
 In contrast, 5.01\% of the simultaneous searches for \emph{FCBF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
 Such a solution can be worse than an optimal sequential solutions.
 Further, 7.13\% of the simultaneous searches for \emph{FCBF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
@@ -1537,7 +1584,7 @@ Such alternative feature set might provide alternative explanations for predicti
 In this paper, we defined alternative feature selection as an optimization problem.
 We formalized alternatives via constraints, which are independent from the feature-selection method and can be combined with other constraints on feature sets, e.g., based on domain knowledge.
 Further, we presented approaches to solve this optimization problem for different categories of feature-selection methods.
-Finally, we ran an evaluation with 30 classification datasets and four feature-selection methods.
+Finally, we ran an evaluation with 30 classification datasets and five feature-selection methods.
 We compared two search strategies for alternatives and varied the threshold for being alternative.
 
 In our experiments, we found that one can indeed obtain alternative feature sets with similar quality as the original ones, depending on the dataset and the parametrization for searching alternatives.
@@ -1553,7 +1600,7 @@ While our work introduced alternative feature selection, there are several point
 
 \paragraph{Feature selection (objective function)}
 
-One can search for alternatives with other feature-selection methods than the four we analyzed.
+One can search for alternatives with other feature-selection methods than the five we analyzed.
 For wrapper feature selection, which requires black-box optimization, there are multiple ways to consider alternatives (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
 As we saw in our experiments, achieving a high feature-set quality within a reasonable time frame poses a particular challenge for this category of feature-selection methods.
 Further, our generic search procedures need adaptation to work for the category of embedded feature selection (cf.~Section~\ref{sec:afs:approach:objectives:embedding}), which we did not consider in our experiments.
@@ -1586,7 +1633,7 @@ Thus, practitioners can use our generic approaches to search alternatives in dom
 \subsection{Aggregation Functions for Simultaneous Search}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
 
-Equation~\ref{eq:afs:afs-simultaneous} introduced the optimization problem of simultaneous search but did not define the aggregation function~$\mathrm{agg}(\cdot)$ in the objective.
+Equation~\ref{eq:afs:afs-simultaneous} introduced the optimization problem of simultaneous search but did not define the aggregation function~$\text{agg}(\cdot)$ in the objective.
 In this section, we discusses the two functions we use in our experiments, sum and minimum, as well as further approaches for handling the quality of multiple alternatives.
 
 \paragraph{Summed-quality objective}
@@ -1624,7 +1671,7 @@ However, we can linearize it with the help of an auxiliary variable~$Q_{\text{mi
 \begin{equation}
 	\begin{aligned}
 		\max_{s^{(0)}, \dots, s^{(a)}} &\quad &Q_{\text{min}} & \\
-		\text{subject to:} &\quad \forall i \in \{0, \dots, a\} : &Q_{\text{min}} &\leq Q(s^{(i)},X,y) \\
+		\text{subject to:} &\quad \forall i \in \{0, \dots, a\}: &Q_{\text{min}} &\leq Q(s^{(i)},X,y) \\
 		&\quad & Q_{\text{min}} &\in \mathbb{R}
 	\end{aligned}
 	\label{eq:afs:afs-simultaneous-min-objective-linear}
@@ -1660,7 +1707,7 @@ In contrast, the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their s
 \begin{equation}
 	\begin{aligned}
 		\max_s &\quad & Q_{\text{uni}}(s,X,y) &= \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j \\
-		\text{subject to:} &\quad \forall F_{\bar{s}} \in \mathbb{F} :& \sum_{j=1}^n s_j \cdot \bar{s}_j &\leq (1 - \tau) \cdot k \\
+		\text{subject to:} &\quad \forall F_{\bar{s}} \in \mathbb{F}: & \sum_{j=1}^n s_j \cdot \bar{s}_j &\leq (1 - \tau) \cdot k \\
 		&\quad & \sum_{j=1}^n s_j &= k \\
 		&\quad & s &\in \{0,1\}^n
 	\end{aligned}
@@ -1677,13 +1724,13 @@ Also, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultan
 \begin{equation}
 	\begin{aligned}
 		\max_{s^{(0)}, \dots, s^{(a)}} &\quad & \sum_i Q_{\text{uni}}(s^{(i)},X,y) &= \sum_i \sum_j q(X_{\cdot{}j},y) \cdot s^{(i)}_j\\
-		\text{subject to:} &\quad \forall i_1~\forall i_2 :& \sum_j t^{(i_1,i_2)}_j &\leq (1 - \tau) \cdot k \\
-		&\quad \forall i_1~\forall i_2~\forall j :& t^{(i_1,i_2)}_j &\leq s^{(i_1)}_j \\
-		&\quad \forall i_1~\forall i_2~\forall j :& t^{(i_1,i_2)}_j &\leq s^{(i_2)}_j \\
-		&\quad \forall i_1~\forall i_2~\forall j :& 1 + t^{(i_1,i_2)}_j &\geq s^{(i_1)}_j + s^{(i_2)}_j \\
-		&\quad \forall i :& \sum_j s^{(i)}_j &= k \\
-		&\quad \forall i :& s^{(i)} &\in \{0,1\}^n \\
-		&\quad \forall i_1~\forall i_2 :& t^{(i_1,i_2)} &\in \{0,1\}^n \\
+		\text{subject to:} &\quad \forall i_1~\forall i_2: & \sum_j t^{(i_1,i_2)}_j &\leq (1 - \tau) \cdot k \\
+		&\quad \forall i_1~\forall i_2~\forall j: & t^{(i_1,i_2)}_j &\leq s^{(i_1)}_j \\
+		&\quad \forall i_1~\forall i_2~\forall j: & t^{(i_1,i_2)}_j &\leq s^{(i_2)}_j \\
+		&\quad \forall i_1~\forall i_2~\forall j: & 1 + t^{(i_1,i_2)}_j &\geq s^{(i_1)}_j + s^{(i_2)}_j \\
+		&\quad \forall i: & \sum_j s^{(i)}_j &= k \\
+		&\quad \forall i: & s^{(i)} &\in \{0,1\}^n \\
+		&\quad \forall i_1~\forall i_2: & t^{(i_1,i_2)} &\in \{0,1\}^n \\
 		\text{with indices:} &\quad & i &\in \{0, \dots, a\} \\
 		&\quad & i_1 &\in \{1, \dots, a\} \\
 		&\quad & i_2 &\in \{0, \dots, i_1-1\} \\
@@ -1784,14 +1831,12 @@ Our experiments in Section~\ref{sec:afs:evaluation} consistently use a solver.
 \subsection{Objectives for Multivariate Filter Feature Selection}
 \label{sec:afs:appendix:multivariate-filter-objectives}
 
-While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation}, mRMR~\cite{peng2005feature}, and Relief~\cite{kira1992feature, robnik1997adaptation} here.
+While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF and mRMR, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation} and Relief~\cite{kira1992feature, robnik1997adaptation} here.
 
 \paragraph{CFS}
 
-Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} considers both relevance and redundancy of features.
-Relevance is the correlation between features and prediction target, similar to the univariate filter.
-Redundancy is the correlation between features, acting as a normalization term.
-Using a bivariate dependency measure $q$ to quantify correlation, the objective is as follows:
+Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} follows a similar principle as mRMR but uses the ratio instead of the difference between a relevance term and a redundancy term.
+Using a bivariate dependency measure $q(\cdot)$ to quantify correlation between features as well as between features and target, the objective is as follows:
 %
 \begin{equation}
 	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
@@ -1801,18 +1846,6 @@ Using a bivariate dependency measure $q$ to quantify correlation, the objective 
 One can also square this objective to get rid off the square root in the denominator~\cite{nguyen2010towards}.
 Nevertheless, the objective is non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
 However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}.
-
-\paragraph{mRMR}
-
-Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} follows a similar principle as CFS, but uses the difference instead of the ratio between a relevance term and a redundancy term:
-%
-\begin{equation}
-	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
-	\label{eq:afs:mrmr}
-\end{equation}
-%
-If one knows the feature-set size, the denominators are constant and thus, Equation~\ref{eq:afs:mrmr} is linear if one replaces the product terms with Equation~\ref{eq:afs:product-linear}.
-Without this replacement, the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}, though there is a linearization as well~\cite{nguyen2009optimizing, nguyen2010towards}.
 
 \paragraph{Relief}
 
