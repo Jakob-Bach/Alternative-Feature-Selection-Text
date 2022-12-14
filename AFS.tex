@@ -819,7 +819,7 @@ Here, the scores originate from trees trained with all features rather than asse
 \label{sec:afs:experimental-design:approaches:alternatives}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
-For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the min-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
+For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the minimum-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
 We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
 This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
@@ -871,7 +871,7 @@ Not only model training but also the search for alternative feature sets is limi
 We consider two metrics related to runtime.
 
 First, we analyze the \emph{optimization time}.
-For white-box feature selectors, this corresponds to the runtime of one solver call.
+For white-box feature-selection methods, this corresponds to the runtime of one solver call.
 We exclude the time for computing the feature-feature and feature-target dependencies before optimization.
 In particular, one only needs to conduct such computations once before searching the original feature set and can then re-use them in each search for alternatives.
 For \emph{Greedy Wrapper}, we measure the runtime of the full black-box optimization procedure, involving multiple solver calls and model trainings.
@@ -1124,14 +1124,14 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-train-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/impact-search-stddev-train-objective.pdf}
 		\caption{Standard deviation of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-stddev-train-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-train-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/impact-search-mean-train-objective.pdf}
 		\caption{Mean of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-mean-train-objective}
 	\end{subfigure}
@@ -1152,14 +1152,14 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/impact-search-stddev-decision-tree-test-mcc.pdf}
 		\caption{Standard deviation of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/impact-search-mean-decision-tree-test-mcc.pdf}
 		\caption{Mean of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
 	\end{subfigure}
@@ -1175,16 +1175,16 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/impact-search-fs-method-decision-tree-test-mcc.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-search-fs-method-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 50 15 15, clip]{plots/impact-search-fs-method-metric-diff.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/impact-search-fs-method-metric-diff.pdf}
 		\caption{
-			Difference in quality between simultaneous and sequential search by evaluation metric.
+			Difference in quality between simultaneous (summed-quality) and sequential search by evaluation metric.
 			Y-axis truncated for better readability.
 		}
 		\label{fig:afs:impact-search-fs-method-metric-diff}
@@ -1198,33 +1198,32 @@ Thus, we will focus on smaller feature sets, i.e., $k=5$, in the following.
 
 \paragraph{Variance in feature-set quality}
 
-As we expected, the training-set objective value~$Q$ of feature sets within each particular search run usually varies more for sequential search than for simultaneous search.
-I.e., simultaneous search tends to return alternatives with more homogeneous quality than sequential search.
-Also, this variance decreases with the number of alternatives~$a$ for simultaneous search, but remains stable or slightly increases for sequential search.
-Figure~\ref{fig:afs:impact-search-stddev-train-objective} visualizes these observations for \emph{MI} as feature-selection method and $k=5$.
-These findings also apply to \emph{Model Gain} and partly to \emph{FCBF}, but not the heuristic \emph{Greedy Wrapper}.
-We discuss the reasons for these inconsistencies later.
-In contrast, using $k=10$ instead of $k=5$ does not change the general trends.
+As expected, the choice of search method influences how much the training-set objective value~$Q$ varies between alternatives found within each search run.
+Figure~\ref{fig:afs:impact-search-stddev-train-objective} visualizes this observation for \emph{MI} as feature-selection method and $k=5$.
+In particular, feature sets found by sequential search usually vary more in their quality than for simultaneous search.
+When using simultaneous search, the minimum-quality objective yields significantly more homogeneous feature-set quality than the summed-quality objective.
+These findings apply to all white-box feature-selection methods but not the heuristic \emph{Greedy Wrapper}.
+Further, using $k=10$ instead of $k=5$ does not change the general trends.
 
-As Figure~\ref{fig:afs:impact-search-stddev-test-objective} shows, the difference in variance between sequential and simultaneous search is less prominent for the test-set objective value.
-This effect might be a result of overfitting.
-For the test-set prediction performance, visualized in Figure~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc}, the median variance within a search run differs even less between sequential and simultaneous search.
-Thus, the actual prediction performance of multiple alternatives found by simultaneous search is not more homogeneous than for sequential search.
+As Figures~\ref{fig:afs:impact-search-stddev-test-objective} and~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc} show, the difference between the search methods is less prominent when observing the variance of feature-set quality on the test set.
+This observation applies to quality in terms of objective value as well as prediction performance.
+In particular, alternatives found by simultaneous search do not have considerably more homogeneous test-set quality than for sequential search.
+This effect might be a result of overfitting:
+Even if training-set quality is similar, some alternatives might generalize better, i.e., maintain their quality on the test set, while other alternatives might loose quality.
 
 \paragraph{Average value of feature-set quality}
 
 While obtaining alternatives of more homogeneous quality can be one goal of simultaneous search, the main selling point would be obtaining alternatives of higher average quality.
 However, we found that simultaneous search is not clearly better than sequential search in that regard.
 In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective in search runs for \emph{MI} as feature-selection method and $k=5$.
-We can see that simultaneous search only develops a slight comparative advantage against sequential search if the number of alternatives increases.
-The same holds for \emph{Model Gain} as feature-selection method, while \emph{FCBF} does not show an advantage of simultaneous search on average and \emph{Greedy Wrapper} even tends to favor sequential search.
+We observe that all search methods yield very similar training-set objective values.
+The same holds for the other white-box feature selection methods, while the heuristic \emph{Greedy Wrapper} even tends to favor sequential search over simultaneous search.
 
-The negligible advantage of simultaneous search for \emph{MI} also is visible for the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc}.
+The negligible quality difference of the search methods is also visible for the test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-objective} and the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc}.
 In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, other aspects than the search method, e.g., dataset, dissimilarity threshold~$\tau$, etc. cause a significantly larger variation in prediction performance.
-Further, regarding the test-set objective value, the median quality for simultaneous search even tends to become slightly worse than for sequential search, as Figure~\ref{fig:afs:impact-search-mean-test-objective} shows.
 
-As a final comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in evaluation metrics between the two search approaches if they are compared on each search setting separately, e.g., each dataset, fold, or dissimilarity threshold~$\tau$.
-The figure again shows that all feature-selection methods except \emph{Greedy Wrapper} exhibit little variation in quality between the two search approaches, apart from some outlying experimental settings.
+As a final quality comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in evaluation metrics between sequential and simultaneous search if they are compared on each search setting separately, e.g., each dataset, fold, or dissimilarity threshold~$\tau$.
+The figure again shows that all feature-selection methods except \emph{Greedy Wrapper} exhibit little variation in quality between these two search approaches, apart from some outlying experimental settings.
 Additionally, the figure highlights that outliers can occur in both directions:
 While simultaneous search can yield better-performing feature sets in some situations, sequential search can be significantly better in other scenarios.
 
@@ -1236,12 +1235,18 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\cmidrule(r){3-6}
 		& & Infeasible & Not solved & Feasible & Optimal \\
 		\midrule
-		FCBF & sequential & 70.25\% & 0.00\% & 0.00\% & 29.75\% \\
-		FCBF & simultaneous & 67.47\% & 7.13\% & 5.01\% & 20.39\% \\
-		MI & sequential & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
-		MI & simultaneous & 4.67\% & 0.00\% & 8.49\% & 86.84\% \\
-		Model Gain & sequential & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
-		Model Gain & simultaneous & 4.67\% & 0.00\% & 7.16\% & 88.17\% \\
+		FCBF & seq. & 70.25\% & 0.00\% & 0.00\% & 29.75\% \\
+		FCBF & sim. (min) & 74.13\% & 0.08\% & 1.45\% & 24.33\% \\
+		FCBF & sim. (sum) & 74.12\% & 0.09\% & 2.01\% & 23.77\% \\
+		MI & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		MI & sim. (min) & 4.67\% & 0.00\% & 8.80\% & 86.53\% \\
+		MI & sim. (sum) & 4.67\% & 0.00\% & 2.44\% & 92.89\% \\
+		Model Gain & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.25\% & 90.08\% \\
+		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.75\% & 93.59\% \\
+		mRMR & seq. & 1.96\% & 0.00\% & 9.90\% & 88.14\% \\
+		mRMR & sim. (min) & 4.67\% & 0.00\% & 48.72\% & 46.61\% \\
+		mRMR & sim. (sum) & 4.67\% & 0.00\% & 66.99\% & 28.35\% \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1261,16 +1266,16 @@ While simultaneous search can yield better-performing feature sets in some situa
 		\cmidrule(r){2-5}
 		& Infeasible & Not solved & Feasible & Optimal \\
 		\midrule
-		1 & 21.33\% & 1.18\% & 0.00\% & 77.49\% \\
-		2 & 21.73\% & 2.22\% & 0.02\% & 76.02\% \\
-		3 & 23.96\% & 2.31\% & 1.07\% & 72.67\% \\
-		4 & 29.96\% & 2.82\% & 3.04\% & 64.18\% \\
-		5 & 31.02\% & 3.36\% & 30.31\% & 35.31\% \\
+		1 & 16.88\% & 0.00\% & 7.45\% & 75.67\% \\
+		2 & 17.97\% & 0.00\% & 13.63\% & 68.40\% \\
+		3 & 20.20\% & 0.00\% & 20.03\% & 59.77\% \\
+		4 & 26.90\% & 0.02\% & 21.42\% & 51.67\% \\
+		5 & 28.20\% & 0.10\% & 28.95\% & 42.75\% \\
 		\bottomrule
 	\end{tabular}
 	\caption{
 		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by number of alternatives~$a$.
-		Results from simultaneous search with $k=5$, excluding \emph{Greedy Wrapper} as feature-selection method.
+		Results from simultaneous search with summed-quality objective and $k=5$, excluding \emph{Greedy Wrapper} as feature-selection method.
 		Each row sums to 100\%.
 	}
 	\label{tab:afs:impact-num-alternatives-optimization-status}
@@ -1278,32 +1283,39 @@ While simultaneous search can yield better-performing feature sets in some situa
 
 \paragraph{Optimization status}
 
-A major reason for simultaneous search not being advantageous is that results can be sub-optimal.
+A major reason for simultaneous search failing to beat sequential search quality-wise is that results can be sub-optimal.
 For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fraction of the search space is covered.
-For the four exactly optimized feature-selection methods, the solver can time out.
+For the four white-box feature-selection methods, the solver can time out.
 As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
-In particular, for up to five alternatives and $k=5$, all sequential searches for the four white-box feature-selection methods finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
-In contrast, 5.01\% of the simultaneous searches for \emph{FCBF}, 7.16\% for \emph{Model Gain} and 8.49\% for \emph{MI} found a feasible solution till the timeout but could not guarantee optimality.
-Such a solution can be worse than an optimal sequential solutions.
-Further, 7.13\% of the simultaneous searches for \emph{FCBF} found no feasible solution but could not guarantee infeasibility, i.e., a feasible solution might still exist.
+In particular, for up to five alternatives and $k=5$, all sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
+For \emph{mRMR}, there are about 10\% potentially suboptimal feature sets under the same settings.
+In contrast, for simultaneous search with the summed-quality objective, all feature-selection methods experience timeouts in searches:
+Roughly 2\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution till the timeout but could not guarantee optimality.
+Such a simultaneous solution can be worse than an optimal sequential solution.
+With the min-quality objective instead of the summed-quality objective in simultaneous search, the number of timeouts increases for \emph{MI} and \emph{Model Gain} but decreases for \emph{FCBF} and \emph{mRMR}.
+Still, sequential search runs into less timeouts for all feature-selection methods.
 
-Note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
-For up to two alternatives in simultaneous search with $k=5$, barely any search runs yield feasible but potentially suboptimal results.
-In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alternatives and 30\% for five alternatives.
+Besides finding suboptimal feature sets, the solver might also fail to find a feasible solution without being able to guarantee infeasibility.
+However, this optimization status, called \emph{not solved}, occurred rarely in our experiments, and only for \emph{FCBF}.
+Also, note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
+For simultaneous search with $k=5$ and the summed-quality objective, roughly 7\% of the white-box searches timed out for one alternative but 20\% for three alternatives and 29\% for five alternatives.
+Remember that we grant simultaneous searches for more feature sets proportionally more time.
+The observed increase in timeouts suggests that runtime increases super-proportionally, as we analyze next.
 
 \begin{table}[htb]
 	\centering
-	\begin{tabular}{lrr}
+	\begin{tabular}{lrrr}
 		\toprule
-		Selection & \multicolumn{2}{c}{Optimization time} \\
-		\cmidrule(r){2-3}
-		& sequential & simultaneous \\
+		Selection & \multicolumn{3}{c}{Optimization time} \\
+		\cmidrule(r){2-4}
+		& seq. & sim. (min) & sim. (sum) \\
 		\midrule
-		FCBF & 1.90~s & 10.12~s \\
-		Greedy Wrapper & 1.26~s & 8.00~s \\
-		MI & 0.01~s & 10.53~s \\
-		Model Gain & 0.01~s & 9.18~s \\
+		FCBF & 0.04~s & 15.88~s & 18.82~s \\
+		Greedy Wrapper & 1.64~s & 13.16~s & 14.13~s \\
+		MI & 0.01~s & 62.22~s & 33.46~s \\
+		Model Gain & 0.01~s & 42.47~s & 29.08~s \\
+		mRMR & 9.39~s & 187.54~s & 223.49~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1315,17 +1327,17 @@ In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alt
 %
 \begin{table}[htb]
 	\centering
-	\begin{tabular}{lrrrr}
+	\begin{tabular}{lrrrrr}
 		\toprule
-		$a$ & \multicolumn{4}{c}{Optimization time} \\
-		\cmidrule(r){2-5}
-		& FCBF & Wrapper & MI & Model Gain \\
+		$a$ & \multicolumn{5}{c}{Optimization time} \\
+		\cmidrule(r){2-6}
+		& FCBF & Wrapper & MI & Model Gain & mRMR \\
 		\midrule
-		1 & 3.75~s & 2.47~s & 0.01~s & 0.01~s \\
-		2 & 5.30~s & 3.56~s & 0.08~s & 0.07~s \\
-		3 & 8.07~s & 5.40~s & 0.26~s & 0.23~s \\
-		4 & 11.17~s & 11.43~s & 2.86~s & 2.31~s \\
-		5 & 15.15~s & 10.92~s & 32.49~s & 28.48~s \\
+		1 & 0.42~s & 3.20~s & 0.02~s & 0.02~s & 44.96~s \\
+		2 & 0.91~s & 5.07~s & 0.07~s & 0.06~s & 119.42~s \\
+		3 & 3.11~s & 7.56~s & 0.25~s & 0.23~s & 206.00~s \\
+		4 & 14.98~s & 18.69~s & 3.73~s & 3.43~s & 258.60~s \\
+		5 & 47.57~s & 22.87~s & 108.22~s & 93.89~s & 317.44~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1337,17 +1349,17 @@ In contrast, this figure is roughly 1\% for three alternatives, 3\% for four alt
 
 \paragraph{Optimization time}
 
-Analyzing the actual optimization time instead of the optimization status also underlines the superiority of sequential search.
+Analyzing the actual optimization time instead of the optimization status also speaks in favor of sequential search.
 As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the average optimization time of sequential search is significantly shorter for all feature-selection methods.
 In contrast, \emph{Greedy Wrapper} only evaluates feature-set quality on-the-fly within the search for alternatives.
 
-For the fastest feature selection-methods, \emph{MI} and \emph{Model Gain}, the difference in optimization time between sequential and simultaneous search is three orders of magnitude.
-Further, these two feature-selection methods experiences a dramatic increase in optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} visualizes.
-This increase is considerably less for sequential search, e.g., from 0.003~s to 0.005~s from the first to fifth alternative for both these feature-selection methods.
-Further, \emph{FCBF} and \emph{Greedy Wrapper} show no clear trend of optimization time over the number of alternatives in sequential search, while exhibiting a clear increase in simultaneous search.
+For \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, the difference in optimization time between sequential and simultaneous search is three orders of magnitude.
+Further, these three feature-selection methods experiences a dramatic increase in optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} visualizes.
+This increase is considerably less for sequential search, e.g., from 0.005~s to 0.006~s from the first to fifth alternative for both \emph{MI} and \emph{Model Gain}.
+Further, \emph{FCBF}, \emph{mRMR}, and \emph{Greedy Wrapper} show no clear trend of optimization time over the number of alternatives in sequential search, while exhibiting a clear increase in simultaneous search.
 
 Based on all results described in this section, we focus on the sequential search in the following.
-In particular, it appeared to be faster than simultaneous search while yielding similar feature-set quality.
+In particular, it appeared to be significantly faster than simultaneous search while yielding similar feature-set quality.
 
 \subsubsection{Number of Alternatives}
 \label{sec:afs:evaluation:search:num-alternatives}
@@ -1655,9 +1667,9 @@ The feature selection $s^{(0)} = (0,1,0,0,1)$, $s^{(1)} = (0,0,1,1,0)$ yields th
 Sequential search for alternatives can only yield the first, quality-imbalanced solution due to the greedy search procedure.
 Simultaneous search with the summed-quality objective could yield both solutions, due to the identical objective value, so we still cannot be sure to get balanced qualities.
 
-\paragraph{Min-quality objective}
+\paragraph{Minimum-quality objective}
 
-To actively foster balanced feature-set qualities in simultaneous search, we propose the following \emph{min-quality objective}:
+To actively foster balanced feature-set qualities in simultaneous search, we propose the following \emph{minimum-quality objective}:
 %
 \begin{equation}
 	\max_{s^{(0)}, \dots, s^{(a)}} \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
@@ -1684,7 +1696,7 @@ This situation relieves us from introducing further auxiliary variables that are
 
 \paragraph{Further approaches for balancing quality}
 
-The min-quality objective provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
+The minimum-quality objective provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
 As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
 However, this formulation would introduce a new parameter for the allowed quality difference.
 Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, which also introduces one or several parameters that are difficult to determine a priori.
@@ -1825,7 +1837,7 @@ In particular, greedy replacement does not work once the optimization problem ge
 For example, there might be further constraints on feature sets, e.g., based on domain knowledge, which are not accounted for in Algorithm~\ref{al:afs:greedy-replacement}.
 Also, the objective function becomes more complex for other feature-selection methods than univariate filters, which makes the quality-based feature ordering impossible or suboptimal.
 At most, one could start with the original feature set from a sophisticated feature-selection method and then continue with greedy replacement based on univariate qualities.
-Simultaneous search with the min-quality objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective} also is unsuitable for greedy replacement.
+Simultaneous search with the minimum-quality objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective} also is unsuitable for greedy replacement.
 
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:afs:evaluation} consistently use a solver.
