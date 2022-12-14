@@ -1366,64 +1366,29 @@ In particular, it appeared to be significantly faster than simultaneous search w
 
 \begin{figure}[p]
 	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
+	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max.pdf}
-		\caption{
-			Objective value, max-normalized.
-			Infeasible feature sets excluded.
-		}
-		\label{fig:afs:impact-num-alternatives-objective-max}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-max.pdf}
+		\caption{Max-normalized, infeasible feature sets excluded.}
+		\label{fig:afs:impact-num-alternatives-quality-max}
 	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
+	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-max-fillna.pdf}
-		\caption{
-			Objective value, max-normalized.
-			Infeasible feature sets assigned~0.
-		}
-		\label{fig:afs:impact-num-alternatives-objective-max-fillna}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-max-fillna.pdf}
+		\caption{Max-normalized, infeasible feature sets assigned~0.}
+		\label{fig:afs:impact-num-alternatives-quality-max-fillna}
 	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
+	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max.pdf}
-		\caption{
-			Objective value, min-max-normalized.
-			Infeasible feature sets excluded.
-		}
-		\label{fig:afs:impact-num-alternatives-objective-min-max}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-min-max.pdf}
+		\caption{Min-max-normalized, infeasible feature sets excluded.}
+		\label{fig:afs:impact-num-alternatives-quality-min-max}
 	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
+	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-num-alternatives-objective-min-max-fillna.pdf}
-		\caption{
-		 	Objective value, min-max-normali\-zed.
-			Infeasible feature sets assigned~0.
-		}
-		\label{fig:afs:impact-num-alternatives-objective-min-max-fillna}
-	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/impact-num-alternatives-decision-tree-test-mcc-min-max.pdf}
-		\caption{
-			Test-set prediction performance, min-max-normalized.
-			Infeasible feature sets excluded.
-		}
-		\label{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/impact-num-alternatives-decision-tree-test-mcc-min-max-fillna.pdf}
-		\caption{
-			Test-set prediction performance, min-max-normalized.
-			Infeasible feature sets assigned~0.
-		}
-		\label{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max-fillna}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-min-max-fillna.pdf}
+		\caption{Min-max-normalized, infeasible feature sets assigned~0.}
+		\label{fig:afs:impact-num-alternatives-quality-min-max-fillna}
 	\end{subfigure}
 	\caption{
 		Feature-set quality, normalized per experimental setting, over the number of alternatives, by evaluation metric.
@@ -1434,34 +1399,45 @@ In particular, it appeared to be significantly faster than simultaneous search w
 
 \paragraph{Feature-set quality}
 
-For sequential search, the training-set objective value $Q$ naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
+For sequential search, the training-set objective value naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 In particular, each found feature set adds another constraint to the optimization problem.
-Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} illustrate this trend for \emph{MI}-based feature selection.
-The other feature-selection methods exhibit similar effects.
+Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} illustrate this trend for \emph{MI}-based feature selection.
 As feature-set quality varies between datasets, we apply normalization:
-In Figure~\ref{fig:afs:impact-num-alternatives-objective-max}, we have max-normalized the objective value for each search of alternatives, i.e., the highest objective value in the search run is scaled to~1 and the other feature-set qualities are scaled accordingly.
-This figure shows that there might be multiple alternatives of similar quality, as the median feature-set quality remains relatively stable over the number of alternatives, and is close to the maximum of~1.
-For comparison, Figure~\ref{fig:afs:impact-num-alternatives-objective-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
-This figure highlights that the training-set objective value decreases most from the original feature set to the first alternative but less beyond.
+First, we shift the range of all evaluation metrics to~$[0,1]$.
+In particular, the objective value of \emph{Greedy Wrapper} and \emph{mRMR} as well as MCC to measure prediction performance would have the range~$[-1,1]$ without this shift.
+Second, in Figure~\ref{fig:afs:impact-num-alternatives-quality-max}, we have max-normalized the feature-set quality for each search of alternatives, i.e., the highest feature-set quality in the search run is scaled to~1 and the other feature-set qualities are scaled accordingly.
+This figure shows that there might be multiple alternatives of similar quality, as the median training-set objective value remains relatively stable over the number of alternatives.
+In particular, the median training-set objective value remains relative close to the maximum of~1 and is above 0.8 even for the tenth alternative.
+For comparison, Figure~\ref{fig:afs:impact-num-alternatives-quality-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
+This figure makes the decrease in objective value over the number of alternatives more visible.
+In particular, this figure highlights that the training-set objective value decreases most from the original feature set to the first alternative but less beyond.
 
-Additionally, Figures~\ref{fig:afs:impact-num-alternatives-objective-max} and~\ref{fig:afs:impact-num-alternatives-objective-min-max} show that the test-set objective value also drops most from the original feature set to the first alternative.
-However, the decrease in objective value over the alternatives is less prominent than on the training set.
+Additionally, Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} show that the test-set objective value also drops most from the original feature set to the first alternative.
+However, the decrease in median test-set objective value over the alternatives only occurs for the first few alternatives.
+For further alternatives, the median test-set objective value is stable.
+Additionally, the initial decrease in quality is less prominent than on the training set.
 In particular, alternatives can even have a higher test-set objective value than the original feature set due to overfitting.
-Similar findings hold for test-set prediction performance displayed in Figure~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max}.
-Thus, the alternative feature sets fulfill their purpose of being different solutions with similar quality.
+Similar findings hold for test-set prediction performance.
+Overall, these results indicate that alternative feature sets fulfill their purpose of being different solutions with similar quality as the original feature set.
 
 \paragraph{Optimization status}
 
 Be aware that these observations refer to the quality of the found feature sets.
 However, the more alternatives are desired, the more likely an infeasible optimization problem is.
 For example, the \emph{MI} feature-selection method in sequential search always finds an original feature set.
-However, with $k=5$, the problem is infeasible in 2\% of the cases for the third alternative, 12\% for the fifth alternative, and 18\% for the tenth alternative.
+However, with $k=5$, the problem is infeasible in 2\% of the cases for the third alternative, 12\% for the fifth alternative, and 17\% for the tenth alternative.
 Increasing the feature-set size $k$, e.g., to $k=10$, or decreasing the dataset dimensionality~$n$, naturally increases the number of infeasibilities, as less features become available for alternatives.
 Thus, while the quality of actually found feature sets seems to remain relatively stable with an increased number of alternatives, valid alternatives might simply not exist.
-Figures~\ref{fig:afs:impact-num-alternatives-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-objective-min-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max-fillna} show the same data as Figures~\ref{fig:afs:impact-num-alternatives-objective-max},~\ref{fig:afs:impact-num-alternatives-objective-min-max}, and~\ref{fig:afs:impact-num-alternatives-decision-tree-test-mcc-min-max} but with the objective of infeasible feature sets set to zero.
-This makes sense since selecting no features leads to such an objective value for \emph{MI}-based feature selection, and MCC is zero for randomly guessing predictions.
-In these figures, the downward trend of feature-set quality over the number of alternatives becomes more prominent.
-This trend also depends on the dissimilarity threshold~$\tau$, which we analyze next.
+Figures~\ref{fig:afs:impact-num-alternatives-quality-max-fillna} and~\ref{fig:afs:impact-num-alternatives-quality-min-max-fillna} show the same data as Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} but with the quality of infeasible feature sets set to zero, the theoretical minimum after we shifted the value ranges of all evaluation metrics.
+In these figures, the downward trend of feature-set quality over the number of alternatives becomes slightly more prominent, particular for a higher number of alternatives.
+This downward trend also depends on the dissimilarity threshold~$\tau$, which we analyze in the next section.
+
+\paragraph{Influence of feature-selection method}
+
+While we discussed \emph{MI} before, the decrease of objective value over the number of alternatives occurs for all feature-selection methods in our experiments.
+However, this decrease is very small for \emph{Greedy Wrapper} and \emph{mRMR}.
+For test-set prediction performance, \emph{Greedy Wrapper} shows very stable results as well.
+However, as discussed in Section~\ref{sec:afs:evaluation:feature-selection}, \emph{Greedy Wrapper} already tends to yield a lower quality on the original feature set than the other feature-selection methods.
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
 \label{sec:afs:evaluation:search:tau}
