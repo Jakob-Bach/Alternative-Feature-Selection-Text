@@ -1452,13 +1452,14 @@ This downward trend also depends on the dissimilarity threshold~$\tau$, which we
 		Infeasible feature sets excluded.
 		Results from sequential search with $k=5$.
 	}
-	\label{fig:afs:impact-num-alternatives-fs-method}
+	\label{fig:afs:impact-num-alternatives-fs-method-quality}
 \end{figure}
 
 \paragraph{Influence of feature-selection method}
 
 While we discussed \emph{MI} before, the decrease of objective value over the number of alternatives occurs for all feature-selection methods in our experiments, as Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} shows.
 The strength of the decrease varies between the feature selection methods.
+For example, \emph{Greedy Wrapper} and \emph{mRMR} show little effect of increasing the number alternatives.
 Further, for the test-set prediction performance, displayed in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max} none of the feature-selection methods exhibits a strong decrease over the number of alternatives.
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
@@ -1532,6 +1533,16 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\label{fig:afs:impact-num-alternatives-tau-quality}
 \end{figure}
 
+\paragraph{Feature-set quality}
+
+As Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} shows for \emph{MI} as feature-selection method, the decrease of the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
+For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
+In contrast, the objective value decreases significantly for a high dissimilarity threshold, e.g., $\tau=1$.
+This is expected, since a higher~$\tau$ constrains the feature selection more by preventing the selection of previously selected features more strongly.
+As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, this phenomenon also holds for the test-set objective, though the dependency on~$\tau$ is less prominent there.
+In contrast, the effect of~$\tau$ on prediction performance does not exhibit a clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
+This result underlines our previous observation that the objective value is only partially indicate of prediction performance.
+
 \begin{figure}[htbp]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
@@ -1554,33 +1565,51 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\label{fig:afs:impact-num-alternatives-tau-optimization-status}
 \end{figure}
 
-\paragraph{Feature-set quality}
-
-As Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} shows for \emph{MI} as feature-selection method, the decrease of the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
-For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
-In contrast, the objective decrease significantly for a high dissimilarity threshold, e.g., $\tau=1$.
-This is expected, since a higher~$\tau$ constrains the feature selection more by preventing the selection of previously selected features more strongly. 
-As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, this phenomenon also holds for test-set objective, though the dependency on~$\tau$ is less prominent there.
-In contrast, the effect of~$\tau$ on prediction performance does not exhibit a clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
-This result underlines our previous observation that the objective value is only partially indicate of prediction performance.
-
 \paragraph{Optimization status}
 
-Similar to varying the number of alternatives, one also needs to consider that setting~$\tau$ to certain values can make the optimization problem infeasible.
+Similar to our previous analysis for the number of alternatives in Section~\ref{sec:afs:evaluation:search:num-alternatives}, one also needs to consider that setting~$\tau$ to certain values can make the optimization problem infeasible.
 In particular, for a higher dissimilarity threshold, the likelihood is higher that there is no feature set that is alternative enough.
 Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes how the fraction of valid feature sets develops over the number of alternatives and dissimilarity threshold~$\tau$.
 Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna} account for infeasible feature sets by setting their feature-set quality to zero.
 Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}, the decrease in objective value is noticeably stronger.
-In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$.
+In contrast, if only considering valid feature sets, the mean objective can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$ or in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} for \emph{MI} and \emph{Model Gain}.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
+
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-tau-fs-method-train-objective-max.pdf}
+		\caption{Training-set objective value.}
+		\label{fig:afs:impact-tau-fs-method-train-objective-max}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-tau-fs-method-decision-tree-test-mcc-max.pdf}
+		\caption{Test-set prediction performance.}
+		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max}
+	\end{subfigure}
+	\caption{
+		Median feature-set quality, max-normalized per experimental setting, over the dissimilarity threshold~$\tau$, by evaluation metric.
+		Infeasible feature sets excluded.
+		Results from sequential search with $k=5$.
+	}
+	\label{fig:afs:impact-tau-fs-method-quality}
+\end{figure}
 
 \paragraph{Influence of feature-selection method}
 
-While the previous observations applied to \emph{MI} as feature-selection method, they do not hold universally.
-Besides \emph{MI}, the results for \emph{Model Gain} strongly depend on~$\tau$ as well and show similar trends.
-In contrast, \emph{FCBF} and \emph{Greedy Wrapper} exhibit less influence of~$\tau$ on the quality of found feature sets, while the effect on feature-set infeasibility remains.
+While the previous observations applied to \emph{MI} as feature-selection method, they do not hold universally, as Figure~\ref{fig:afs:impact-tau-fs-method-train-objective-max} shows.
+Besides \emph{MI}, the objective value of \emph{Model Gain} strongly depends on~$\tau$ as well.
+In contrast, the remaining three feature-selection methods exhibit less influence of~$\tau$ on the quality of found feature sets.
 For \emph{Greedy Wrapper}, this outcome can be explained by the heuristic search procedure to find feature sets.
 For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so this aspect plays a larger role than the quality variation of found feature sets.
+For \emph{mRMR}, the low influence os $\tau$ matches the low influence of the number of alternatives.
+For this feature-selection method, alternative feature sets seem to vary little in their objective value.
+
+Despite different effects on the objective value, the effect of a higher~$\tau$ causing more infeasible feature sets remains for all feature-selection methods.
+Further, the test-set prediction performance does not vary considerably over $\tau$ for any of the feature-selection methods, as Figure~\ref{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max} displays.
 
 \section{Conclusions and Future Work}
 \label{sec:afs:conclusion}
