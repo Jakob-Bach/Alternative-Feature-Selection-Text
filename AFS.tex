@@ -1432,12 +1432,34 @@ Figures~\ref{fig:afs:impact-num-alternatives-quality-max-fillna} and~\ref{fig:af
 In these figures, the downward trend of feature-set quality over the number of alternatives becomes slightly more prominent, particular for a higher number of alternatives.
 This downward trend also depends on the dissimilarity threshold~$\tau$, which we analyze in the next section.
 
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-num-alternatives-fs-method-train-objective-max.pdf}
+		\caption{Training-set objective value.}
+		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-num-alternatives-fs-method-decision-tree-test-mcc-max.pdf}
+		\caption{Test-set prediction performance.}
+		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max}
+	\end{subfigure}
+	\caption{
+		Median feature-set quality, max-normalized per experimental setting, over the number of alternatives, by evaluation metric.
+		Infeasible feature sets excluded.
+		Results from sequential search with $k=5$.
+	}
+	\label{fig:afs:impact-num-alternatives-fs-method}
+\end{figure}
+
 \paragraph{Influence of feature-selection method}
 
-While we discussed \emph{MI} before, the decrease of objective value over the number of alternatives occurs for all feature-selection methods in our experiments.
-However, this decrease is very small for \emph{Greedy Wrapper} and \emph{mRMR}.
-For test-set prediction performance, \emph{Greedy Wrapper} shows very stable results as well.
-However, as discussed in Section~\ref{sec:afs:evaluation:feature-selection}, \emph{Greedy Wrapper} already tends to yield a lower quality on the original feature set than the other feature-selection methods.
+While we discussed \emph{MI} before, the decrease of objective value over the number of alternatives occurs for all feature-selection methods in our experiments, as Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} shows.
+The strength of the decrease varies between the feature selection methods.
+Further, for the test-set prediction performance, displayed in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max} none of the feature-selection methods exhibits a strong decrease over the number of alternatives.
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
 \label{sec:afs:evaluation:search:tau}
