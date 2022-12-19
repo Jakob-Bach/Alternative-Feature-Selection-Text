@@ -970,14 +970,14 @@ datasets, feature-selection methods, approaches to search for alternatives, and 
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-dataset-k-train-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-dataset-k-train-objective.pdf}
 		\caption{Training-set objective value.}
 		\label{fig:afs:impact-dataset-k-train-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-dataset-k-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-dataset-k-decision-tree-test-mcc.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
 	\end{subfigure}
@@ -1008,7 +1008,7 @@ Due to this observed variation of feature-set quality between datasets, we norma
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-overfitting.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/afs-evaluation-metrics-overfitting.pdf}
 		\caption{
 			Training-test difference in feature-set quality by evaluation metric and feature-selection method.
 			Y-axis truncated to improve readability.
@@ -1018,7 +1018,7 @@ Due to this observed variation of feature-set quality between datasets, we norma
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/evaluation-metrics-correlation.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/afs-evaluation-metrics-correlation.pdf}
 		\caption{Correlation between evaluation metrics, each calculated on the training set and the test set.}
 		\label{fig:afs:evaluation-metrics-correlation}
 	\end{subfigure}
@@ -1063,14 +1063,14 @@ I.e., the objective of feature selection is only partially indicative of predict
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 40 15 15, clip]{plots/impact-fs-method-k-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 15, clip]{plots/afs-impact-fs-method-k-decision-tree-test-mcc.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-fs-method-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 40 15 15, clip]{plots/impact-fs-method-k-metric-diff.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 15, clip]{plots/afs-impact-fs-method-k-metric-diff.pdf}
 		\caption{
 			Difference in feature-set quality between $k=10$ and $k=5$ by evaluation metric.
 			Y-axis truncated to improve readability.
@@ -1130,42 +1130,42 @@ Thus, we focus on smaller feature sets, i.e., $k=5$, in the following.
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/impact-search-stddev-train-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/afs-impact-search-stddev-train-objective.pdf}
 		\caption{Standard deviation of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-stddev-train-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/impact-search-mean-train-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/afs-impact-search-mean-train-objective.pdf}
 		\caption{Mean of training-set objective value within search runs.}
 		\label{fig:afs:impact-search-mean-train-objective}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-stddev-test-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-stddev-test-objective.pdf}
 		\caption{Standard deviation of test-set objective value within search runs.}
 		\label{fig:afs:impact-search-stddev-test-objective}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/impact-search-mean-test-objective.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-mean-test-objective.pdf}
 		\caption{Mean of test-set objective value with\-in search runs.}
 		\label{fig:afs:impact-search-mean-test-objective}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/impact-search-stddev-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/afs-impact-search-stddev-decision-tree-test-mcc.pdf}
 		\caption{Standard deviation of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/impact-search-mean-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/afs-impact-search-mean-decision-tree-test-mcc.pdf}
 		\caption{Mean of test-set prediction performance within search runs.}
 		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
 	\end{subfigure}
@@ -1181,14 +1181,14 @@ Thus, we focus on smaller feature sets, i.e., $k=5$, in the following.
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/impact-search-fs-method-decision-tree-test-mcc.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/afs-impact-search-fs-method-decision-tree-test-mcc.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-search-fs-method-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/impact-search-fs-method-metric-diff.pdf}
+		\includegraphics[width=\textwidth, trim=15 40 15 10, clip]{plots/afs-impact-search-fs-method-metric-diff.pdf}
 		\caption{
 			Difference in feature-set quality between simultaneous (summed-quality) and sequential search by evaluation metric.
 			Y-axis truncated to improve readability.
@@ -1349,7 +1349,7 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 	\end{tabular}
 	\caption{
 		Median optimization time by feature-selection method and number of alternatives~$a$.
-		Results from simultaneous search with $k=5$.
+		Results from simultaneous search with summed-quality objective and $k=5$.
 	}
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
 \end{table}
@@ -1372,25 +1372,25 @@ In particular, it appeared to be significantly faster than simultaneous search w
 	\centering
 	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-num-alternatives-quality-max.pdf}
 		\caption{Max-normalized, infeasible feature sets excluded.}
 		\label{fig:afs:impact-num-alternatives-quality-max}
 	\end{subfigure}
 	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-num-alternatives-quality-max-fillna.pdf}
 		\caption{Max-normalized, infeasible feature sets assigned a quality of~0.}
 		\label{fig:afs:impact-num-alternatives-quality-max-fillna}
 	\end{subfigure}
 	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-num-alternatives-quality-min-max.pdf}
 		\caption{Min-max-normalized, infeasible feature sets excluded.}
 		\label{fig:afs:impact-num-alternatives-quality-min-max}
 	\end{subfigure}
 	\begin{subfigure}[t]{\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/impact-num-alternatives-quality-min-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-num-alternatives-quality-min-max-fillna.pdf}
 		\caption{Min-max-normalized, infeasible feature sets assigned a quality of~0.}
 		\label{fig:afs:impact-num-alternatives-quality-min-max-fillna}
 	\end{subfigure}
@@ -1440,14 +1440,14 @@ This downward trend also depends on the dissimilarity threshold~$\tau$, which we
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-num-alternatives-fs-method-train-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-train-objective-max.pdf}
 		\caption{Training-set objective value.}
 		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-num-alternatives-fs-method-decision-tree-test-mcc-max.pdf}
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-decision-tree-test-mcc-max.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max}
 	\end{subfigure}
@@ -1473,7 +1473,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max.pdf}
 		\caption{
 			Training-set objective value, max-normalized.
 			Infeasible feature sets excluded.
@@ -1483,7 +1483,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-train-objective-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-fillna.pdf}
 		\caption{
 			Training-set objective value, max-normalized.
 			Infeasible feature sets assigned a quality of~0.
@@ -1493,7 +1493,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max.pdf}
 		\caption{
 			Test-set objective value, max-norma\-lized.
 			Infeasible feature sets excluded.
@@ -1503,7 +1503,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-test-objective-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max-fillna.pdf}
 		\caption{
 			Test-set objective value, max-norma\-lized.
 			Infeasible feature sets assigned a quality of~0.
@@ -1513,7 +1513,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
 		\caption{
 			Test set prediction performance, min-max-normalized.
 			Infeasible feature sets excluded.
@@ -1523,7 +1523,7 @@ Further, for the test-set prediction performance, displayed in Figure~\ref{fig:a
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
 		\caption{
 			Test set prediction performance, min-max-normalized.
 			Infeasible feature sets assigned a quality of~0.
@@ -1552,14 +1552,14 @@ This result underlines our previous observation that the objective value is only
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-optimization-status-k-5.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-optimization-status-k-5.pdf}
 		\caption{Feature-set size~$k=5$.}
 		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-5}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/impact-num-alternatives-tau-optimization-status-k-10.pdf}
+		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-optimization-status-k-10.pdf}
 		\caption{Feature-set size~$k=10$.}
 		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-10}
 	\end{subfigure}
@@ -1584,14 +1584,14 @@ This counterintuitive phenomenon can occur because some datasets run out of vali
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-tau-fs-method-train-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-train-objective-max.pdf}
 		\caption{Training-set objective value.}
 		\label{fig:afs:impact-tau-fs-method-train-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/impact-tau-fs-method-decision-tree-test-mcc-max.pdf}
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-decision-tree-test-mcc-max.pdf}
 		\caption{Test-set prediction performance.}
 		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max}
 	\end{subfigure}
