@@ -56,11 +56,12 @@ Finally, prediction models might become simpler and more comprehensive~\cite{li2
 Traditional feature-selection methods mostly return only one feature set~\cite{borboudakis2021extending}.
 These methods optimize a criterion of feature-set quality, e.g., prediction performance.
 However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
-For the user, these alternative feature sets might be interesting for multiple reasons.
+For the user, such alternative feature sets might be interesting for multiple reasons.
 First, some originally selected features might be costly to obtain, so the user would prefer cheaper alternatives.
 Second, some originally selected features might contain sensitive information that should not be used in predictions.
 Third, the user might be interested in explanations for the prediction, rather than just making good predictions.
-In such a situation, knowing alternatives allows the formulation of multiple hypotheses and broadens the understanding.
+In such a situation, knowing alternative feature sets allows the formulation of multiple, diverse explanations.
+Such alternative explanations can broaden the user's understanding of the domain and help gain deeper insights.
 
 \paragraph{Problem statement}
 
@@ -331,7 +332,7 @@ However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
 The expression from Equation~\ref{eq:afs:feature-set-size} also helps to formulate a constraint for limiting the new feature set's size to a user-defined value~$k \in \mathbb{N}$.
 Further, combining Equation~\ref{eq:afs:jaccard-rearranged},~\ref{eq:afs:dice-rearranged},~or~\ref{eq:afs:dice-rearranged-equal-size} with Equation~\ref{eq:afs:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
-In fact, one can replace the product $s'_j \cdot s''_j$, which is non-linear, with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling}:
+In fact, one can replace the product $s'_j \cdot s''_j$, which is non-linear, with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling} as follows:
 %
 \begin{equation}
 	\begin{aligned}
@@ -474,20 +475,24 @@ In particular, univariate filter methods decompose the quality of a feature set 
 	\label{eq:afs:univariate-filter}
 \end{equation}
 %
-Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between a feature and the prediction target.
+Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between one feature and the prediction target.
+Thus, the values of~$q(\cdot)$ for different features are independent from each other.
 Appendix~\ref{sec:afs:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
 Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver.
 
 \paragraph{Post-hoc feature importance}
 
-From the technical perspective, one can also insert values of post-hoc feature-importance scores for $q(\cdot)$ in Equation~\ref{eq:afs:univariate-filter}.
-For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature.
-However, such post-hoc importance scores often evaluate the usefulness of features in the presence of other features.
-Thus, the feature-independence assumption underlying Equation~\ref{eq:afs:univariate-filter} does not hold.
-In theory, one would have to re-calculate feature importance for each feature set.
-However, such a procedure makes a white-box approach infeasible.
-In practice, one can still use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset.
-One only needs to be aware that such an approach might not represent feature interactions, e.g., feature importances in particular subsets, faithfully.
+From the technical perspective, one can also insert values of post-hoc feature-importance scores into Equation~\ref{eq:afs:univariate-filter}.
+For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them instead of the bivariate dependency values~$q(X_{\cdot{}j},y)$.
+However, such post-hoc importance scores often evaluate the usefulness of each feature in the presence of other features.
+Thus, importance scores of different features are not independent from each other, violating the assumption behind Equation~\ref{eq:afs:univariate-filter}.
+For example, a feature might show high post-hoc importance if another feature is present, due to feature interaction, but low importance else.
+Equation~\ref{eq:afs:univariate-filter} cannot express such conditional importance but requires one overall quality value for each feature.
+
+In theory, one would have to re-calculate feature importance for each possible set of selected features to capture all possible feature interactions.
+However, such a procedure demands extensive runtime, scales exponentially with the number of features, and makes white-box optimization infeasible.
+In practice, one can use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset, i.e., with all feature being present.
+One only needs to be aware that such an approach might not represent importances in feature subsets faithfully.
 
 \paragraph{Multivariate filter feature selection}
 
@@ -598,14 +603,18 @@ Such solver-assisted search approaches are common in search procedure for valid 
 One could also apply solver-based repair to randomly sampled feature sets.
 
 As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy, as displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
+Since the procedure is a heuristic, it might not yield a globally optimal feature set but get stuck in local optima.
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
 Next, it tries `swapping' one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
 The algorithm calls the solver again to find a solution~$s'$ containing this change and satisfying the other constraints.
-If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution.
+If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again swapping the first feature.
 Else, it attempts to swap the next feature.
-The algorithm terminates if no swap of a feature leads to an improvement or a fixed amount of iterations $max\_iters$ is reached.
+In particular, we only evaluate one swap per feature before moving on rather than enumerating all valid solutions containing the swap.
+
+The algorithm terminates if either no swap of a feature leads to an improvement or a fixed number of iterations~$max\_iters$ is reached.
+In particular, $max\_iters$ only is an upper bound on the iteration count since the algorithm can stop earlier.
 We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
 This also is an upper bound on the number of prediction models trained.
 However, not all solver calls might yield a valid feature set.
@@ -818,6 +827,12 @@ Here, the scores originate from trees trained with all features rather than asse
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
 
+We only evaluate approaches for searching alternatives that we proposed in this paper.
+As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate under different notions what constitutes an alternative feature set, and often only work for particular feature-selection methods.
+All these points prevent a fair comparison of these approaches to ours.
+E.g., a feature set considered alternative in related work might violate our constraints for being alternative, and might not support setting a dissimilarity threshold~$\tau$.
+Further, even if we only evaluate our own approaches, we can still compare the quality of alternatives to the original feature sets.
+
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
 For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the minimum-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
 We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
@@ -932,7 +947,8 @@ If the solver reached its timeout, it either found a \emph{feasible} solution, w
 We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
 To focus on one machine-learning task type, we only consider binary-classification datasets.
 However, alternative feature selection is possible for regression and multi-class problems as well.
-We filter out datasets containing less than 100 data objects.
+We filter out datasets containing less than 100 data objects, since very small datasets might entail a high uncertainty when estimating and evaluating feature-set quality.
+Apart from this special case, the number of data objects should have no systematic impact on the feature-set quality and is therefore unimportant for our evaluation.
 Also, we filter out datasets with less than 15 features to leave some room for alternatives.
 Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments.
 Finally, we manually remove datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
@@ -999,7 +1015,8 @@ To account for varying dataset size, we put the ratio between feature-set size~$
 As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature-selection method approximately increases linearly with~$k/n$.
 However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
 Further, the quality of a prediction model, i.e., decision trees, does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
-Due to this observed variation of feature-set quality between datasets, we normalize feature-set quality in some of the following analyses.
+Due to this variance caused by dataset choice, we additionally normalize feature-set quality in some of the following analyses.
+In particular, this normalization should reduce the influence of datasets and highlight the impact of other experimental settings instead.
 
 \subsection{Feature-Set Quality Metrics}
 \label{sec:afs:evaluation:metrics}
@@ -1300,7 +1317,7 @@ For \emph{mRMR}, there are about 10\% potentially suboptimal feature sets under 
 In contrast, for simultaneous search with the summed-quality objective, all feature-selection methods experience timeouts in searches:
 Roughly 2\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution till the timeout but could not guarantee optimality.
 Such timeout-affected solutions of simultaneous search can be worse than an optimal sequential solution.
-With the min-quality objective instead of the summed-quality objective in simultaneous search, the number of timeouts increases for \emph{MI} and \emph{Model Gain} but decreases for \emph{FCBF} and \emph{mRMR}.
+With the minimum-quality objective instead of the summed-quality objective in simultaneous search, the number of timeouts increases for \emph{MI} and \emph{Model Gain} but decreases for \emph{FCBF} and \emph{mRMR}.
 Still, sequential search runs into less timeouts for all four white-box feature-selection methods.
 
 Besides finding suboptimal feature sets, the solver might also fail to find a feasible solution without being able to guarantee infeasibility.
@@ -1406,7 +1423,8 @@ In particular, it appeared to be significantly faster than simultaneous search w
 For sequential search, the training-set objective value naturally decreases with the number of alternatives, at least for the feature-selection criteria optimized exactly.
 In particular, each found feature set adds another constraint to the optimization problem.
 Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} illustrate this trend for \emph{MI}-based feature selection.
-As feature-set quality varies between datasets, we apply normalization:
+Since feature-set quality varies between datasets and cross-validation folds, as discussed in Section~\ref{sec:afs:evaluation:datasets}, we additionally normalize feature-set quality here.
+In particular, we analyze the relative development of feature-set quality within individual search runs for alternatives.
 First, we shift the range of all evaluation metrics to~$[0,1]$.
 In particular, MCC to measure prediction performance as well as the objective value of \emph{Greedy Wrapper} and \emph{mRMR} would have the range~$[-1,1]$ without this shift.
 Second, in Figure~\ref{fig:afs:impact-num-alternatives-quality-max}, we have max-normalized the feature-set quality for each search of alternatives, i.e., the highest feature-set quality in the search run is scaled to~1 and the other feature-set qualities are scaled accordingly.
