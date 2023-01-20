@@ -1710,12 +1710,17 @@ This leads to the following \emph{summed-quality objective}:
 	\label{eq:afs:afs-simultaneous-sum-objective}
 \end{equation}
 %
-While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality, though the latter could be a goal for searching simultaneously.
-For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with five features, the feature qualities~$q = (1,2,3,4,5)$, desired feature-set size $k=2$, and dissimilarity threshold $\tau = 1$, i.e., allowing no overlap of feature sets.
-The feature selection $s^{(0)} = (0,0,0,1,1)$, $s^{(1)} = (0,1,1,0,0)$ yields the optimal summed quality of $9+5=14$, while the quality of these two feature sets differs significantly.
-The feature selection $s^{(0)} = (0,1,0,0,1)$, $s^{(1)} = (0,0,1,1,0)$ yields the same summed quality of $7+7=14$ but with balanced feature-set qualities.
-Sequential search for alternatives can only yield the first, quality-imbalanced solution due to the greedy search procedure.
-Simultaneous search with the summed-quality objective could yield both solutions, due to the identical objective value, so we still cannot be sure to get balanced qualities.
+While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality, though the latter could be one of the reasons for searching simultaneously.
+For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with six features, the feature qualities~$q = (1,2,3,7,8,9)$, desired feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of at most one feature between feature sets here.
+Sequential search yields the selection $s^{(0)} = (0,0,0,1,1,1)$, $s^{(1)} = (0,1,1,0,0,1)$, and $s^{(2)} = (1,0,1,0,1,0)$, with an optimal summed feature-set quality of $24+14+12=50$.
+One simultaneous-search solution consists of the feature sets $s^{(0)} = (0,0,1,0,1,1)$, $s^{(1)} = (0,1,0,1,0,1)$, and $s^{(2)} = (1,0,0,1,1,0)$, with an optimal summed feature-set quality of $20+18+16=54$.
+Another simultaneous-search solution is $s^{(0)} = (1,0,0,0,1,1)$, $s^{(1)} = (0,1,0,1,0,1)$, and $s^{(2)} = (0,0,1,1,1,0)$, with an optimal summed feature-set quality of $18+18+18=54$.
+This example provides us with several insights.
+First, sequential search yields worse quality than simultaneous search here, i.e., 50 vs.~54, due to its greedy search procedure.
+Second, the three feature-set qualities of the sequential solutions, i.e., 24, 14, and~12, differ significantly.
+Third, simultaneous search can yield multiple solutions that all share the same summed feature-set quality.
+However, the feature-set qualities in the second solution, i.e., 18, 18, and~18, are more balanced than in the first solution, i.e., 20, 18, and~16.
+With the summed-quality objective, both these solutions are optimal, which might not satisfy the user's needs in some scenarios.
 
 \paragraph{Minimum-quality objective}
 
@@ -1727,7 +1732,14 @@ To actively foster balanced feature-set qualities in simultaneous search, we pro
 \end{equation}
 %
 In the terms of social choice theory, this re-formulated objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
-As a downside, the summed feature-set quality can decrease under this new objective.
+Note that optimizing either the summed-quality objective or the minimum-quality objective does not necessarily optimize the other one.
+Previously, we already showed an example for a solution optimizing the summed-quality objective but not the minimum-quality objective.
+In the following, we demonstrate the other direction.
+For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with six features, the feature qualities~$q = (1,4,5,6,10,11)$, desired feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of at most one feature between feature sets here.
+One solution optimizing the minimum-quality objective is $s^{(0)} = (0,1,0,0,1,1)$ and $s^{(1)} = (0,0,1,1,0,1)$, with a summed feature-set quality of $25+22=47$.
+Another solution is $s^{(0)} = (1,0,0,0,1,1)$ and $s^{(1)} = (0,0,1,1,0,1)$, with a summed feature-set quality of $22+22=44$.
+While both solutions have the same minimum feature-set quality of~22, only the first solution optimizes the summed-quality objective.
+In particular, the minimum-quality objective allows reducing the quality of feature sets that are above the current minimum of all feature sets.
 
 From the technical perspective, Equation~\ref{eq:afs:afs-simultaneous-min-objective} has the disadvantage of being a non-linear expression regarding the decision variables $s^{(0)}, \dots, s^{(a)}$.
 However, we can linearize it with the help of an auxiliary variable~$Q_{\text{min}}$ and one additional constraint per feature set:
@@ -1750,7 +1762,8 @@ The minimum-quality objective provides no control or guarantee how much the feat
 As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
 However, this formulation would introduce a new parameter for the allowed quality difference.
 Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, which also introduces one or several parameters that are difficult to determine a priori.
-Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality, but then the user would have to handle an implicit trade-off between the objectives.
+Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
+However, having two objectives might burden the user to handle a potential trade-off between these objectives.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
