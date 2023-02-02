@@ -356,6 +356,7 @@ One can also encode such constraints into propositional logic (SAT)~\cite{ulrich
 If the user desires multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
 The number of alternatives~$a$ is a parameter to be set by the user.
 Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search procedures.
+Appendix~\ref{sec:afs:appendix:complexity} analyzes the computational complexity of the optimization problems.
 %
 \begin{table}[htb]
 	\centering
@@ -1816,6 +1817,53 @@ Also, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultan
 	\label{eq:afs:afs-simultaneous-complete}
 \end{equation}
 
+\subsection{Complexity of the Optimization Problem}
+\label{sec:afs:appendix:complexity}
+
+In this section, we discuss the computational complexity of alternative feature selection as defined in Sections~\ref{sec:afs:approach} and~\ref{sec:afs:appendix:complete-optimization-problem}.
+In particular, we are interested in scalability regarding the number of features~$n \in \mathbb{N}$, also considering the feature-set size~$k \in \mathbb{N}$ and the number of alternatives~$a \in \mathbb{N}_0$.
+
+\subsubsection{Exhaustive Search}
+\label{sec:afs:appendix:complexity:exhaustive}
+
+Exhaustive search over the complete search space defines an upper bound for the optimal complexity of any search algorithm.
+
+\paragraph{Traditional feature selection}
+
+In general, the search space of feature selection grows exponentially with~$n$, even without considering alternatives.
+In particular, there are $2^n - 1$ possibilities to form a single non-empty feature set of arbitrary size.
+For a feature set of fixed size~$k$, as in our experiments, there are $\binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}$ options.
+In an exhaustive search, we can directly iterate over these feature sets and ignore the ones violating the cardinality constraint.
+The asymptotic growth of the binomial expression regarding~$n$ depends on $k$.
+If we consider~$k$ to be a small constant and independent from~$n$, i.e., $k \ll n,~k \in O(1)$, then the number of possible feature sets is in~$O(n^k)$ since $\binom{n}{k} \leq n^k$.
+The assumption $k \ll n,~k \in O(1)$ makes sense in feature selection, where one typically wants to obtain a low-dimensional subset of a high-dimensional dataset.
+Thus, even an exhaustive search for the optimal feature set has polynomial runtime regarding~$n$.
+Note that we exclude the effort for computing the quality of each feature-set within the search here.
+This effort depends on the feature-selection methods but should usually be polynomial as well.
+
+\paragraph{Sequential search}
+
+Like traditional feature selection, sequential search targets at finding a single feature set.
+Thus, the search space is the same.
+Unlike traditional feature selection, not all size-$k$ feature sets are valid.
+In particular, we also need to check the constraints for being alternative, which puts an extra effort on each feature-set candidate in exhaustive search.
+As Equation~\ref{eq:afs:afs-sequential-complete} shows, checking validity involves iterating over all existing feature sets and all features.
+This procedure entails an effort of~$O(a \cdot n)$ for one alternative, excluding the complexity of elementary arithmetic operations.
+For the whole sequential procedure, yielding a total of~$a$ alternatives, the effort becomes~$O(a^2 \cdot n)$.
+Combining this with the effort of exhaustive search over size-$k$ feature sets, we obtain an overall complexity of~$O(a^2 \cdot n^{k+1})$.
+Again, the latter expression assumes $k \ll n,~k \in O(1)$ and excludes the effort for computing feature-set quality.
+
+\paragraph{Simultaneous search}
+
+Simultaneous search enlarges the search space since it optimizes $a+1$ feature sets at once.
+Thus, an exhaustive search over size-$k$ feature sets requires an effort of~$O(n^{k \cdot (a+1)})$ for~$k \ll n,~k \in O(1)$.
+As for sequential search, there is an additional effort of~$O(a^2 \cdot n)$ for constraint checking.
+Thus the overall complexity is~$O(a^2 \cdot n^{k \cdot (a+1) + 1})$ without the effort for computing feature-set quality.
+The scalability with~$n$ is clearly worse than for sequential search since the number of alternatives also appears in the exponent now.
+Assuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, the complexity is still polynomial in~$n$ but the exponent might be prohibitive for real-world usage.
+Additionally, note that this complexity expression assumes that there are no additional linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}.
+Iterating over values of the latter would increase the search space even further.
+
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
 
@@ -1893,7 +1941,7 @@ Once this pool of unused features is exhausted, one would need another strategy 
 Additionally, continuing search from the results of greedy replacement might then perform worse than a simultaneous search.
 Thus, to obtain a high number of alternatives with greedy replacement, the following conditions are beneficial:
 The number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
-These conditions align well with classical feature-selection scenarios where~$k \ll n$.
+These conditions align well with traditional feature-selection scenarios where~$k \ll n$.
 
 Besides the drawback of potentially running out of unused features, there are further disadvantages of greedy replacement compared to solver-based optimization.
 In particular, greedy replacement does not work once the optimization problem gets more involved.
