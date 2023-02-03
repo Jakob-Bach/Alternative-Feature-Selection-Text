@@ -27,6 +27,8 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
+\newcommand{\stirling}[2]{\genfrac\{\}{0pt}{}{#1}{#2}} % used for Stirling numbers of the second kind
+
 \begin{document}
 
 \maketitle
@@ -1762,7 +1764,8 @@ This situation relieves us from introducing further auxiliary variables that are
 The minimum-quality objective provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
 As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
 However, this formulation would introduce a new parameter for the allowed quality difference.
-Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, which also introduces one or several parameters that are difficult to determine a priori.
+Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, or the difference between maximum and minimum.
+All these approaches also introduces one or several parameters that are difficult to determine a priori.
 Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
 However, having two objectives might burden the user to handle a potential trade-off between these objectives.
 
@@ -1864,6 +1867,44 @@ Assuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, 
 Additionally, note that this complexity expression assumes that there are no additional linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}.
 Iterating over values of the latter would increase the search space even further.
 
+\subsubsection{Relationship to NP-Hard Problems}
+\label{sec:afs:appendix:complexity:np}
+
+A special case of alternative feature selection results from permitting zero overlap of feature sets, i.e., a dissimilarity threshold of~$\tau = 1$.
+Thus, we partition the features into $a+1$ `actual' feature sets and potentially a $a+2$-th set containing all remaining features, which we call the \emph{dummy feature set}.
+If the latter exists, we speak of a \emph{incomplete partitioning}, else a \emph{complete partitioning}.
+Also, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Section~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
+
+Several number-partitioning problems are proven to be NP-complete~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
+\textsc{Partition} asks if one can partition a set of numbers into two subsets with the same sum over their elements, while \textsc{3-Partition} demands a set of numbers to be partitioned into subsets of size three that all sum up to a one pre-defined number.
+A key factor driving the hardness of partitioning is the shear number of possible partitionings.
+In particular, the number of ways to partition a set of $n$~elements into $a$~non-empty subsets is $\stirling{n}{a}$, a Stirling number of the second kind~\cite{graham1994concrete}.
+These numbers roughly scale like $a^n / a!$~\cite{moser1958stirling}, which is exponential in~$n$.
+
+Unlike \textsc{Partition} and \textsc{3-Partition}, we do not require alternative feature sets to have exactly the same quality.
+For the summed-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-sum-objective}, alternative feature selection with univariate feature qualities and~$\tau = 1$ is easy.
+In particular, for a complete partitioning, we use each of the $n$~features exactly once, and how we distribute them among the feature sets does not change the objective value.
+We only need to make sure that each feature set conforms to the user-specified cardinality.
+Thus, we only need to iterate over the features once and thereby obtain a complexity of $O(n)$.
+An incomplete partitioning is only marginally more challenging:
+We order the features decreasingly by their individual quality and simply pick features without replacement until we have the desired number of alternatives with the desired feature-set sizes.
+Again, it does not matter for the objective value how the selected feature are assigned to individual feature sets.
+Due to the quality-based sorting, the complexity is~$O(n \cdot \log n)$, i.e., still polynomial.
+Assuming $k \ll n$ and $a \ll n$, the complexity even becomes~$O((a+1) \cdot k \cdot n) \sim O(n)$ since we can iteratively determine the feature with maximum quality rather than sorting all qualities.
+
+The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
+In particular, it resembles the \textsc{Multi-Way Number Partitioning} problem, which is about partitioning $n$~numbers into $a$~sets such that the sums of all sets are as equal as possible~\cite{korf2010objective}.
+Different objectives formalizes the latter notion and can lead to different results~\cite{korf2010objective}.
+One problem formulation, minimizing the maximum sum of all sets, is called \textsc{Multiprocessor Scheduling}.
+This objective is equivalent to our objective if one multiplies all number with -1, turning the mini-max problem into the maxi-min formulation we use.
+Since \textsc{Multiprocessor Scheduling} is NP-complete~\cite{garey2003computers}, our problem is NP-complete as well.
+For a fixed number of partitions, \textsc{Multiprocessor Scheduling} allows for pseudo-polynomial algorithms.
+These algorithms run in polynomial time if the input numbers are bounded in their size, e.g., small integers.
+However, our feature-set qualities are real numbers in $[0,1]$ unless one scales and discretizes them.
+
+Note that the previous result assumes a complete partitioning and feature sets of arbitrary sizes.
+However, feature selection in general and our paper in particular typically work with a fixed feature-set size~$k$.
+Depending on the number of alternatives, the partitioning then typically is incomplete.
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
 
