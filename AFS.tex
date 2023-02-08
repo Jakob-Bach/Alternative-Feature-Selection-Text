@@ -24,6 +24,7 @@
 
 \addbibresource{references.bib}
 
+\newtheorem{proposition}{Proposition} % default theorem style ("plain")
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 
@@ -875,7 +876,7 @@ To a lesser extent, we evaluate runtime of the search for alternatives.
 \paragraph{Feature-set quality}
 
 We use two kinds of metrics for feature-set quality.
-We focus on on how these metrics evolve for different configurations of alternative feature selection, cf. Section~\ref{sec:afs:experimental-design:approaches:alternatives}.
+We focus on on how these metrics evolve for different configurations of alternative feature selection, cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}.
 First, we evaluate the objective functions~$Q(s,X,y)$ of the feature-selection methods, which guided the search for feature sets, and report their \emph{objective value}.
 Second, we train predictions models with the found feature sets.
 We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
@@ -1767,7 +1768,8 @@ However, this formulation would introduce a new parameter for the allowed qualit
 Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, or the difference between maximum and minimum.
 All these approaches also introduces one or several parameters that are difficult to determine a priori.
 Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
-However, having two objectives might burden the user to handle a potential trade-off between these objectives.
+One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
+In both cases, the user might need to define an acceptable trade-off between the two objectives.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
@@ -1823,49 +1825,67 @@ Also, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultan
 \subsection{Complexity of the Optimization Problem}
 \label{sec:afs:appendix:complexity}
 
-In this section, we discuss the computational complexity of alternative feature selection as defined in Sections~\ref{sec:afs:approach} and~\ref{sec:afs:appendix:complete-optimization-problem}.
+In this section, we discuss the time complexity of alternative feature selection as defined in Section~\ref{sec:afs:approach}.
 In particular, we are interested in scalability regarding the number of features~$n \in \mathbb{N}$, also considering the feature-set size~$k \in \mathbb{N}$ and the number of alternatives~$a \in \mathbb{N}_0$.
+We discuss the problem with a univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}) as well as the general case.
 
 \subsubsection{Exhaustive Search}
 \label{sec:afs:appendix:complexity:exhaustive}
 
-Exhaustive search over the complete search space defines an upper bound for the optimal complexity of any search algorithm.
+The arguably simplest search strategy is an exhaustive search over the complete search space.
+Such a procedure provides an upper bound for the time complexity of a runtime-optimal search algorithm.
+Thus, we analyze exhaustive search in the following.
+In this section, we assume unit costs for elementary arithmetic operations like addition, multiplication, and comparison.
 
 \paragraph{Traditional feature selection}
 
 In general, the search space of feature selection grows exponentially with~$n$, even without considering alternatives.
 In particular, there are $2^n - 1$ possibilities to form a single non-empty feature set of arbitrary size.
 For a feature set of fixed size~$k$, as in our experiments, there are $\binom{n}{k} = \frac{n!}{k! \cdot (n-k)!}$ options.
-In an exhaustive search, we can directly iterate over these feature sets and ignore the ones violating the cardinality constraint.
+In an exhaustive search, we can directly enumerate these feature sets and thereby ignore the ones violating the cardinality constraint.
 The asymptotic growth of the binomial expression regarding~$n$ depends on $k$.
 If we consider~$k$ to be a small constant and independent from~$n$, i.e., $k \ll n,~k \in O(1)$, then the number of possible feature sets is in~$O(n^k)$ since $\binom{n}{k} \leq n^k$.
 The assumption $k \ll n,~k \in O(1)$ makes sense in feature selection, where one typically wants to obtain a low-dimensional subset of a high-dimensional dataset.
-Thus, even an exhaustive search for the optimal feature set has polynomial runtime regarding~$n$.
-Note that we exclude the effort for computing the quality of each feature-set within the search here.
-This effort depends on the feature-selection methods but should usually be polynomial as well.
+Thus, even an exhaustive search for the optimal feature set only has polynomial runtime regarding~$n$.
+Note that we have excluded the effort for computing the quality of each feature set, i.e., evaluating the objective function, within the search yet.
+This effort depends on the feature-selection methods but should usually be polynomial in~$n$ as well.
+E.g., for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}), this effort is in $O(n)$ or even $O(k)$, depending on the data structures storing the feature sets and feature qualities.
 
 \paragraph{Sequential search}
 
-Like traditional feature selection, sequential search targets at finding a single feature set.
+Like traditional feature selection, sequential search (cf. Definition~\ref{def:afs:sequential-alternative}) targets at finding a single feature set at once.
 Thus, the search space is the same.
-Unlike traditional feature selection, not all size-$k$ feature sets are valid.
+Unlike traditional feature selection, not all size-$k$ feature sets are valid anymore.
 In particular, we also need to check the constraints for being alternative, which puts an extra effort on each feature-set candidate in exhaustive search.
-As Equation~\ref{eq:afs:afs-sequential-complete} shows, checking validity involves iterating over all existing feature sets and all features.
-This procedure entails an effort of~$O(a \cdot n)$ for one alternative, excluding the complexity of elementary arithmetic operations.
+As Equation~\ref{eq:afs:afs-sequential-complete} shows, checking constraints involves iterating over all existing feature sets and all features, allowing to compute the dissimilarity between feature sets.
+This procedure entails an effort of~$O(a \cdot n)$ for one alternative.
 For the whole sequential procedure, yielding a total of~$a$ alternatives, the effort becomes~$O(a^2 \cdot n)$.
-Combining this with the effort of exhaustive search over size-$k$ feature sets, we obtain an overall complexity of~$O(a^2 \cdot n^{k+1})$.
-Again, the latter expression assumes $k \ll n,~k \in O(1)$ and excludes the effort for computing feature-set quality.
+Combining this effort with exhaustive search over size-$k$ feature sets, we obtain the following proposition:
+%
+\begin{proposition}[Complexity of exhaustive sequential search]
+	Assuming $k \ll n,~k \in O(1)$, exhaustive sequential search for $a \in \mathbb{N}$ alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k+1})$ without the effort for evaluating the objective function.
+	\label{prop:afs:complexity-exhaustive-sequential}
+\end{proposition}
+%
+In case we only store feature sets of size~$k$ instead of the complete selection vectors of size~$n$, we can reduce effort for constraint checking and obtain an overall time complexity of~$O(a^2 \cdot n^k)$ under the stated assumptions, thereby removing a factor of magnitude~$O(n)$.
 
 \paragraph{Simultaneous search}
 
-Simultaneous search enlarges the search space since it optimizes $a+1$ feature sets at once.
+Simultaneous search (cf. Definition~\ref{def:afs:simultaneous-alternative}) enlarges the search space since it optimizes $a+1$ feature sets at once.
 Thus, an exhaustive search over size-$k$ feature sets requires an effort of~$O(n^{k \cdot (a+1)})$ for~$k \ll n,~k \in O(1)$.
 As for sequential search, there is an additional effort of~$O(a^2 \cdot n)$ for constraint checking.
-Thus the overall complexity is~$O(a^2 \cdot n^{k \cdot (a+1) + 1})$ without the effort for computing feature-set quality.
+Thus, we arrive at the following proposition:
+%
+\begin{proposition}[Complexity of exhaustive simultaneous search]
+	Assuming $k \ll n,~k \in O(1)$, exhaustive simultaneous search for $a + 1$~alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k \cdot (a+1) + 1})$ without the effort for evaluating the objective function.
+	\label{prop:afs:complexity-exhaustive-simultaneuos}
+\end{proposition}
+%
 The scalability with~$n$ is clearly worse than for sequential search since the number of alternatives also appears in the exponent now.
-Assuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, the complexity is still polynomial in~$n$ but the exponent might be prohibitive for real-world usage.
-Additionally, note that this complexity expression assumes that there are no additional linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}.
+Assuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, the time complexity is still polynomial in~$n$ but the exponent might be prohibitive for real-world usage.
+Additionally, note that this complexity expression assumes that constraint checking is done directly between each pair of feature sets rather than using additional linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}.
 Iterating over values of the latter would increase the search space even further.
+Finally, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
 
 \subsubsection{Relationship to NP-Hard Problems}
 \label{sec:afs:appendix:complexity:np}
@@ -1873,7 +1893,7 @@ Iterating over values of the latter would increase the search space even further
 A special case of alternative feature selection results from permitting zero overlap of feature sets, i.e., a dissimilarity threshold of~$\tau = 1$.
 Thus, we partition the features into $a+1$ `actual' feature sets and potentially a $a+2$-th set containing all remaining features, which we call the \emph{dummy feature set}.
 If the latter exists, we speak of a \emph{incomplete partitioning}, else a \emph{complete partitioning}.
-Also, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Section~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
+Also, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
 
 Several number-partitioning problems are proven to be NP-complete~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
 \textsc{Partition} asks if one can partition a set of numbers into two subsets with the same sum over their elements, while \textsc{3-Partition} demands a set of numbers to be partitioned into subsets of size three that all sum up to a one pre-defined number.
@@ -1908,7 +1928,7 @@ Depending on the number of alternatives, the partitioning then typically is inco
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
 
-For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter} and Section~\ref{sec:afs:appendix:complete-optimization-problem}), one can easily find a limited number of optimal alternative feature sets without a solver.
+For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}), one can easily find a limited number of optimal alternative feature sets without a solver.
 To this end, we propose the following \emph{greedy-replacement} procedure, displayed in Algorithm~\ref{al:afs:greedy-replacement}:
 
 \paragraph{Procedure}
@@ -1970,7 +1990,7 @@ In general, the $\lfloor (1 - \tau) \cdot k \rfloor$~best features plus the $k +
 \paragraph{Supporting variable $k$}
 
 One can also adapt this procedure to permit varying feature-set sizes~$k^{(i)}$ over alternatives rather than using a constant~$k$.
-Especially, if one knows the values of all~$k^{(i)}$ beforehand, one can still compute the admissible overlap of feature sets (cf. Equation~\ref{eq:afs:dice-rearranged}) and thereby determine the number of features to be replaced per iteration.
+Especially, if one knows the values of all~$k^{(i)}$ beforehand, one can still compute the admissible overlap of feature sets (cf.~Equation~\ref{eq:afs:dice-rearranged}) and thereby determine the number of features to be replaced per iteration.
 However, if the order of the $k^{(i)}$-values is flexible, the situation becomes more involved.
 In particular, assembling feature sets of different sizes in different order can result in a different overall objective value, i.e., summed feature-set quality.
 
