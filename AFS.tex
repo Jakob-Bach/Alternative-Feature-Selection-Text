@@ -1950,11 +1950,11 @@ We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in
 The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
 In particular, it resembles the \textsc{Multi-Way Number Partitioning} problem, which is about partitioning $n$~numbers into $a$~sets such that the sums of all sets are as equal as possible~\cite{korf2010objective}.
 Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective}.
-One problem formulation, minimizing the maximum sum of all sets, is called \textsc{Multiprocessor Scheduling}~\cite{garey2003computers}.
+The most popular problem formulation~\cite{lawrinenko2018reduction, walter2017improved}, minimizing the maximum sum of all sets, is called \textsc{Multiprocessor Scheduling}~\cite{garey2003computers}.
 Figuratively speaking, the goal is to assign given tasks of different lengths to a fixed number of processors such that the maximum summed runtime of any processor is minimal.
 This objective is equivalent to our objective if one multiplies all task lengths with -1, turning the minimax problem of \textsc{Multiprocessor Scheduling} into the maximin formulation we use for simultaneous search with the minimum-quality objective.
 The tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
-Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete~\cite{garey2003computers} and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
+Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and unconstrained feature-set size]
 	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~feature are selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
@@ -1979,6 +1979,7 @@ In particular, \cite{woeginger1997polynomial} describes a polynomial-time approx
 However, the runtime depends on the desired approximation ratio and can grow exponential the more precision is desired.
 In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme, which would only polynomially depend on the precision of approximation~\cite{woeginger1997polynomial}.
 Besides approximation algorithms, there are also polynomial-time exact algorithms assuming certain parameters of the problem to be fixed~\cite{mnich2018parameterized}.
+Further, there are exact branch-and-bound algorithms that do not provide a runtime guarantee~\cite{haouari2008maximizing, walter2017improved}.
 
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
