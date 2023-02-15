@@ -1764,11 +1764,12 @@ This situation relieves us from introducing further auxiliary variables that are
 \paragraph{Further approaches for balancing quality}
 
 The minimum-quality objective provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
-As another problem formulation, one could add constraints that limit the difference between the feature sets' qualities.
-However, this formulation would introduce a new parameter for the allowed quality difference.
-Alternatively, one could explicitly constrain the minimum or maximum quality of all feature sets, or the difference between maximum and minimum.
-All these approaches also introduces one or several parameters that are difficult to determine a priori.
-Instead of using further constraints, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
+One can alleviate this problem in several ways, particularly by adapting the objective and/or constraints.
+First, theoretical problems related to alternative feature selection also use other objectives for balanced quality~\cite{korf2010objective, lawrinenko2017identical} (cf. Appendix~\ref{sec:afs:appendix:complexity:np}).
+E.g., one could minimize the difference in quality between the highest-quality feature set and the lowest-quality feature set.
+Second, one could keep the summed-quality objective but explicitly constrain the minimum or maximum quality of all feature sets, or the difference between the feature sets' qualities.
+However, such constraint-based approaches introduce one or several parameters bounding feature-set quality, which are difficult to determine a priori.
+Third, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
 One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
 In both cases, the user might need to define an acceptable trade-off between the two objectives.
 
@@ -1873,7 +1874,6 @@ Combining this effort with exhaustive search over size-$k$ feature sets, we obta
 Thus, the runtime remains polynomial under the given assumptions and belongs to the parameterized complexity class~$\mathcal{XP}$ in general.
 In case we only store feature sets of size~$k$ instead of the complete selection vectors of size~$n$, we can reduce effort for constraint checking and obtain an overall time complexity of~$O(a^2 \cdot n^k)$ under the stated assumptions, thereby removing a factor of magnitude~$O(n)$.
 
-
 \paragraph{Simultaneous search}
 
 Simultaneous search (cf. Definition~\ref{def:afs:simultaneous-alternative}) enlarges the search space since it optimizes $a+1$ feature sets at once.
@@ -1888,7 +1888,7 @@ Thus, we arrive at the following proposition:
 %
 The scalability with~$n$ is clearly worse than for sequential search since the number of alternatives also appears in the exponent now.
 For parameterized complexity, the problem is again in class $\mathcal{XP}$ with the parameter~$a \cdot k$.
-Also, ssuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, the time complexity is still polynomial in~$n$ but the exponent might be prohibitive for real-world usage.
+Also, assuming~$a$ to be small and independent from~$n$, i.e., $a \ll n,~a \in O(1)$, the time complexity is still polynomial in~$n$ but the exponent might be prohibitive for real-world usage.
 Additionally, note that this complexity expression assumes that constraint checking is done directly between each pair of feature sets rather than using additional linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}.
 Iterating over values of the latter would increase the search space even further.
 Finally, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
@@ -1919,7 +1919,7 @@ This simplicity of this objective does not only make its evaluation cheap but al
 \paragraph{Number partitioning}
 
 There are several number-partitioning problems proven to be $\mathcal{NP}$-complete~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
-\textsc{Partition} asks if one can partition a set of numbers into two subsets with the same sum over their elements, while \textsc{3-Partition} demands a set of numbers to be partitioned into subsets of size three that all sum up to a one pre-defined number.
+\textsc{Partition} asks if one can partition a set of elements with positive weights into two subsets with the same sum over their elements weights, while \textsc{3-Partition} demands a partitioning into subsets containing three elements whose weights all sum up to one particular pre-defined number.
 A key factor driving the hardness of partitioning is the shear number of possible partitionings.
 In particular, the number of ways to partition a set of $n$~elements into $a$~non-empty subsets is $\stirling{n}{a}$, a Stirling number of the second kind~\cite{graham1994concrete}.
 These numbers roughly scale like $a^n / a!$~\cite{moser1958stirling}, which is exponential in~$n$ given a fixed~$a$.
@@ -1948,20 +1948,21 @@ We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in
 \paragraph{Minimum-quality objective with unconstrained feature-set size}
 
 The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
-In particular, it resembles the \textsc{Multi-Way Number Partitioning} problem, which is about partitioning $n$~numbers into $a$~sets such that the sums of all sets are as equal as possible~\cite{korf2010objective}.
-Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective}.
-The most popular problem formulation~\cite{lawrinenko2018reduction, walter2017improved}, minimizing the maximum sum of all sets, is called \textsc{Multiprocessor Scheduling}~\cite{garey2003computers}.
+In particular, it resembles the \textsc{Multi-Way Number Partitioning} problem, which is about partitioning a multiset of $n$~numbers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
+Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective, lawrinenko2017identical}.
+The most prominent problem formulation minimizes the maximum sum of all subsets~\cite{lawrinenko2018reduction, walter2017improved}.
+Following~\cite{garey2003computers}, we use the term \textsc{Multiprocessor Scheduling} for this problem.
 Figuratively speaking, the goal is to assign given tasks of different lengths to a fixed number of processors such that the maximum summed runtime of any processor is minimal.
 This objective is equivalent to our objective if one multiplies all task lengths with -1, turning the minimax problem of \textsc{Multiprocessor Scheduling} into the maximin formulation we use for simultaneous search with the minimum-quality objective.
 The tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
 Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and unconstrained feature-set size]
-	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~feature are selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
-	\label{prop:afs:complexity-partitioning-min-variable-k}
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~feature have to be selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+	\label{prop:afs:complexity-partitioning-min-unconstrained-k}
 \end{proposition}
 %
-Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-variable-k} denote a special case of alternative feature selection, we directly obtain the following general corollary:
+Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} denote a special case of alternative feature selection, we directly obtain the following general corollary:
 %
 \begin{corollary}[Complexity of simultaneous search with minimum-quality objective]
 	Simultaneous search for alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-hard.
@@ -1979,7 +1980,37 @@ In particular, \cite{woeginger1997polynomial} describes a polynomial-time approx
 However, the runtime depends on the desired approximation ratio and can grow exponential the more precision is desired.
 In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme, which would only polynomially depend on the precision of approximation~\cite{woeginger1997polynomial}.
 Besides approximation algorithms, there are also polynomial-time exact algorithms assuming certain parameters of the problem to be fixed~\cite{mnich2018parameterized}.
-Further, there are exact branch-and-bound algorithms that do not provide a runtime guarantee~\cite{haouari2008maximizing, walter2017improved}.
+Further, there are exact algorithms, e.g., based on a branch-and-bound approach, that do not provide a runtime guarantee~\cite{haouari2008maximizing, schreiber2018optimal, walter2017improved}.
+
+\paragraph{Minimum-quality objective with constrained feature-set size}
+
+Note that the previous discussion considered feature sets of arbitrary sizes.
+However, feature selection in general, and our paper in particular, typically work with a fixed feature-set size~$k$.
+There are corresponding number-partitioning problems for this setting as well, e.g., called \textsc{Balanced Number Partitioning} or \textsc{K-Partitioning}.
+The problems formulations differ in their objective and cardinality constraints.
+E.g., \cite{babel1998thek, michiels2012computer, zhang2011heuristic} require partitions of identical size but employ a minimax rather than a maximin objective.
+However, as for the unconstrained case, we can multiply all numbers with -1 and thereby obtain a problem instance with our minimum-quality objective.
+Based on the NP-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time to check a solution, we obtain the following proposition:
+%
+\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and constrained feature-set size]
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and all $n$~feature have to be selected, simultaneous search for $n/k$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+	\label{prop:afs:complexity-partitioning-min-constrained-k}
+\end{proposition}
+%
+For the minimax objective, \cite{babel1998thek, michiels2012computer, zhang2011heuristic} propose heuristic algorithms, some of them with guaranteed approximation ratios.
+\cite{babel1998thek} also provides a bound of the optimal objective value with cardinality constraints relative to the unconstrained case.
+Further, is a polynomial-time approximation scheme for each fixed partition size~$k$~\cite{michiels2012computer}.
+Finally, the problem exhibits a polynomial-time exact algorithm for the special case $k=2$~\cite{dellamico2004heuristic, dellamico2001bounds} and a fully polynomial-time approximation scheme for $k=n/2$~\cite{woeginger2005comment}.
+
+One can also loosen the cardinality constraints by using upper bounds instead of strict equalities, i.e., requiring $\leq k$ instead of $= k$.
+Further, the prescribed cardinality might vary between partitions instead of being the same~$k$ for all of them.
+This generalized problem is NP-hard in the strong sense but has heuristics running in polynomial time~\cite{kellerer2011a32approximation}.
+In particular, \cite{chen2016efficient} provides an efficient polynomial-time approximation scheme.
+
+As another problem formulation, \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} use a maximin objective like we do.
+This objective in combination with cardinality constraints was rarely addressed in literature~\cite{lawrinenko2018reduction}.
+Not that all the mentioned references use $\leq k$ constraints instead of $= k$ as in our experiments.
+Again, problem is NP-hard in the strong sense~\cite{he2003kappa, lawrinenko2018reduction} and \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} propose approximation algorithms, partly with quality guarantees.
 
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
