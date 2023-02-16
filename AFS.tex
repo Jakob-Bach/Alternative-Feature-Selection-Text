@@ -24,10 +24,10 @@
 
 \addbibresource{references.bib}
 
-\newtheorem{corollary}{Corollary}
-\newtheorem{proposition}{Proposition} % default theorem style ("plain")
+\newtheorem{corollary}{Corollary} % default theorem style ("plain")
+\newtheorem{proposition}[corollary]{Proposition} % use joint numbering with corollaries
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}
+\newtheorem{definition}[corollary]{Definition}
 
 \newcommand{\stirling}[2]{\genfrac\{\}{0pt}{}{#1}{#2}} % used for Stirling numbers of the second kind
 
@@ -1899,7 +1899,7 @@ Finally, note that choosing between the summed-quality objective (cf.~Equation~\
 While the previous assumptions like $k \ll n,~k \in O(1),~a \ll n,~a \in O(1)$ make alternative feature selection polynomial, the general optimization problem without these assumptions can still be hard.
 In the following, we relate alternative feature selection to classical $\mathcal{NP}$-hard problems.
 
-\paragraph{Integer Linear Programming}
+\paragraph{Integer linear programming}
 
 As analyzed in Section~\ref{sec:afs:approach:objectives:white-box}, several feature-selection methods allow to formulate alternative feature selection as a 0-1 integer linear program.
 In particular, the constraints for being alternative are integer linear expressions or can be linearized.
@@ -1913,7 +1913,10 @@ A special case of alternative feature selection results from permitting zero ove
 Thus, simultaneous search, which we analyze in the following, partitions the features into $a+1$ `actual' feature sets and potentially a $a+2$-th set containing all remaining features, which we call the \emph{dummy feature set}.
 If the latter exists, we speak of a \emph{incomplete partitioning}, else a \emph{complete partitioning}.
 In case all feature sets have size~$k$, a complete partitioning implies that~$n = (a+1) \cdot k$.
-Also, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
+Note that the latter setting explicitly violates the assumptions of Appendix~\ref{sec:afs:appendix:complexity:exhaustive}.
+Thus, subsequent NP-hardness results for this special case of alternative feature selection do not contradict prior results of polynomial runtime for another special case.
+
+Further, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
 This simplicity of this objective does not only make its evaluation cheap but also eases a transformation from and to known $\mathcal{NP}$-hard problems.
 
 \paragraph{Number partitioning}
@@ -1948,7 +1951,8 @@ We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in
 \paragraph{Minimum-quality objective with unconstrained feature-set size}
 
 The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
-In particular, it resembles the \textsc{Multi-Way Number Partitioning} problem, which is about partitioning a multiset of $n$~numbers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
+In particular, this objective causes alternative feature selection with a complete partitioning of features to resemble the \textsc{Multi-Way Number Partitioning} problem.
+The latter is about partitioning a multiset of $n$~numbers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
 Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective, lawrinenko2017identical}.
 The most prominent problem formulation minimizes the maximum sum of all subsets~\cite{lawrinenko2018reduction, walter2017improved}.
 Following~\cite{garey2003computers}, we use the term \textsc{Multiprocessor Scheduling} for this problem.
@@ -2011,6 +2015,18 @@ As another problem formulation, \cite{chen20023partitioning, he2003kappa, lawrin
 This objective in combination with cardinality constraints was rarely addressed in literature~\cite{lawrinenko2018reduction}.
 Not that all the mentioned references use $\leq k$ constraints instead of $= k$ as in our experiments.
 Again, problem is NP-hard in the strong sense~\cite{he2003kappa, lawrinenko2018reduction} and \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} propose approximation algorithms, partly with quality guarantees.
+
+\paragraph{Multiple knapsack}
+
+The \textsc{Multiple Knapsack} problem~\cite{chekuri2005polynomial} involves elements with individual weights and profits as well as knapsacks, i.e., sets, with individual capacities.
+The goal is to assign elements to knapsacks such that the summed profits of the selected elements is maximal.
+Each element can at most be assigned to one knapsack and the weights of all elements in the knapsack must not violate the capacity of the latter.
+Simultaneous search with summed-quality objective, $\tau=1$, and univariate feature qualities is a special case of \textsc{Multiple Knapsack}.
+The feature qualities act as profits and the feature-set sizes as capacities, while the weights of each feature are one.
+
+However, this problem is trivial to solve, as already stated in Proposition~\ref{prop:afs:complexity-partitioning-sum}.
+In particular, the uniform weights allow an arbitrary distribution of the features with highest quality to the feature sets.
+In contrast, \textsc{Multiple Knapsack} in general is strongly $\mathcal{NP}$-complete, though it exhibits a polynomial-time approximation scheme~\cite{chekuri2005polynomial}.
 
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
