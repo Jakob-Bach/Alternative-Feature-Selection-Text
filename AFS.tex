@@ -1903,7 +1903,8 @@ In the following, we relate alternative feature selection to classical $\mathcal
 
 As analyzed in Section~\ref{sec:afs:approach:objectives:white-box}, several feature-selection methods allow to formulate alternative feature selection as a 0-1 integer linear program.
 In particular, the constraints for being alternative are integer linear expressions or can be linearized.
-\textsc{Integer programming} in general is an $\mathcal{NP}$-complete problem, even for binary variables~\cite{garey2003computers, karp1972reducibility}.
+The same goes for the minimum-quality and the summed-quality objective (cf. Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation}).
+\textsc{Integer programming} in general is an $\mathcal{NP}$-complete problem, even for binary decision variables like we have~\cite{garey2003computers, karp1972reducibility}.
 Thus, alternative feature selection with a suitable white-box objective cannot be harder than $\mathcal{NP}$.
 However, it only uses special types of constraints, alternative feature selection could still be easier than $\mathcal{NP}$.
 
@@ -1922,7 +1923,7 @@ This simplicity of this objective does not only make its evaluation cheap but al
 \paragraph{Number partitioning}
 
 There are several number-partitioning problems proven to be $\mathcal{NP}$-complete~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
-\textsc{Partition} asks if one can partition a set of elements with positive weights into two subsets with the same sum over their elements weights, while \textsc{3-Partition} demands a partitioning into subsets containing three elements whose weights all sum up to one particular pre-defined number.
+\textsc{Partition} asks if one can partition a set of elements with positive integer weights into two subsets with the same sum over their elements weights, while \textsc{3-Partition} demands a partitioning into subsets containing three elements whose positive integer weights all sum up to one particular pre-defined number.
 A key factor driving the hardness of partitioning is the shear number of possible partitionings.
 In particular, the number of ways to partition a set of $n$~elements into $a$~non-empty subsets is $\stirling{n}{a}$, a Stirling number of the second kind~\cite{graham1994concrete}.
 These numbers roughly scale like $a^n / a!$~\cite{moser1958stirling}, which is exponential in~$n$ given a fixed~$a$.
@@ -1952,11 +1953,10 @@ We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in
 
 The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
 In particular, this objective causes alternative feature selection with a complete partitioning of features to resemble the \textsc{Multi-Way Number Partitioning} problem.
-The latter is about partitioning a multiset of $n$~numbers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
+The latter is about partitioning a multiset of $n$~integers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
 Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective, lawrinenko2017identical}.
-The most prominent problem formulation minimizes the maximum sum of all subsets~\cite{lawrinenko2018reduction, walter2017improved}.
-Following~\cite{garey2003computers}, we use the term \textsc{Multiprocessor Scheduling} for this problem.
-Figuratively speaking, the goal is to assign given tasks of different lengths to a fixed number of processors such that the maximum summed runtime of any processor is minimal.
+The most prominent problem formulation, denoted as \textsc{Multiprocessor Scheduling} in~\cite{garey2003computers}, minimizes the maximum sum of all subsets~\cite{lawrinenko2018reduction, walter2017improved}.
+Figuratively speaking, the goal is to assign given tasks with positive integer lengths to a fixed number of processors such that the maximum summed runtime of any processor is minimal.
 This objective is equivalent to our objective if one multiplies all task lengths with -1, turning the minimax problem of \textsc{Multiprocessor Scheduling} into the maximin formulation we use for simultaneous search with the minimum-quality objective.
 The tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
 Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
@@ -1973,13 +1973,13 @@ Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-u
 \end{corollary}
 %
 For a fixed number of partitions, \textsc{Multiprocessor Scheduling} allows for pseudo-polynomial algorithms~\cite{garey2003computers}.
-Such algorithms run in polynomial time if the input numbers are bounded in their size, e.g., small integers.
-However, our feature qualities are real numbers in $[0,1]$ unless one scales and discretizes them.
+Such algorithms run in polynomial time if the input numbers are bounded to a certain size known in advance.
+Since our feature qualities typically are real numbers in $[0,1]$, one would need to scales and discretize them to make such an algorithm feasible.
 Also, for an arbitrary number of partitions, \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete in the strong sense, which means that no pseudo-polynomial algorithm can exist unless $\mathcal{P}=\mathcal{NP}$~\cite{garey2003computers}.
 
 However, this result does not exclude the existence of approximation routines that run in polynomial time and have a guaranteed quality relative to the optimal solution.
 For example, \cite{deuermeyer1982scheduling, woeginger1997polynomial}~present polynomial-time algorithms that have a quality guarantee relative to the optimal solution.
-Both these works target the maximin formulation of the \textsc{Multiprocessor Scheduling} objective, which corresponds to our minimum-quality objective.
+Both these works target a maximin formulation of the \textsc{Multi-Way Number Partitioning} objective, which corresponds to our minimum-quality objective.
 In particular, \cite{woeginger1997polynomial} describes a polynomial-time approximation scheme, which can provide a solution arbitrarily close to the optimum.
 However, the runtime depends on the desired approximation ratio and can grow exponential the more precision is desired.
 In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme, which would only polynomially depend on the precision of approximation~\cite{woeginger1997polynomial}.
@@ -2027,6 +2027,15 @@ The feature qualities act as profits and the feature-set sizes as capacities, wh
 However, this problem is trivial to solve, as already stated in Proposition~\ref{prop:afs:complexity-partitioning-sum}.
 In particular, the uniform weights allow an arbitrary distribution of the features with highest quality to the feature sets.
 In contrast, \textsc{Multiple Knapsack} in general is strongly $\mathcal{NP}$-complete, though it exhibits a polynomial-time approximation scheme~\cite{chekuri2005polynomial}.
+
+\paragraph{Bin covering}
+
+The \textsc{Bin Covering} problem~\cite{assmann1984dual} distributes elements with individual weights into bins such that the number of bins is maximal and the summed weights in each bin surpass certain limit.
+While this does not directly correspond to a special case of alternative feature selection, it is related to a certain extent.
+In particular, we could ask to maximize the number of alternative feature sets such that each feature set's qualities exceed a user-defined threshold.
+As before, this problem formulation assumes univariate qualities and zero overlap of feature sets, i.e., $\tau=1$.
+\cite{lawrinenko2017identical} noted such a connection between \textsc{Multi-Way Number Partitioning} and \textsc{Bin Covering}.
+This relationship can help develop better solution approaches for either problem~\cite{walter2017lower, walter2017improved}.
 
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
