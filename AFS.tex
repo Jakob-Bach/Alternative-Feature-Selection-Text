@@ -2037,6 +2037,25 @@ As before, this problem formulation assumes univariate qualities and zero overla
 \cite{lawrinenko2017identical} noted such a connection between \textsc{Multi-Way Number Partitioning} and \textsc{Bin Covering}.
 This relationship can help develop better solution approaches for either problem~\cite{walter2017lower, walter2017improved}.
 
+\subsubsection{Future Work}
+\label{sec:afs:appendix:complexity:future}
+
+Our analysis of $\mathcal{NP}$-hard problems in the previous section mainly focused on univariate feature qualities and zero overlap between feature sets, i.e., $\tau = 1$.
+While this problem structure resembles many classical $\mathcal{NP}$-hard problems, it only is a special case of alternative feature selection.
+Thus, future work could investigate the case $0 < \tau < 1$, i.e., allowing a limited overlap of feature sets.
+In general, such a scenario increases the number of valid feature sets in the optimization problem compared to~$\tau = 1$.
+Further, using other feature-selection methods than univariate filters makes the objective function more complex.
+Additionally, Propositions~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} and~\ref{prop:afs:complexity-partitioning-min-constrained-k} required all features to be part of exactly one feature set, which is another restriction that might not reflect real-world use case.
+In particular, if the feature-set sizes and number of alternatives both are small, it is likely that one obtains an incomplete partitioning, i.e., not all feature are selected.
+
+If one wants to further analyze alternative feature selection, several questions spring to mind.
+As a first step, one could establish either $\mathcal{NP}$-hardness or the existence of algorithms with polynomial runtime for certain problem instances.
+In the former case, it is interesting to know whether there are at least pseudo-polynomial exact approaches or (fully) polynomial-time approximation scheme.
+Additionally, we only focused on the quality-based optimization problem of alternative feature selection until now.
+Another interesting questions how is how many alternatives, regardless of their quality, can be defined for a given $n$, $k$, and $\tau$.
+Also, knowing the number of alternatives, it would be interesting to have an exact or approximate estimate for the number of valid solutions, i.e., sets of feature sets.
+While this estimate is straightforward for $\tau = 1$, it is less clear for arbitrary~$\tau$.
+
 \subsection{Finding Alternatives for Univariate Feature Qualities}
 \label{sec:afs:appendix:univariate-search-algorithm}
 
