@@ -1837,7 +1837,7 @@ We discuss the problem with a univariate objective (cf.~Equation~\ref{eq:afs:uni
 The arguably simplest search strategy is an exhaustive search over the complete search space.
 Such a procedure provides an upper bound for the time complexity of a runtime-optimal search algorithm.
 Thus, we analyze exhaustive search in the following.
-In this section, we assume unit costs for elementary arithmetic operations like addition, multiplication, and comparison.
+In this section, we assume unit costs for elementary arithmetic operations like addition, multiplication, and comparison of two numbers.
 
 \paragraph{Traditional feature selection}
 
@@ -1871,7 +1871,7 @@ Combining this effort with exhaustive search over size-$k$ feature sets, we obta
 	\label{prop:afs:complexity-exhaustive-sequential}
 \end{proposition}
 %
-Thus, the runtime remains polynomial under the given assumptions and belongs to the parameterized complexity class~$\mathcal{XP}$ in general.
+Thus, the runtime remains polynomial under the given assumptions and belongs to the parameterized complexity class~$\mathcal{XP}$ in general, considering~$k$ as parameter.
 In case we only store feature sets of size~$k$ instead of the complete selection vectors of size~$n$, we can reduce effort for constraint checking and obtain an overall time complexity of~$O(a^2 \cdot n^k)$ under the stated assumptions, thereby removing a factor of magnitude~$O(n)$.
 
 \paragraph{Simultaneous search}
@@ -1906,29 +1906,30 @@ In particular, the constraints for being alternative are integer linear expressi
 The same goes for the minimum-quality and the summed-quality objective (cf. Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation}).
 \textsc{Integer programming} in general is an $\mathcal{NP}$-complete problem, even for binary decision variables like we have~\cite{garey2003computers, karp1972reducibility}.
 Thus, alternative feature selection with a suitable white-box objective cannot be harder than $\mathcal{NP}$.
-However, it only uses special types of constraints, alternative feature selection could still be easier than $\mathcal{NP}$.
+However, since alternative feature selection only uses special types of constraints instead of expressing arbitrary integer linear problems, it could still be easier than $\mathcal{NP}$.
 
-\paragraph{Further assumptions}
+\paragraph{Further assumptions for this section}
 
 A special case of alternative feature selection results from permitting zero overlap of feature sets, i.e., a dissimilarity threshold of~$\tau = 1$.
 Thus, simultaneous search, which we analyze in the following, partitions the features into $a+1$ `actual' feature sets and potentially a $a+2$-th set containing all remaining features, which we call the \emph{dummy feature set}.
 If the latter exists, we speak of a \emph{incomplete partitioning}, else a \emph{complete partitioning}.
 In case all feature sets have size~$k$, a complete partitioning implies that~$n = (a+1) \cdot k$.
-Note that the latter setting explicitly violates the assumptions of Appendix~\ref{sec:afs:appendix:complexity:exhaustive}.
-Thus, subsequent NP-hardness results for this special case of alternative feature selection do not contradict prior results of polynomial runtime for another special case.
+Note that the latter setting explicitly violates the assumptions of the previous section (cf.~Appendix~\ref{sec:afs:appendix:complexity:exhaustive}).
+Thus, subsequent $\mathcal{NP}$-hardness results for the special case of alternative feature selection analyzed here do not contradict prior results of polynomial runtime for other special cases.
 
-Further, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
-This simplicity of this objective does not only make its evaluation cheap but also eases a transformation from and to known $\mathcal{NP}$-hard problems.
+Besides~$\tau = 1$, we assume univariate feature qualities as in Equation~\ref{eq:afs:univariate-filter} and Appendix~\ref{sec:afs:appendix:complete-optimization-problem}, i.e., a feature set's quality equals the sum of its constituent features' qualities.
+This simplicity of this objective does not only make its evaluation cheap but also eases a transformation from and to well-known $\mathcal{NP}$-hard problems with comparably straightforward objectives.
 
 \paragraph{Number partitioning}
 
-There are several number-partitioning problems proven to be $\mathcal{NP}$-complete~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
+There are several $\mathcal{NP}$-complete problems that involve partitioning a set of elements into non-overlapping subsets~\cite{garey2003computers}, e.g., \textsc{Partition}~\cite{karp1972reducibility} and \textsc{3-Partition}~\cite{garey2003computers}.
 \textsc{Partition} asks if one can partition a set of elements with positive integer weights into two subsets with the same sum over their elements weights, while \textsc{3-Partition} demands a partitioning into subsets containing three elements whose positive integer weights all sum up to one particular pre-defined number.
-A key factor driving the hardness of partitioning is the shear number of possible partitionings.
+
+A key factor driving the hardness of partitioning problems is the shear number of possible partitionings.
 In particular, the number of ways to partition a set of $n$~elements into $a$~non-empty subsets is $\stirling{n}{a}$, a Stirling number of the second kind~\cite{graham1994concrete}.
 These numbers roughly scale like $a^n / a!$~\cite{moser1958stirling}, which is exponential in~$n$ given a fixed~$a$.
 
-\paragraph{Summed-quality objective}
+\paragraph{Number partitioning -- Summed-quality objective}
 
 Unlike \textsc{Partition} and \textsc{3-Partition}, we do not require alternative feature sets to have exactly the same quality.
 For the summed-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-sum-objective}, we do not have any requirement on balancing the feature sets' qualities, which makes the problem easy for univariate feature qualities and~$\tau = 1$.
@@ -1949,16 +1950,16 @@ The following proposition sums up our results:
 %
 We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in the previous definition since the latter holds in any case, even if feature sets differ in their size.
 
-\paragraph{Minimum-quality objective with unconstrained feature-set size}
+\paragraph{Number partitioning -- Minimum-quality objective with unconstrained feature-set size}
 
 The minimum-quality objective according to Equation~\ref{eq:afs:afs-simultaneous-min-objective} poses a considerably larger challenge.
 In particular, this objective causes alternative feature selection with a complete partitioning of features to resemble the \textsc{Multi-Way Number Partitioning} problem.
 The latter is about partitioning a multiset of $n$~integers into $a$~subsets such that the sums of all subsets are as equal as possible~\cite{korf2010objective}.
 Different objectives formalize the latter notion and can lead to different results~\cite{korf2010objective, lawrinenko2017identical}.
 The most prominent problem formulation, denoted as \textsc{Multiprocessor Scheduling} in~\cite{garey2003computers}, minimizes the maximum sum of all subsets~\cite{lawrinenko2018reduction, walter2017improved}.
-Figuratively speaking, the goal is to assign given tasks with positive integer lengths to a fixed number of processors such that the maximum summed runtime of any processor is minimal.
+Figuratively speaking, the goal is to assign given tasks with positive integer lengths to a fixed number of processors such that the maximum over the summed runtime of all processors is minimal.
 This objective is equivalent to our objective if one multiplies all task lengths with -1, turning the minimax problem of \textsc{Multiprocessor Scheduling} into the maximin formulation we use for simultaneous search with the minimum-quality objective.
-The tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
+Thereby, the tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
 Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and unconstrained feature-set size]
@@ -1966,27 +1967,28 @@ Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for ju
 	\label{prop:afs:complexity-partitioning-min-unconstrained-k}
 \end{proposition}
 %
-Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} denote a special case of alternative feature selection, we directly obtain the following general corollary:
+Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} denote a special case of alternative feature selection, we directly obtain the following, more general corollary:
 %
 \begin{corollary}[Complexity of simultaneous search with minimum-quality objective]
 	Simultaneous search for alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-hard.
 \end{corollary}
 %
-For a fixed number of partitions, \textsc{Multiprocessor Scheduling} allows for pseudo-polynomial algorithms~\cite{garey2003computers}.
+There are several exact algorithms for \textsc{Multi-Way Number Partitioning}, e.g., using branch-and-bound approaches, that might have exponential runtime~\cite{haouari2008maximizing, schreiber2018optimal, walter2017improved}.
+However, for a fixed number of partitions, the problem is only $\mathcal{NP}$-complete in the weak sense since it admits pseudo-polynomial algorithms~\cite{garey2003computers, korf2009multi}.
 Such algorithms run in polynomial time if the input numbers are bounded to a certain size known in advance.
-Since our feature qualities typically are real numbers in $[0,1]$, one would need to scales and discretize them to make such an algorithm feasible.
-Also, for an arbitrary number of partitions, \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete in the strong sense, which means that no pseudo-polynomial algorithm can exist unless $\mathcal{P}=\mathcal{NP}$~\cite{garey2003computers}.
+Since our feature qualities typically are real numbers in $[0,1]$, one would need to scale and discretize them to make such an algorithm feasible.
+Also, for an arbitrary number of partitions, the problem is $\mathcal{NP}$-complete in the strong sense, which means that no pseudo-polynomial algorithm can exist unless $\mathcal{P}=\mathcal{NP}$~\cite{garey2003computers}.
 
-However, this result does not exclude the existence of approximation routines that run in polynomial time and have a guaranteed quality relative to the optimal solution.
-For example, \cite{deuermeyer1982scheduling, woeginger1997polynomial}~present polynomial-time algorithms that have a quality guarantee relative to the optimal solution.
-Both these works target a maximin formulation of the \textsc{Multi-Way Number Partitioning} objective, which corresponds to our minimum-quality objective.
-In particular, \cite{woeginger1997polynomial} describes a polynomial-time approximation scheme, which can provide a solution arbitrarily close to the optimum.
+However, $\mathcal{NP}$-completeness does not exclude the existence of approximation routines that run in polynomial time and have a guaranteed quality relative to the optimal solution.
+For example, \cite{alon1998approximation, deuermeyer1982scheduling, woeginger1997polynomial}~present such polynomial-time algorithms for the maximin formulation of \textsc{Multi-Way Number Partitioning}, which corresponds to our minimum-quality objective.
+In particular, \cite{alon1998approximation, woeginger1997polynomial} describe polynomial-time approximation schemes (PTAS), which can provide a solution arbitrarily close to the optimum.
 However, the runtime depends on the desired approximation ratio and can grow exponential the more precision is desired.
-In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme, which would only polynomially depend on the precision of approximation~\cite{woeginger1997polynomial}.
-Besides approximation algorithms, there are also polynomial-time exact algorithms assuming certain parameters of the problem to be fixed~\cite{mnich2018parameterized}.
-Further, there are exact algorithms, e.g., based on a branch-and-bound approach, that do not provide a runtime guarantee~\cite{haouari2008maximizing, schreiber2018optimal, walter2017improved}.
+In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme (FPTAS), which would only polynomially depend on the precision of approximation~\cite{alon1998approximation, woeginger1997polynomial}.
+However, a FPTAS does exist for each fixed number of partitions~\cite{sahni1976algorithms}.
+Further, besides approximation algorithms, the problem also has polynomial-time exact algorithms assuming certain parameters of the problem to be fixed, e.g., the number of distinct numbers to be partitioned, i.e., feature qualities, or the maximum number, i.e., feature quality~\cite{mnich2018parameterized}.
+Thus, the problem is fixed-parameter tractable ($\mathcal{FPT}$) for an appropriate definition of `parameter'.
 
-\paragraph{Minimum-quality objective with constrained feature-set size}
+\paragraph{Number partitioning -- Minimum-quality objective with constrained feature-set size}
 
 Note that the previous discussion considered feature sets of arbitrary sizes.
 However, feature selection in general, and our paper in particular, typically work with a fixed feature-set size~$k$.
@@ -1994,7 +1996,7 @@ There are corresponding number-partitioning problems for this setting as well, e
 The problems formulations differ in their objective and cardinality constraints.
 E.g., \cite{babel1998thek, michiels2012computer, zhang2011heuristic} require partitions of identical size but employ a minimax rather than a maximin objective.
 However, as for the unconstrained case, we can multiply all numbers with -1 and thereby obtain a problem instance with our minimum-quality objective.
-Based on the NP-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time to check a solution, we obtain the following proposition:
+Based on the $\mathcal{NP}$-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time to check a solution, we obtain the following proposition:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and constrained feature-set size]
 	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and all $n$~feature have to be selected, simultaneous search for $n/k$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
@@ -2003,18 +2005,18 @@ Based on the NP-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the
 %
 For the minimax objective, \cite{babel1998thek, michiels2012computer, zhang2011heuristic} propose heuristic algorithms, some of them with guaranteed approximation ratios.
 \cite{babel1998thek} also provides a bound of the optimal objective value with cardinality constraints relative to the unconstrained case.
-Further, is a polynomial-time approximation scheme for each fixed partition size~$k$~\cite{michiels2012computer}.
-Finally, the problem exhibits a polynomial-time exact algorithm for the special case $k=2$~\cite{dellamico2004heuristic, dellamico2001bounds} and a fully polynomial-time approximation scheme for $k=n/2$~\cite{woeginger2005comment}.
+Further, there is a polynomial-time approximation scheme (PTAS) for each fixed partition size~$k$~\cite{michiels2012computer}.
+Finally, the problem exhibits a polynomial-time exact algorithm for the special case $k=2$~\cite{dellamico2004heuristic, dellamico2001bounds} and a fully polynomial-time approximation scheme (FPTAS) for $k=n/2$~\cite{woeginger2005comment}.
 
 One can also loosen the cardinality constraints by using upper bounds instead of strict equalities, i.e., requiring $\leq k$ instead of $= k$.
 Further, the prescribed cardinality might vary between partitions instead of being the same~$k$ for all of them.
-This generalized problem is NP-hard in the strong sense but has heuristics running in polynomial time~\cite{kellerer2011a32approximation}.
-In particular, \cite{chen2016efficient} provides an efficient polynomial-time approximation scheme.
+This generalized problem is $\mathcal{NP}$-hard in the strong sense but has heuristics running in polynomial time~\cite{kellerer2011a32approximation}.
+In particular, \cite{chen2016efficient} provides an efficient polynomial-time approximation scheme (EPTAS).
 
 As another problem formulation, \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} use a maximin objective like we do.
 This objective in combination with cardinality constraints was rarely addressed in literature~\cite{lawrinenko2018reduction}.
-Not that all the mentioned references use $\leq k$ constraints instead of $= k$ as in our experiments.
-Again, problem is NP-hard in the strong sense~\cite{he2003kappa, lawrinenko2018reduction} and \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} propose approximation algorithms, partly with quality guarantees.
+Note that all the three mentioned references use $\leq k$ constraints instead of $= k$ as in our experiments.
+Again, this problem is $\mathcal{NP}$-hard in the strong sense~\cite{he2003kappa, lawrinenko2018reduction}, but \cite{chen20023partitioning, he2003kappa, lawrinenko2018reduction} propose approximation algorithms, partly with quality guarantees.
 
 \paragraph{Multiple knapsack}
 
@@ -2040,19 +2042,27 @@ This relationship can help develop better solution approaches for either problem
 \subsubsection{Future Work}
 \label{sec:afs:appendix:complexity:future}
 
+\paragraph{Configuration of alternative feature selection}
+
 Our analysis of $\mathcal{NP}$-hard problems in the previous section mainly focused on univariate feature qualities and zero overlap between feature sets, i.e., $\tau = 1$.
 While this problem structure resembles many classical $\mathcal{NP}$-hard problems, it only is a special case of alternative feature selection.
 Thus, future work could investigate the case $0 < \tau < 1$, i.e., allowing a limited overlap of feature sets.
 In general, such a scenario increases the number of valid feature sets in the optimization problem compared to~$\tau = 1$.
 Further, using other feature-selection methods than univariate filters makes the objective function more complex.
-Additionally, Propositions~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} and~\ref{prop:afs:complexity-partitioning-min-constrained-k} required all features to be part of exactly one feature set, which is another restriction that might not reflect real-world use case.
+Additionally, Propositions~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} and~\ref{prop:afs:complexity-partitioning-min-constrained-k} required all features to be part of exactly one feature set, i.e., choosing the combination of~$a$ and~$k$ to match~$n$, which is another restriction that might not reflect real-world use cases.
 In particular, if the feature-set sizes and number of alternatives both are small, it is likely that one obtains an incomplete partitioning, i.e., not all feature are selected.
 
-If one wants to further analyze alternative feature selection, several questions spring to mind.
+\paragraph{Complexity classes}
+
+For analyzing the previously discussed configurations of alternative feature selection, several questions spring to mind.
 As a first step, one could establish either $\mathcal{NP}$-hardness or the existence of algorithms with polynomial runtime for certain problem instances.
 In the former case, it is interesting to know whether there are at least pseudo-polynomial exact approaches or (fully) polynomial-time approximation scheme.
-Additionally, we only focused on the quality-based optimization problem of alternative feature selection until now.
-Another interesting questions how is how many alternatives, regardless of their quality, can be defined for a given $n$, $k$, and $\tau$.
+Further, while we placed alternative feature selection in the broad parameterized complexity class~$\mathcal{XP}$, one might proof membership in a more specific parameterized complexity class.
+
+\paragraph{Related problem formulations}
+
+We only focused on the quality-based optimization problem of alternative feature selection until now.
+Another interesting question is how many alternatives, regardless of their quality, can be found for a given $n$, $k$, and $\tau$.
 Also, knowing the number of alternatives, it would be interesting to have an exact or approximate estimate for the number of valid solutions, i.e., sets of feature sets.
 While this estimate is straightforward for $\tau = 1$, it is less clear for arbitrary~$\tau$.
 
