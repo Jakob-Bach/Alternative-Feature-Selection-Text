@@ -1852,8 +1852,9 @@ Thus, even an exhaustive search for the optimal feature set only has polynomial 
 In terms of parametrized complexity, the problem resides in class~$\mathcal{XP}$ since the runtime term has the form $O(f(k) \cdot n^{g(k)})$~\cite{downey1997parameterized}, here with parameter~$k$ and functions $f(k) = 1$, $g(k) = k$.
 
 Note that we have excluded the effort for computing the quality of each feature set, i.e., evaluating the objective function, within the search yet.
-This effort depends on the feature-selection methods but should usually be polynomial in~$n$ as well.
-E.g., for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}), this effort is in $O(n)$ or even $O(k)$, depending on the data structures storing the feature sets and feature qualities.
+This effort depends on the feature-selection method but should usually be polynomial in~$n$ as well.
+Even better, since feature-set quality typically only depends on selected features rather than unselected ones, the effort might be polynomial in~$k \ll n$.
+E.g., the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}) has an effort in $O(n)$ or even $O(k)$ since it only sums up the individual features' qualities.
 
 \paragraph{Sequential search}
 
@@ -1894,7 +1895,7 @@ Iterating over values of the latter would increase the search space even further
 Finally, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
 
 \subsubsection{Relationship to \texorpdfstring{$\mathcal{NP}$}{NP}-Hard Problems}
-\label{sec:afs:appendix:complexity:np}
+\label{sec:afs:appendix:complexity:np-problems}
 
 While the previous assumptions like $k \ll n,~k \in O(1),~a \ll n,~a \in O(1)$ make alternative feature selection polynomial, the general optimization problem without these assumptions can still be hard.
 In the following, we relate alternative feature selection to classical $\mathcal{NP}$-hard problems.
@@ -1962,8 +1963,8 @@ This objective is equivalent to our objective if one multiplies all task lengths
 Thereby, the tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
 Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
 %
-\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and unconstrained feature-set size]
-	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~feature have to be selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, complete partitioning, and unconstrained feature-set size]
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~features have to be selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-partitioning-min-unconstrained-k}
 \end{proposition}
 %
@@ -1998,8 +1999,8 @@ E.g., \cite{babel1998thek, michiels2012computer, zhang2011heuristic} require par
 However, as for the unconstrained case, we can multiply all numbers with -1 and thereby obtain a problem instance with our minimum-quality objective.
 Based on the $\mathcal{NP}$-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time to check a solution, we obtain the following proposition:
 %
-\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, and constrained feature-set size]
-	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and all $n$~feature have to be selected, simultaneous search for $n/k$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, complete partitioning, and constrained feature-set size]
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and all $n$~features have to be selected, simultaneous search for $n/k$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-partitioning-min-constrained-k}
 \end{proposition}
 %
@@ -2038,6 +2039,86 @@ In particular, we could ask to maximize the number of alternative feature sets s
 As before, this problem formulation assumes univariate qualities and zero overlap of feature sets, i.e., $\tau=1$.
 \cite{lawrinenko2017identical} noted such a connection between \textsc{Multi-Way Number Partitioning} and \textsc{Bin Covering}.
 This relationship can help develop better solution approaches for either problem~\cite{walter2017lower, walter2017improved}.
+
+\subsubsection{Further \texorpdfstring{$\mathcal{NP}$}{NP}-Hardness Results}
+\label{sec:afs:appendix:complexity:further-np-results}
+
+Propositions~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} and~\ref{prop:afs:complexity-partitioning-min-constrained-k} established $\mathcal{NP}$-completeness for problem instances requiring a complete partitioning of features.
+The latter entails two assumptions, i.e., zero overlap between feature sets and each feature being selected exactly once.
+Thereby, the choice of the key user-defined parameters for alternative selection, i.e.,~$a$, $k$, and~$\tau$, is severely limited.
+While this particular problem structure resembles several well-known $\mathcal{NP}$-hard problems, it only is a special case of alternative feature selection and might not reflect many real-world scenarios.
+In this section, we will show $\mathcal{NP}$-hardness for problem instances where these two assumptions do not hold.
+We keep the focus on univariate feature qualities and the minimum-quality objective.
+
+\paragraph{Incomplete partitioning}
+
+A complete-partitioning scenario ties two parameters of alternative feature selection, i.e., the feature-set size~$k$ and number of alternatives~$a$, to the total number of features~$n$ by the equation~$n = (a+1) \cdot k$.
+However, in practice, one might set these parameters such that some features are not part of any feature set.
+In the following, we will show that finding such an incomplete partitioning is $\mathcal{NP}$-complete in general.
+
+Let us assume we have an arbitrary problem instance~$I$ of the complete-partitioning problem with $\tau=1$, i.e., zero overlap of feature sets.
+Further, let the feature-set size~$k$ be fixed.
+If we add one further feature~$f'$ to this problem instance and keep $a$ and $k$ as before, we obtain an instance~$I'$ of the incomplete-partitioning problem since one feature will not be selected.
+We choose the quality~$q'$ of~$f'$ such that it is lower than the quality of all existing features in~$I$.
+Given the monotonicity of the minimum-quality objective, adding feature~$f'$ to a feature set in the solution of~$I'$ does not have any benefit since~$f'$ would replace a feature with higher quality.
+If~$f'$ is not selected, then this solutions of~$I'$ also solves~$I$.
+However, if the qualities of the resulting alternative feature sets are not equal, $f'$ might still be chosen in a feature set that does not have the minimum quality of all feature sets since only the latter determines the overall objective value.
+In that case, we can simply replace $f'$ with the feature that was not selected instead; the objective value remains the same and the solution becomes valid for~$I$.
+Thus, in any case, we can easily transform a solution for~$I'$ to a solution for~$I$.
+
+The previous argument shows that an algorithm for incomplete-partitioning problem instances can also solve arbitrary complete-partitioning problem instances with negligible computational overheard.
+Thus, if a polynomial-time algorithm for incomplete partitioning existed, it could also solve complete partitioning in polynomial time.
+However, we know the latter problem type to be $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
+As a consequence, incomplete partitioning has to be $\mathcal{NP}$-hard.
+Since checking a solution is not costlier than for complete partitioning, we obtain membership in $\mathcal{NP}$ and thereby $\mathcal{NP}$-completeness.
+
+To sum this up, we formulate the following proposition:
+%
+\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, incomplete partitioning, and constrained feature-set size]
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and \emph{not} all $n$~features have to be selected, simultaneous search for $a + 1$~alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+	\label{prop:afs:complexity-incomplete-partitioning-min-constrained-k}
+\end{proposition}
+
+\paragraph{Overlapping feature sets}
+
+Partitioning scenarios prevent overlap of feature sets by fixing the parameter~$\tau = 1$.
+In the following, we will show that allowing $0 < \tau < 1$ also results in an $\mathcal{NP}$-hard problem in general.
+We do not consider $\tau = 0$ since such problem instances have the same time complexity as the underlying feature-selection problem without alternatives.
+
+Again, let us assume we have an arbitrary problem instance~$I$ of the complete-partitioning problem with $\tau=1$.
+Further, let the feature-set size~$k$ be fixed.
+As before, define a new problem instance~$I'$ by adding a new feature~$f'$.
+However, this time we increase the desired feature-set size to $k' = k + 1$.
+Further, we set $\tau' = (k' - 1) / k'$, thereby allowing an overlap of at most one feature between feature sets.
+Also, we choose~$f'$ to have a considerably higher feature-set quality than all other features.
+The goal is to force the selection of~$f'$ since any selection not involving it would be worse.
+One possible choice is setting $q' = \sum_{j=1}^n q_j + \varepsilon$, with $\varepsilon \in \mathbb{R}_{\geq 0}$ being a small positive number, or, if the qualities are integers, $\varepsilon = 1$.
+Hence, the quality of~$f'$ is higher than the quality of selecting all original features from~$I$.
+If we now obtain a solution for~$I'$, it contains~$f'$ in each feature set while the remaining features do not overlap.
+Thus, we can remove~$f'$ to get feature sets of size~$k$ that constitute an optimal solution of the original problem~$I$.
+
+This transformation shows how problem instances with $\tau < 1$ can help solve arbitrary problem instances with $\tau = 1$.
+Given the $\mathcal{NP}$-completeness of the latter, we obtain $\mathcal{NP}$-hardness of the former:
+%
+\begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau < 1$, and constrained feature-set size]
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau < 1$, and desired feature-set size~$k$, simultaneous search for $a + 1$~alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-hard.
+	\label{prop:afs:complexity-no-partitioning-min-constrained-k}
+\end{proposition}
+
+Note that adding the proposed~$f'$ with a high quality~$q'$ clearly enlarges the size of the problem instance.
+However, the proposed transformation from $I$ to $I'$ is still possible in polynomial time and increases the problem size by at most a fixed factor.
+In particular, the encoding of a problem instance involves $n$~feature qualities as well as the values of $a$, $k$, $\tau$.
+Let us assume the feature qualities in $I$ have an average encoding size of $c \in \mathbb{R}$, so the overall encoding size is $c \cdot n + O(1)$.
+As the new feature~$f'$ corresponds to the sum of all feature qualities plus a small~$\epsilon$, its encoding size is upper-bounded by $c \cdot n$ if we disregard~$\epsilon$.
+In consequence, the instance size of~$I'$ is at most roughly double the size of~$I$.
+
+The above construction can be extended to all other $\tau > 0$.
+In particular, for a fixed feature set-size~$k$, there is only a finite number of $\tau$ values leading to different overlaps of feature sets.
+These thresholds are $\tau = \{1/k, \dots, (k - 1) / k\}$.
+The highest overlap, without allowing identical feature sets, requires creating an instance $I'$ with $\tau'= 1/k$ from an instance with $\tau = 1$.
+For this purpose, $k^2 - k$ features need to be added since $\tau' = k / k' = k / (k + k^2 -k) = 1/k$.
+I.e., in that case, $k$ out of $k' = k^2$ features need to form a complete partitioning, while the remaining $k^2 - k$~features occur in each feature set and will be removed after solving~$I'$.
+Note that the maximal number of features to be added is polynomial in~$k$ and thereby also polynomial in~$n$.
 
 \subsubsection{Future Work}
 \label{sec:afs:appendix:complexity:future}
@@ -2155,10 +2236,10 @@ Simultaneous search with the minimum-quality objective from Equation~\ref{eq:afs
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:afs:evaluation} consistently use a solver.
 
-\subsection{Objectives for Multivariate Filter Feature Selection}
+\subsection{Further Objectives for Multivariate Filter Methods}
 \label{sec:afs:appendix:multivariate-filter-objectives}
 
-While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF and mRMR, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation} and Relief~\cite{kira1992feature, robnik1997adaptation} here.
+While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF and mRMR as multivariate filter feature-selection methods, we discuss the objective functions for CFS~\cite{hall1999correlation, hall2000correlation} and Relief~\cite{kira1992feature, robnik1997adaptation} here.
 
 \paragraph{CFS}
 
