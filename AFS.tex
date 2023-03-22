@@ -1772,6 +1772,8 @@ However, such constraint-based approaches introduce one or several parameters bo
 Third, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
 One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
 In both cases, the user might need to define an acceptable trade-off between the two objectives.
+It currently is an open question if always one solution exists that is optimal for both objectives simultaneously.
+If yes, then optimizing a weighted combination of the two objectives would also optimize each of the two objectives on its own, assuming positive weights for each objective, e.g., equal weighting.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
@@ -1917,6 +1919,8 @@ The same goes for the minimum-quality and the summed-quality objective (cf.~Sect
 \textsc{Integer programming} is an $\mathcal{NP}$-complete problem in general, even for binary decision variables like we have~\cite{garey2003computers, karp1972reducibility}.
 Thus, alternative feature selection with a suitable white-box objective cannot be harder than $\mathcal{NP}$.
 However, since alternative feature selection only uses special types of constraints instead of expressing arbitrary integer linear problems, it could still be easier.
+Further, note that the membership in $\mathcal{NP}$ bases on the full encoding of the optimization problem, e.g., storing each constraint separately.
+If we considered only the number of features~$n$ as problem size, the problem might become harder than $\mathcal{NP}$, e.g., for a high number of alternatives.
 
 \paragraph{Leveraging monotonicity}
 
@@ -1926,9 +1930,15 @@ Further, given a fixed feature-set size, replacing one feature with another feat
 When aggregating over feature sets in simultaneous search, the summed-quality objective and the minimum-quality-objective (cf.~Equations~\ref{eq:afs:afs-simultaneous-sum-objective} and~\ref{eq:afs:afs-simultaneous-min-objective}) are monotonic as well.
 
 These observations allow speeding up alternative feature selection with univariate qualities.
-In particular, assuming $(a + 1) \cdot k < n$, it is sufficient to use the $(a + 1) \cdot k$ highest feature qualities instead of all features when searching for $a + 1$ feature sets.
-Due to monotonicity, the remaining feature qualities are irrelevant and might be dropped in a preprocessing step since they cannot improve the objective.
-Assuming sufficiently small, constant $a$ and $k$ again, i.e., $a \cdot k \in O(1)$, the number of relevant feature-set qualities and thereby the pure search effort becomes independent from~$n$, which is even better than the polynomial runtime for general objectives under that assumption (cf.~Section~\ref{sec:afs:appendix:complexity:exhaustive}).
+In particular, assuming $(a + 1) \cdot k < n$, it is sufficient to use the $(a + 1) \cdot k$ highest feature qualities when searching for an optimal solution out of $a + 1$ feature sets.
+Due to monotonicity, the remaining feature qualities cannot improve the objective.
+Thus, one can drop the remaining feature qualities in a pre-selection step before the actual search.
+Note that there might be further optimal solutions, i.e., with same objective value, using the dropped features.
+For example, such solutions can arise in case of multiple identical qualities or for the minimum-quality objective.
+Still, if one only wants to find one optimal solution, working with the top $(a + 1) \cdot k$ features is sufficient.
+The solution itself might not use all of these top features, i.e., the proposed pre-selection is an over-approximation in that regard.
+
+Assuming sufficiently small, constant $a$ and $k$ again, i.e., $a \cdot k \in O(1)$, the pre-selection causes the number of relevant feature-set qualities and thereby the pure search effort to become independent from~$n$, which is even better than the polynomial runtime for general objectives under that assumption (cf.~Section~\ref{sec:afs:appendix:complexity:exhaustive}).
 However, one needs to determine the highest feature qualities first.
 To that end, one can either sort all qualities in~$O(n \cdot \log n)$ or iteratively determine the maximum quality in~$O((a+1) \cdot k \cdot n)$, which is $O(n)$ for small, constant~$a$ and~$k$.
 
@@ -2085,12 +2095,14 @@ Given the $\mathcal{NP}$-completeness of the latter problem and membership in $\
 	\label{prop:afs:complexity-no-partitioning-min-constrained-k}
 \end{proposition}
 
-Note that adding the proposed~$f'$ with a high quality~$q'$ enlarges the size of the problem instance considerably.
+Note that adding the proposed~$f'$ with a high quality~$q'$ enlarges the size of the problem instance to some extent.
 However, the proposed transformation from $I$ to $I'$ is still possible in polynomial time and increases the problem size by at most a fixed factor.
-In particular, the encoding of a problem instance involves $n$~feature qualities as well as the values of $a$, $k$, and $\tau$.
-Let us assume the feature qualities in $I$ have an average encoding size of $c \in \mathbb{R}$, so the overall encoding size is $c \cdot n + O(1)$.
+In particular, the encoding of a problem instance involves $n$~feature qualities as well as the constraints for alternatives and cardinality.
+Let us assume the feature qualities in $I$ have an average encoding size of $c \in \mathbb{R}$, so the overall encoding of the feature qualities has the size $c \cdot n$.
 As the new feature~$f'$ corresponds to the sum of all feature qualities plus a small~$\epsilon$, its encoding size is upper-bounded by $c \cdot n$ if we disregard~$\epsilon$.
-In consequence, the instance size of~$I'$ is at most roughly double the size of~$I$.
+Further, all constraints need to accommodate one new feature, independent of its feature quality.
+Thus, the encoding size of each constraint increases from $O(n)$ to $O(n+1)$.
+Overall, the encoding size of~$I'$ is at most roughly double the encoding size of~$I$.
 
 The reduction above does not only work for $\tau' = (k' - 1) / k'$ but can be extended to all other $\tau > 0$.
 In particular, for a fixed feature set-size~$k$, there is only a finite number of $\tau$ values leading to different overlaps of feature sets.
