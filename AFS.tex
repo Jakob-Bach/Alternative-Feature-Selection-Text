@@ -1772,7 +1772,7 @@ However, such constraint-based approaches introduce one or several parameters bo
 Third, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
 One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
 In both cases, the user might need to define an acceptable trade-off between the two objectives.
-It currently is an open question if always one solution exists that is optimal for both objectives simultaneously.
+It currently is an open question if always one solution exists that is jointly optimal for both objectives.
 If yes, then optimizing a weighted combination of the two objectives would also optimize each of the two objectives on its own, assuming positive weights for each objective, e.g., equal weighting.
 
 \subsection{Complete Specifications of the Optimization Problem}
@@ -1898,8 +1898,19 @@ The scalability with~$n$ is clearly worse than for sequential search since the n
 For parameterized complexity, the problem is again in class $\mathcal{XP}$ with the parameter~$a \cdot k$.
 Assuming~$a$ and~$k$ to be small and independent from~$n$, the time complexity is still polynomial in~$n$ but with a even worse exponent than in sequential search.
 
-Additionally, note that Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} assumes that constraint checking does not require linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}, which would increase the search space even further.
-Finally, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
+Additionally, Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} assumes that constraint checking does not require linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}, which would increase the search space even further.
+Further, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
+
+Finally, the complexity is lower for the special case~$0 < \tau \cdot k \leq 1$, i.e., if feature sets need to differ in only one feature.
+This implies that each feature set is alternative to each other feature set unless both sets are identical.
+Thus, each set of $a + 1$ feature sets constitutes a valid solution, with no further constraint checking necessary.
+Hence, instead of iterating over sets of feature sets, once can iterate over individual feature sets and maintain a buffer with the $a + 1$ feature sets with highest quality.
+For each feature set iterated over, one needs to determine if its quality is higher than the lowest feature-set quality in the buffer:
+If yes, replace the corresponding feature set in the buffer, if no, leave the buffer unchanged.
+After iterating, this buffer contains the jointly optimal solution for the minimum-quality objective and the summed-quality objective.
+This procedure has a runtime of $O((a + 1) \cdot n^k)$ without the effort for evaluating the objective function.
+I.e., unlike in Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos}, $a$ is not part of the exponent anymore and the effort corresponds to the search for one feature set times the desired number of alternatives.
+For large $a$, one can implement the buffer as a heap and thereby even reduce the linear factor regarding~$a$ to a logarithmic one.
 
 \subsubsection{Univariate Filter Feature Selection}
 \label{sec:afs:appendix:complexity:uni}
@@ -1956,6 +1967,7 @@ Note that this scenario explicitly violates the prior assumptions we made for po
 A key factor driving the hardness of partitioning problems is the shear number of solution candidates.
 In particular, the number of ways to partition a set of $n$~elements into $a$~non-empty subsets equals $\stirling{n}{a}$, a Stirling number of the second kind~\cite{graham1994concrete}.
 These numbers roughly scale like $a^n / a!$~\cite{moser1958stirling}, which is exponential in~$n$ given a fixed~$a$.
+Even if the subset sizes are fixed, the number of valid partitioning solutions retains its awful scalability regarding~$n$ since it bases on a multinomial coefficient.
 
 \paragraph{Related $\mathcal{NP}$-complete problems}
 
@@ -1998,7 +2010,7 @@ In particular, \cite{alon1998approximation, woeginger1997polynomial} describe po
 However, the runtime depends on the desired approximation ratio and can grow exponential the more precision is desired.
 In particular, unless $\mathcal{P}=\mathcal{NP}$, the strong $\mathcal{NP}$-completeness of the problem prevents the existence of a fully polynomial-time approximation scheme (FPTAS), which would only polynomially depend on the precision of approximation~\cite{alon1998approximation, woeginger1997polynomial}.
 However, a FPTAS does exist for each fixed number of partitions~\cite{sahni1976algorithms}.
-Further, besides approximation algorithms, the problem also has polynomial-time exact algorithms assuming certain parameters of the problem to be fixed, e.g., the number of distinct numbers to be partitioned, i.e., feature qualities, or the maximum number, i.e., feature quality~\cite{mnich2018parameterized}.
+Further, besides approximation algorithms, the problem also has polynomial-time exact algorithms assuming certain parameters of the problem to be fixed, e.g., the number of distinct numbers to be partitioned, i.e., feature qualities, or the largest number, i.e., feature quality~\cite{mnich2018parameterized}.
 Thus, the problem is fixed-parameter tractable ($\mathcal{FPT}$) for an appropriate definition of `parameter'.
 
 \paragraph{Constrained feature-set size}
@@ -2115,8 +2127,11 @@ Note that the maximal number of features to be added is polynomial in~$k$ and th
 \subsubsection{Univariate Summed-Quality Objective}
 \label{sec:afs:appendix:complexity:uni-sum}
 
-In contrast to the hardness results for the minimum-quality objective, the summed quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) with univariate feature qualities and $\tau=1$ allows for polynomial-time algorithms.
-In particular, this objective does not entail any requirement on balancing the feature sets' qualities, which eases finding an optimal solution for~$\tau=1$.
+In contrast to the $\mathcal{NP}$-hardness results for the minimum-quality objective, the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) with univariate feature qualities and $\tau=1$ allows for polynomial-time algorithms.
+In particular, the latter objective does not entail any requirements on balancing the feature sets' qualities.
+Thus, $\tau=1$ allows for many different solutions that all yield the same objective value and that are easy to find.
+While at least one of these solutions also optimizes the minimum-quality objective, an overwhelming majority of them does not.
+Hence, obtaining different hardness results for the two objectives is not a contradiction.
 
 \paragraph{Complete Partitioning}
 
@@ -2170,13 +2185,13 @@ For analyzing further cases of alternative feature selection, several questions 
 As a first step, one could establish a general complexity result like $\mathcal{NP}$-hardness or the existence of a polynomial-time algorithm.
 In the former case, it is interesting to know whether there are at least pseudo-polynomial exact approaches or (fully) polynomial-time approximation schemes.
 Further, there might be efficient algorithms for problem instances satisfying additional requirements.
-Finally, while we placed alternative feature selection in the broad parameterized complexity class~$\mathcal{XP}$, one might proof membership in a more specific parameterized complexity class.
+Finally, while we placed alternative feature selection in the broad parameterized complexity class~$\mathcal{XP}$, one might proof either membership or hardness for more specific parameterized classes.
 
 \paragraph{Related problem formulations}
 
 We only focused on the optimization problem of alternative feature selection until now.
 Another interesting question is how many alternatives, regardless of their quality, can be found for a given $n$, $k$, and $\tau$.
-Also, given the number of alternatives, it would be interesting to have an exact or approximate estimate for the number of valid solutions for alternative feature selection, i.e., sets of feature sets.
+Also, given the number of alternatives as well, it would be interesting to have an exact or approximate estimate for the number of valid solutions for alternative feature selection, i.e., sets of feature sets.
 While both these estimates are straightforward for $\tau = 1$, allowing arbitrary~$\tau$ poses a larger challenge.
 
 Further, one could re-formulate alternative feature selection similar to the \textsc{Bin Covering} problem.
