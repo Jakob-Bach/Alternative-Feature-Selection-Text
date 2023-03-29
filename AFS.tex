@@ -352,7 +352,7 @@ If there is an existing feature set, i.e., either $s'$ or $s''$ is fixed to part
 
 Overall, one can express alternative feature sets following Definition~\ref{def:afs:single-alternative} with 0-1 integer linear constraints.
 This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
-One can also encode such constraints into propositional logic (SAT)~\cite{ulrich2022selecting}.
+One can also encode such constraints into propositional logic (\textsc{SAT})~\cite{ulrich2022selecting}.
 
 \subsubsection{Multiple Alternatives}
 \label{sec:afs:approach:constraints:multiple}
@@ -471,7 +471,6 @@ In this section, we present white-box optimization objectives for different feat
 
 For univariate filter feature selection, the objective function is linear.
 Thus, the optimization problem of alternative feature selection becomes a 0-1 integer linear problem.
-Alternatively, one could formulate a weighted partial maximum satisfiability (MaxSAT) problem~\cite{li2021maxsat}.
 
 In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
 %
@@ -484,6 +483,9 @@ Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual infor
 Thus, the values of~$q(\cdot)$ for different features are independent from each other.
 Appendix~\ref{sec:afs:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
 Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver.
+
+Alternatively, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat}, in particular, a weighted \textsc{Max One} problem~\cite{khanna1997complete}, since the univariate objective only is a sum of weighted binary variables.
+One would need to apply a cardinality encoding~\cite{sinz2005towards} for the constraints involving~$k$.
 
 \paragraph{Post-hoc feature importance}
 
@@ -660,7 +662,7 @@ However, not all solver calls might yield a valid feature set.
 If feature selection is embedded into training a prediction model, there is no general approach for finding alternative feature sets.
 Instead, one would need to embed the search for alternatives into training as well.
 For example, in the heuristic training procedure of decision trees, one could consider alternatives when creating splits, e.g., prevent splitting on a feature if the resulting feature set of the tree was too similar to a given feature set.
-As another example, there are various formal encodings of prediction models, e.g., SAT encodings~\cite{narodytska2018learning, schidler2021sat, yu2021learning}, where training already uses a solver.
+As another example, there are various formal encodings of prediction models, e.g., \textsc{SAT} encodings~\cite{narodytska2018learning, schidler2021sat, yu2021learning}, where training already uses a solver.
 In such representations, one might directly add constraints for alternatives without modifying the training procedure.
 We leave the formulation of specific approaches open for future work.
 
@@ -2127,11 +2129,12 @@ Note that the maximal number of features to be added is polynomial in~$k$ and th
 \subsubsection{Univariate Summed-Quality Objective}
 \label{sec:afs:appendix:complexity:uni-sum}
 
-In contrast to the $\mathcal{NP}$-hardness results for the minimum-quality objective, the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) with univariate feature qualities and $\tau=1$ allows for polynomial-time algorithms.
-In particular, the latter objective does not entail any requirements on balancing the feature sets' qualities.
+In contrast to the $\mathcal{NP}$-hardness results for the minimum-quality objective, the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) with univariate feature qualities and $\tau=1$ allows for polynomial-time algorithms, as discussed in the following.
+This feasibility result applies to sequential as well as simultaneous search.
+In particular, the summed-quality objective does not entail any requirements on balancing the feature sets' qualities.
 Thus, $\tau=1$ allows for many different solutions that all yield the same objective value and that are easy to find.
 While at least one of these solutions also optimizes the minimum-quality objective, an overwhelming majority of them does not.
-Hence, obtaining different hardness results for the two objectives is not a contradiction.
+Hence, it is not a contradiction to obtain different hardness results for the summed-quality objective than for the minimum-quality one.
 
 \paragraph{Complete Partitioning}
 
@@ -2143,17 +2146,20 @@ Thus, we only need to iterate over the features once to assign them to the featu
 \paragraph{Incomplete partitioning}
 
 An incomplete partitioning is only marginally more challenging:
-Using the monotonicity of the objective (cf.~Section~\ref{sec:afs:appendix:complexity:uni}), we order the features decreasingly by their individual quality and simply pick features without replacement until we have the desired number of alternatives with the desired feature-set sizes.
+Using the monotonicity of the univariate summed-quality objective (cf.~Section~\ref{sec:afs:appendix:complexity:uni}), we order the features decreasingly by their individual quality and simply pick features without replacement until we have the desired number of alternatives with the desired feature-set sizes.
 Again, it does not matter for the objective value how the selected feature are assigned to individual feature sets.
-Due to the quality-based sorting, the time complexity is~$O(n \cdot \log n)$, i.e., polynomial.
+Due to the quality-based sorting, the time complexity is~$O(n \cdot \log n)$, i.e., polynomial, for sequential and simultaneous search.
+
 The following proposition sums up our results:
 %
-\begin{proposition}[Complexity of simultaneous search with summed-quality objective and $\tau=1$]
-	Assuming univariate feature qualities and a dissimilarity threshold~$\tau = 1$, simultaneous search with the summed-quality objective has a time complexity of $O(n)$ for a complete partitioning of $n$~features and $O(n \cdot \log n)$ for an incomplete partitioning.
+\begin{proposition}[Complexity of search with summed-quality objective and $\tau=1$]
+	Assuming univariate feature qualities and a dissimilarity threshold~$\tau = 1$, search for alternatives with the summed-quality objective has a time complexity of $O(n)$ for a complete partitioning of $n$~features and $O(n \cdot \log n)$ for an incomplete partitioning.
 	\label{prop:afs:complexity-partitioning-sum}
 \end{proposition}
 %
-We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in the previous definition since the latter holds in any case, even if feature sets differ in their size.
+We did not include a fixed feature-set size~$k$ or number of alternatives~$a$ in the previous proposition since the latter holds in any case, even if feature sets differ in their size.
+If only a small fraction of features is used, one might slightly improve complexity by iteratively picking the maximum instead of fully sorting all feature qualities.
+In particular, this improvement relies on the condition $(a + 1) \cdot k < \log n$ for simultaneous search and $k < \log n$ for conducting one iteration of sequential search.
 
 \paragraph{Relationship to multiple-knapsack problem}
 
@@ -2171,9 +2177,9 @@ In particular, these uniform weights enable the tractability result stated in Pr
 \paragraph{Scenarios of alternative feature selection}
 
 Our prior complexity analyses focused on special cases of alternative feature selection, while other cases might be interesting as well.
-For example, though we obtained $\mathcal{NP}$-completeness for the minimum-quality-objective with feature-set overlap (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}, an analysis of the summed-quality-objective with overlap is open.
-We do have polynomial runtime for that objective subject to $\tau=1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}) but this result might not extend to~$\tau < 1$.
-In particular, $\tau < 1$ increases the number of valid solutions, which could make searching the optimum more expensive.
+For example, though we obtained $\mathcal{NP}$-completeness for the minimum-quality-objective with feature-set overlap (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}, an analysis of the summed-quality-objective with overlap is open, even for sequential search, i.e., just optimizing one alternative at once.
+While the summed-quality objective admits polynomial runtime subject to $\tau=1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}), this result might not extend to~$\tau < 1$.
+In particular, $\tau < 1$ increases the number of valid solutions, which could negatively affect the runtime for searching the optimum.
 
 Further, our complexity analyses mostly assumed univariate feature qualities.
 Other feature-selection methods have different objective functions and can therefore reside in different complexity classes.
