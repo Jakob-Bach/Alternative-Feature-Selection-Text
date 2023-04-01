@@ -1930,10 +1930,10 @@ As used in our implementation and analyzed in Section~\ref{sec:afs:approach:obje
 In particular, the constraints for being alternative are integer linear expressions or can be linearized.
 The same goes for the minimum-quality and the summed-quality objective (cf.~Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation}).
 \textsc{Integer programming} is an $\mathcal{NP}$-complete problem in general, even for binary decision variables like we have~\cite{garey2003computers, karp1972reducibility}.
-Thus, alternative feature selection with a suitable white-box objective cannot be harder than $\mathcal{NP}$.
+Thus, alternative feature selection with a white-box objective suitable for \textsc{Integer programming} cannot be harder than $\mathcal{NP}$.
 However, since alternative feature selection only uses special types of constraints instead of expressing arbitrary integer linear problems, it could still be easier.
-Further, note that the membership in $\mathcal{NP}$ based on \textsc{Integer programming} assumes a particular encoding of alternative feature selection, i.e., storing each constraint separately.
-If we defined the problem's input size only as the number of features~$n$ or the total encoding length of all feature qualities, the problem might become harder than $\mathcal{NP}$, e.g., for a high number of alternatives.
+Vice versa, the membership in $\mathcal{NP}$ based on \textsc{Integer programming} assumes a particular encoding of alternative feature selection, i.e., storing each constraint separately.
+If we defined the problem's input size only as the number of features~$n$ or the total encoding length of the objective function, the problem might become harder than $\mathcal{NP}$, e.g., for a high number of alternatives.
 
 \paragraph{Leveraging monotonicity}
 
@@ -1987,7 +1987,7 @@ The most prominent problem formulation, denoted as \textsc{Multiprocessor Schedu
 Figuratively speaking, the goal is to assign given tasks with positive integer lengths to a fixed number of processors such that the maximum over the summed runtime of all processors is minimal.
 Multiplying all task lengths with~$-1$, one can turn the minimax problem of \textsc{Multiprocessor Scheduling} into the maximin formulation of simultaneous search with the minimum-quality objective.
 Thereby, the tasks of \textsc{Multiprocessor Scheduling} correspond to features, the negated versions of the task lengths become univariate feature qualities, and the processors turn into feature sets. 
-Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our problem is in $\mathcal{NP}$, our problem is $\mathcal{NP}$-complete as well:
+Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, and our transformed problem requires the same effort for checking the validity of solutions, our problem is $\mathcal{NP}$-complete as well:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, complete partitioning, and unconstrained feature-set size]
 	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~features have to be selected, simultaneous search for $a+1$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
@@ -2023,7 +2023,7 @@ There are corresponding number-partitioning problems for this setting as well, e
 The problems formulations differ in their objective and cardinality constraints.
 E.g., \cite{babel1998thek, michiels2012computer, zhang2011heuristic} require partitions of identical size but employ a minimax rather than a maximin objective.
 However, as for the unconstrained case, we can multiply all numbers with -1 and thereby obtain a problem instance with our minimum-quality objective.
-Based on the $\mathcal{NP}$-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time to check a solution, we obtain the following proposition:
+Based on the $\mathcal{NP}$-hardness of \textsc{K-Partitioning}~\cite{babel1998thek} and the polynomial time required to check a solution, we obtain the following proposition:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau=1$, complete partitioning, and constrained feature-set size]
 	Assuming univariate feature qualities, a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k$, and all $n$~features have to be selected, simultaneous search for $n/k$ alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
@@ -2051,14 +2051,14 @@ Again, this problem is $\mathcal{NP}$-hard in the strong sense~\cite{he2003kappa
 Propositions~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} and~\ref{prop:afs:complexity-partitioning-min-constrained-k} established $\mathcal{NP}$-completeness for problem instances requiring a complete partitioning of features.
 The latter entails two assumptions, i.e., zero overlap between feature sets and each feature being selected exactly once.
 Thereby, the choice of the user-defined parameters for alternative selection, i.e.,~$a$, $k$, and~$\tau$, is severely limited and might not reflect many real-world scenarios.
-In this section, we show $\mathcal{NP}$-completeness for problem instances where these two assumptions do not hold.
+In this section, we show $\mathcal{NP}$-hardness for problem instances where these two assumptions do not hold.
 We maintain the assumptions of using univariate feature qualities and the minimum-quality objective.
 
 \paragraph{Incomplete partitioning}
 
 A complete-partitioning scenario ties two parameters of alternative feature selection, i.e., the feature-set size~$k$ and number of alternatives~$a$, to the total number of features~$n$ by the equation~$n = (a+1) \cdot k$.
 However, in practice, one might set these parameters such that some features are not part of any feature set.
-In the following, we show that the problem of finding such an incomplete partitioning is $\mathcal{NP}$-complete in general.
+In the following, we show that the problem of finding such an incomplete partitioning still is $\mathcal{NP}$-complete in general.
 
 Let us assume to have an arbitrary problem instance~$I$ of the complete-partitioning problem.
 Further, let the feature-set size~$k$ be fixed.
@@ -2074,7 +2074,7 @@ The previous argument shows that an algorithm for incomplete-partitioning proble
 Thus, if a polynomial-time algorithm for incomplete partitioning existed, it could also solve complete partitioning in polynomial time.
 However, we know the latter problem type to be $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
 As a consequence, incomplete partitioning has to be $\mathcal{NP}$-hard.
-Since checking a solution is possible in polynomial time, we obtain membership in $\mathcal{NP}$ and thereby $\mathcal{NP}$-completeness.
+Since checking a solution for an incomplete-partitioning problem instance is possible in polynomial time, we obtain membership in $\mathcal{NP}$ and thereby $\mathcal{NP}$-completeness.
 
 To sum this up, we formulate the following proposition:
 %
@@ -2086,7 +2086,7 @@ To sum this up, we formulate the following proposition:
 \paragraph{Overlapping feature sets}
 
 Partitioning scenarios prevent overlap of feature sets by fixing the parameter~$\tau = 1$.
-In the following, we show that allowing $0 < \tau < 1$ also results in an $\mathcal{NP}$-complete problem in general.
+In the following, we show that allowing $0 < \tau < 1$ also results in an $\mathcal{NP}$-hard problem in general.
 We do not consider $\tau = 0$ since such problem instances have the same time complexity as the underlying feature-selection problem without alternatives.
 
 Again, let us assume to have an arbitrary problem instance~$I$ of the complete-partitioning problem.
@@ -2102,13 +2102,13 @@ If we now obtain a solution for~$I'$, it contains~$f'$ in each feature set while
 Thus, we can remove~$f'$ to get feature sets of size~$k = k' - 1$ that constitute an optimal solution for the original problem instance~$I$.
 
 This transformation shows how problem instances with $\tau < 1$ can help solve arbitrary problem instances with $\tau = 1$.
-Given the $\mathcal{NP}$-completeness of the latter problem and membership in $\mathcal{NP}$ of the former, we obtain an $\mathcal{NP}$-completeness result:
+Given the $\mathcal{NP}$-completeness of the latter problem, we obtain $\mathcal{NP}$-hardness of the former:
 %
 \begin{proposition}[Complexity of simultaneous search with minimum-quality objective, $\tau < 1$, and constrained feature-set size]
-	Assuming univariate feature qualities, a dissimilarity threshold~$\tau < 1$, and desired feature-set size~$k$, simultaneous search for $a + 1$~alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-complete.
+	Assuming univariate feature qualities, a dissimilarity threshold~$\tau < 1$, and desired feature-set size~$k$, simultaneous search for $a + 1$~alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-hard.
 	\label{prop:afs:complexity-no-partitioning-min-constrained-k}
 \end{proposition}
-
+%
 Note that adding the proposed~$f'$ with a high quality~$q'$ enlarges the size of the problem instance to some extent.
 However, the proposed transformation from $I$ to $I'$ is still possible in polynomial time and increases the input size by at most a fixed factor.
 In particular, the encoding of a problem instance involves $n$~feature qualities as well as the values of $a$, $k$, and $\tau$.
@@ -2179,7 +2179,7 @@ In particular, these uniform weights enable the tractability result stated in Pr
 \paragraph{Scenarios of alternative feature selection}
 
 Our prior complexity analyses focused on special cases of alternative feature selection, while other cases might be interesting as well.
-For example, though we obtained $\mathcal{NP}$-completeness for the minimum-quality-objective with feature-set overlap (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}, an analysis of the summed-quality-objective with overlap is open, even for sequential search, i.e., just optimizing one alternative at once.
+For example, though we obtained $\mathcal{NP}$-hardness for the minimum-quality-objective with feature-set overlap (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}, an analysis of the summed-quality-objective with overlap is open, even for sequential search, i.e., just optimizing one alternative at once.
 While the summed-quality objective admits polynomial runtime subject to $\tau=1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}), this result might not extend to~$\tau < 1$.
 In particular, $\tau < 1$ increases the number of valid solutions, which could negatively affect the runtime for searching the optimum.
 
