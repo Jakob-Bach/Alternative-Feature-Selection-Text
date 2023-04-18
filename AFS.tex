@@ -834,11 +834,15 @@ Here, the scores originate from trees trained with all features rather than asse
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
 
-We only evaluate approaches for searching alternatives that we proposed in this paper.
+\paragraph{Competitors}
+
+We only evaluate approaches for searching alternatives that we proposed in this article.
 As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate under different notions what constitutes an alternative feature set, and often only work for particular feature-selection methods.
 All these points prevent a fair comparison of these approaches to ours.
 E.g., a feature set considered alternative in related work might violate our constraints for being alternative, and might not support setting a dissimilarity threshold~$\tau$.
-Further, even if we only evaluate our own approaches, we can still compare the quality of alternatives to the original feature sets.
+Further, even if we only evaluate our own approaches, we can still put the feature-set quality of the alternatives into perspective by comparing it to the original feature sets.
+
+\paragraph{Search parametrization}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
 For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the minimum-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
@@ -849,6 +853,18 @@ Thus, for $k=5$, we consider values of $\tau$ from 0.2 to 1 with a step size of 
 For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
 Naturally, we exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
+\paragraph{Optimization}
+
+All our search approaches are solver-based.
+For \emph{Greedy Wrapper}, the solver assists in finding valid solutions but the search procedure might not cover the complete solution space.
+For the white-box feature-set qualities, a solver carries out the entire search for alternatives by solving the underlying optimization problems exactly.
+Thus, given sufficient solving time, these alternatives are guaranteed to be optimal.
+Developing heuristic search procedures, which might be faster but suboptimal, is out of scope of the current article.
+In particular, our evaluation focuses on the quality of alternatives rather than the runtime for finding them.
+
+\paragraph{Timeout}
+
+To make a large-scale evaluation feasible, we still need to keep runtime under control.
 Since solver runtime may vary considerably, even for optimization problems of the same size, we employ a timeout for the solver.
 In particular, we grant each solver call 60~seconds multiplied with the number of desired feature sets.
 Thus, sequential search, which optimizes feature sets one at a time, conducts multiple solver calls with 60~s timeout.
@@ -1652,7 +1668,7 @@ Traditional feature-selection methods yield \emph{one} feature set with high qua
 However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
 Such alternative feature set might provide alternative explanations for predictions from the data.
 
-In this paper, we defined alternative feature selection as an optimization problem.
+In this article, we defined alternative feature selection as an optimization problem.
 We formalized alternatives via constraints, which are independent from the feature-selection method and can be combined with other constraints on feature sets, e.g., based on domain knowledge.
 Further, we presented approaches to solve this optimization problem for different categories of feature-selection methods.
 Finally, we ran an evaluation with 30 classification datasets and five feature-selection methods.
@@ -1688,7 +1704,8 @@ One way to alleviate this is finding a more efficient problem formulation, e.g.,
 However, looser constraints bear the danger of allowing identical feature sets as valid alternatives.
 Further, one can limit the solver runtime and take the intermediate results once the timeout is reached.
 We already used a fixed timeout in our experiments, but studying the exact influence of different timeouts one the feature-set quality is a topic for future work.
-Finally, one can use a different solver, e.g., one that supports non-linear terms so the interaction variables and constraints from Equation~\ref{eq:afs:product-linear} become superfluous.
+Next, one can use a different solver, e.g., one that supports non-linear terms so the interaction variables and constraints from Equation~\ref{eq:afs:product-linear} become superfluous.
+Finally, one can develop a heuristic rather than an exact search procedure.
 
 \paragraph{Datasets}
 
@@ -2018,7 +2035,7 @@ Thus, the problem is fixed-parameter tractable ($\mathcal{FPT}$) for an appropri
 \paragraph{Constrained feature-set size}
 
 Note that the previous discussion considered feature sets of arbitrary sizes.
-However, feature selection in general, and our paper in particular, typically work with a fixed feature-set size~$k$.
+However, feature selection in general, and our article in particular, typically work with a fixed feature-set size~$k$.
 There are corresponding number-partitioning problems for this setting as well, e.g., called \textsc{Balanced Number Partitioning} or \textsc{K-Partitioning}.
 The problems formulations differ in their objective and cardinality constraints.
 E.g., \cite{babel1998thek, michiels2012computer, zhang2011heuristic} require partitions of identical size but employ a minimax rather than a maximin objective.
@@ -2221,7 +2238,7 @@ The univariate objective function does not contain interaction terms between fea
 Thus, we start by sorting the features decreasingly according to their individual qualities~$q_j$.
 Given a desired feature-set size~$k$, the optimal original feature set, i.e., the zeroth alternative, simply consists of the first~$k$ features from this quality-based ordering.
 Depending on the set-dissimilarity measure defining alternatives, one can then determine how many features needs to differ for obtaining a valid alternative.
-For the Dice dissimilarity we use in our paper, including Algorithm~\ref{al:afs:greedy-replacement}, $\lceil \tau \cdot k \rceil$~features need to differ between feature sets (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}).
+For the Dice dissimilarity we use in our article, including Algorithm~\ref{al:afs:greedy-replacement}, $\lceil \tau \cdot k \rceil$~features need to differ between feature sets (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}).
 Consequently, a fixed subset of $\lfloor (1 - \tau) \cdot k \rfloor$~features can be contained in all alternatives without violating the dissimilarity threshold.
 Thus, for each alternative, we always select the best $\lfloor (1 - \tau) \cdot k \rfloor$~features regarding quality~$q_j$.
 We only replace the remaining $\lceil \tau \cdot k \rceil$~features from alternative to alternative.
