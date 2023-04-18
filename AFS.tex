@@ -961,7 +961,7 @@ If the solver reached its timeout, it either found a \emph{feasible} solution, w
 	\end{tabular}
 	\caption{
 		Datasets from PMLB used in our experiments.
-		$m$~denotes the number of instances and $n$ the number of features.
+		$m$~denotes the number of instances and $n$~the number of features.
 		Dataset names starting with `G\_' actually start with `GAMETES\_'; we truncated them to reduce the table's width.
 	}
 	\label{tab:afs:datasets}
@@ -1021,7 +1021,7 @@ datasets, feature-selection methods, approaches to search for alternatives, and 
 		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\caption{
-		Feature-set quality over feature-set size~$k$ relative to dataset size~$n$.
+		Feature-set quality over feature-set size~$k$ relative to dataset dimensionality~$n$.
 		Results from the original feature sets of sequential search with \emph{MI} as feature-selection method.
 	}
 	\label{fig:afs:impact-dataset-k-quality}
@@ -1034,7 +1034,7 @@ At the same time, the feature quality can be spread over more features than for 
 
 Indeed, our experiments show a broad variation of feature-set quality over the datasets.
 Figure~\ref{fig:afs:impact-dataset-k-quality} depicts the relationship between datasets and quality of the original feature set in sequential search.
-To account for varying dataset size, we put the ratio between feature-set size~$k$ and dataset-size~$n$ on the x-axis, which is a measure of relative feature-set sizes.
+To account for the varying number of features in the dataset, we put the ratio between feature-set size~$k$ and dataset dimensionality~$n$ on the x-axis, which is a measure of relative feature-set sizes.
 As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of an univariate feature-selection method approximately increases linearly with~$k/n$.
 However, there still is some variation exclusively caused by the dataset rather than its dimensionality.
 Further, the quality of a prediction model, i.e., decision trees, does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
@@ -1404,6 +1404,13 @@ In contrast, the runtime increase is considerably less for sequential search sin
 
 Based on all results described in this section, we focus on the sequential search in the following.
 In particular, it appeared to be significantly faster than simultaneous search while yielding similar feature-set quality.
+
+Another interesting question for practitioners is how the runtime relates to~$n$, the total number of features in the dataset.
+One would expect a positive correlation, since the optimization problem's instance size increases with~$n$.
+Roughly speaking, this trend also appears in our experimental data.
+However, the observed trend does not match a simple functional relationship, and some higher-dimensional datasets even show lower average runtimes than lower-dimensional datasets.
+This indicates that several other factors apart from~$n$ influence solver runtime.
+Besides factors related to our experimental design and the datasets, the heuristics employed by the solver might also play a role, e.g., work better for some problem instances than for others.
 
 \subsubsection{Number of Alternatives}
 \label{sec:afs:evaluation:search:num-alternatives}
