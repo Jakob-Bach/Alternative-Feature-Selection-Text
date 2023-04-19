@@ -679,22 +679,41 @@ Also, there are works on finding multiple, diverse feature sets.
 \paragraph{Traditional feature selection}
 
 Most feature-selection methods only yield one solution~\cite{borboudakis2021extending}, though there are some exceptions.
-Nevertheless, none of the following approaches explicitly searches for optimal alternatives.
-\cite{siddiqi2020genetic}~adapts a genetic algorithm to ensure diversity of feature sets in the population.
-In particular, they modify the fitness criterion to penalize overlap of feature sets in each iteration.
-\cite{emmanouilidis1999selecting}~uses multi-objective genetic algorithms to obtain prediction models of different complexity, using feature sets of different sizes.
-\cite{mueller2021feature}~clusters features and forms all combinations by picking one feature from each cluster.
-They do this to reduce the number of features, not as a guided search for alternatives.
+Nevertheless, none of the following approaches searches for optimal alternatives in our sense.
+
+\cite{siddiqi2020genetic}~proposes a genetic algorithm, which iteratively updates a population of multiple feature sets and returns said population.
+To foster diversity of feature sets, the algorithm's fitness criterion does not only consider feature-set quality but also a penalty on feature-set overlap in the population.
+However, the user cannot control the admissible overlap, i.e., there is no parameter comparable to~$\tau$.
+In contrast, the genetic algorithm's parameter for the population size corresponds to the number of alternatives.
+
+\cite{emmanouilidis1999selecting}~uses multi-objective genetic algorithms to obtain prediction models of different complexity by finding diverse feature sets.
+The two objectives are prediction performance and feature-set size.
+In contrast, our alternative feature sets should differ in the composition rather than their size.
+
+\cite{mueller2021feature}~clusters features and forms alternative feature sets by picking one feature from each cluster.
+However, they do this as a preprocessing to reduce the number of features for subsequent model-selection and -evaluation steps, not as a guided search for alternative feature sets.
 
 \paragraph{Ensemble feature selection}
 
 Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} combines feature-selection results, e.g., obtained by different feature-selection methods or on different samples of the data.
-Fostering diverse feature sets might be a sub-goal to improve prediction performance, but is only an intermediate step.
+Fostering diverse feature sets might be a sub-goal to improve prediction performance, but is usually only an intermediate step.
 This focus differs from our goal of finding optimal alternative feature sets.
 
-\cite{woznica2012model}~uses k-medoid clustering and frequent-itemset mining to reduce a set of feature-selection results, obtained on bootstrap samples of the data, to a smaller, yet diverse subset.
-\cite{liu2019subspace}~builds an ensemble prediction model from classifiers trained on different feature sets and uses an evolutionary algorithm that ensures diversity of these feature sets.
-\cite{guru2018alternative}~selects features separately for each class and then combines the results.
+\cite{woznica2012model}~first obtains feature sets or feature rankings on multiple bootstrap samples of the dataset.
+Next, an aggregation strategy either creates a single feature set, as traditionally desired, or multiple, diverse feature sets.
+For the latter, the authors propose using k-medoid clustering and frequent itemset mining.
+While these approaches allow to control the number of feature sets, there is no parameter for the sets' dissimilarity.
+Also, the aggregation step depends on the results of bootstrap sampling instead of being allowed to form arbitrary alternatives.
+
+\cite{liu2019subspace}~builds an ensemble prediction model from classifiers trained on different feature sets.
+To this end, a genetic algorithm iteratively evolves a population of feature sets.
+Fitness criteria within the algorithm are multi-dimensional and include prediction accuracy, number of features, diversity of predictions, and diversity of feature sets.
+For the last criterion, the hamming distances quantifies the dissimilarity of feature sets.
+However, since feature diversity is only one of several objectives, the user cannot control it directly.
+
+\cite{guru2018alternative}~computes feature relevance separately for each class and then combines the top features from each class.
+The former step might yield alternative feature sets but does not actively enforce dissimilarity.
+Also, the number of alternatives is fixed to the number of classes.
 
 \paragraph{Statistically equivalent feature sets}
 
@@ -712,16 +731,25 @@ Nevertheless, one can also add constraints to our optimization problem to exclud
 
 \paragraph{Constrained feature selection}
 
-There already is work on considering various kinds of constraints in feature selection, e.g., for feature cost~\cite{paclik2002feature}, feature groups~\cite{yuan2006model}, or domain knowledge~\cite{bach2022empirical, groves2015toward}.
-These approaches are orthogonal to our work, as such constraints can be added to our optimization problem as well.
-While introducing any kind of constraints on feature sets might implicitly lead to alternative solutions~\cite{bach2022empirical}, existing approaches for constrained feature selection do not search for optimal alternatives.
+We define alternative via constraints on feature sets.
+Simultaneously, there already is work on considering other kinds of constraints in feature selection, e.g., for feature cost~\cite{paclik2002feature}, feature groups~\cite{yuan2006model}, or domain knowledge~\cite{bach2022empirical, groves2015toward}.
+These approaches are orthogonal to our work, as the constraints there do not explicitly foster finding optimal alternatives.
+At most, introducing other kinds of constraints on feature sets might implicitly lead to alternative solutions~\cite{bach2022empirical}.
+Also, most of the approaches are tied to these particular constraint types, while our integer-programming formulation also supports such constraints besides the ones for alternatives.
+\cite{bach2022empirical} is an exception in that regard since it models feature selection as a Satisfiability Modulo Theories (\textsc{SMT}) optimization problem, which admits our constraints for alternatives as well.
 
 \subsection{Fields Related to Feature Selection}
 
 \paragraph{Subgroup set discovery}
 
-\cite{leeuwen2012diverse} presents six strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space rather than purely selecting features.
-They integrate these strategies into beam search, i.e, a heuristic search procedure, while we also consider exact solutions.
+\cite{leeuwen2012diverse} presents six selection strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space, i.e., combinations of conditions on feature values, rather than only selecting features.
+Three of the strategies yield a fixed number of alternative subgroups, while the other three yield a variable number.
+They integrate these strategies into beam search, i.e, a heuristic search procedure, while we mostly consider exact optimization.
+Also, the criteria for being alternative differ from ours.
+For example, the strategy \emph{fixed-size description-based selection} prunes subgroups with the same quality as a previously found ones if they differ by at most one feature-value condition.
+In contrast, we require dissimilarity independent from the quality, have a flexible dissimilarity threshold, and also support simultaneous besides sequential search for alternatives.
+Another strategy, \emph{variable-size description-based selection}, limits the total number of subgroups a feature may occur in but does not constrain the overlap of subgroups per se.
+The four remaining strategies in~\cite{leeuwen2012diverse} are more specific to subgroup discovery therefore have no obvious counterpart in our feature-selection scenario.
 
 \paragraph{Subspace clustering and subspace search}
 
