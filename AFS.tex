@@ -129,11 +129,12 @@ Section~\ref{sec:afs:approach} defines the problem of alternative feature select
 Section~\ref{sec:afs:related-work} reviews related work.
 Section~\ref{sec:afs:experimental-design} describes our experimental design and Section~\ref{sec:afs:evaluation} presents the experimental results.
 Section~\ref{sec:afs:conclusion} concludes.
+The appendix (cf.~Section~\ref{sec:afs:appendix}) contains technical details and approaches not used in our experiments.
 
 \section{Fundamentals}
 \label{sec:afs:fundamentals}
 
-In this section, we introduce basic notation and review different methods to measure the quality of feature sets.
+In this section, we introduce basic notation (cf.~Section~\ref{sec:afs:fundamentals:notation}) and review different methods to measure the quality of feature sets  (cf.~Section~\ref{sec:afs:fundamentals:quality}).
 
 \subsection{Notation}
 \label{sec:afs:fundamentals:notation}
@@ -191,10 +192,10 @@ In particular, assessing feature importance plays a crucial role in the emerging
 \label{sec:afs:approach}
 
 In this section, we present the problem and approaches for alternative feature selection.
-First, we define the structure of the optimization problem, i.e., objective and constraints.
-Second, we formalize the notion of alternatives via constraints.
+First, we define the structure of the optimization problem, i.e., objective and constraints (cf.~Section~\ref{sec:afs:approach:problem}).
+Second, we formalize the notion of alternatives via constraints (cf.~Section~\ref{sec:afs:approach:constraints}).
 Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
-In particular, we describe how to solve the resulting optimization problem.
+In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
 
 \subsection{Optimization Problem}
 \label{sec:afs:approach:problem}
@@ -232,8 +233,8 @@ Such a requirement on feature-set cardinality adds a further, simple constraint 
 \label{sec:afs:approach:constraints}
 
 In this section, we formalize alternative feature sets.
-First, we discuss the base case where an individual feature set is an alternative to another one.
-Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures.
+First, we discuss the base case where an individual feature set is an alternative to another one (cf.~Section~\ref{sec:afs:approach:constraints:single}).
+Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures (cf.~Section~\ref{sec:afs:approach:constraints:multiple}).
 
 Our notion of alternatives is independent of the feature-selection method.
 We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number of alternatives~$a$, which both allow users to control the search for alternatives.
@@ -458,7 +459,7 @@ Further, opposed to the sequential procedure, there are no intermediate steps wh
 
 In this section, we present approaches for finding alternative feature sets.
 We discuss how to solve the optimization problem from Section~\ref{sec:afs:approach:problem} for the different categories of feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
-In particular, we categorize solution approaches as white-box optimization, black-box optimization, and embedding alternatives.
+In particular, we categorize solution approaches as white-box optimization (cf.~Section~\ref{sec:afs:approach:objectives:white-box}), black-box optimization (cf.~Section~\ref{sec:afs:approach:objectives:black-box}), and embedding alternatives (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
 
 \subsubsection{White-Box Optimization}
 \label{sec:afs:approach:objectives:white-box}
@@ -793,7 +794,8 @@ In contrast, alternative feature sets might alter the feature selection signific
 \label{sec:afs:experimental-design}
 
 In this section, we describe our experimental design.
-We give a brief overview of its goal and components before elaborating on the components in detail.
+We give a brief overview of its goal and components (cf.~Section~\ref{sec:afs:experimental-design:overview}) before elaborating on the components in detail.
+In particular, we describe methods (cf.~Section~\ref{sec:afs:experimental-design:approaches}), evaluation (cf.~Section~\ref{sec:afs:experimental-design:evaluation}), datasets (cf.~Section~\ref{sec:afs:experimental-design:datasets}), and implementation (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
 
 \subsection{Overview}
 \label{sec:afs:experimental-design:overview}
@@ -808,7 +810,7 @@ We systematically vary the number of alternatives and the dissimilarity threshol
 \subsection{Methods}
 \label{sec:afs:experimental-design:approaches}
 
-Our experimental design comprises multiple approaches for feature selection, defining alternatives, and making predictions.
+Our experimental design comprises multiple approaches for feature selection (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}), defining alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}), and making predictions (cf.~Section~\ref{sec:afs:experimental-design:approaches:prediction}).
 
 \subsubsection{Feature Selection (Objective Functions)}
 \label{sec:afs:experimental-design:approaches:feature-selection}
@@ -1028,7 +1030,7 @@ With this setup, running the parallelized pipeline took roughly 141~hours, i.e.,
 
 In this section, we evaluate our experiments.
 In particular, we discuss the results for the different dimensions of our experimental design:
-datasets, feature-selection methods, approaches to search for alternatives, and evaluation metrics.
+datasets (cf.~Section~\ref{sec:afs:evaluation:datasets}), evaluation metrics (cf.~Section~\ref{sec:afs:evaluation:metrics}), feature-selection methods (cf.~Section~\ref{sec:afs:evaluation:feature-selection}), and approaches to search for alternatives (cf.~Section~\ref{sec:afs:evaluation:search}).
 
 \subsection{Datasets}
 \label{sec:afs:evaluation:datasets}
@@ -1190,6 +1192,8 @@ Thus, we focus on smaller feature sets, i.e., $k=5$, in the following.
 
 \subsection{Searching Alternatives}
 \label{sec:afs:evaluation:search}
+
+In this section, we evaluate the different choices for searching alternatives: the search method (cf.~Section~\ref{sec:afs:evaluation:search:method}), number of alternatives (cf.~Section~\ref{sec:afs:evaluation:search:num-alternatives}), and dissimilarity threshold~$\tau$ (cf.~Section~\ref{sec:afs:evaluation:search:tau}).
 
 \subsubsection{Search Method}
 \label{sec:afs:evaluation:search:method}
@@ -1695,7 +1699,10 @@ Further, the test-set prediction performance does not vary considerably over $\t
 \section{Conclusions and Future Work}
 \label{sec:afs:conclusion}
 
+In this section, we summarize our work (cf.~Section~\ref{sec:afs:conclusion:conclusion}) and give an outlook on potential future work (cf.~Section~\ref{sec:afs:conclusion:future-work}).
+
 \subsection{Conclusions}
+\label{sec:afs:conclusion:conclusion}
 
 Obtaining interpretable solutions is a highly active research area in machine learning.
 One way to foster interpretability is by selecting a small set of features for predictions.
@@ -1717,6 +1724,7 @@ The ultimate decision on which trade-off between feature-set quality and alterna
 Thus, we recommend evaluating different dissimilarity thresholds for alternatives to find a suitable value.
 
 \subsection{Future Work}
+\label{sec:afs:conclusion:future-work}
 
 While our work introduced alternative feature selection, there are several points for applying, extending, or modifying the latter.
 
@@ -1752,6 +1760,13 @@ Thus, practitioners can use our generic approaches to search alternatives in dom
 
 \section{Appendix}
 \label{sec:afs:appendix}
+
+In this section, we provide technical details and discuss approaches not used in our experiments.
+First, we discuss aggregation functions to instantiate the simultaneous-search objective from Equation~\ref{eq:afs:afs-simultaneous} (cf.~Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation}).
+Second, we provide comprehensive definitions of the alternative-feature-selection problem, which we described over the course of Section~\ref{sec:afs:approach} (cf.~Section~\ref{sec:afs:appendix:complete-optimization-problem}).
+Third, we discuss the computational complexity of said optimization problem (cf.~Section~\ref{sec:afs:appendix:complexity}).
+Fourth, we present a greedy heuristic for univariate feature selection from Equation~\ref{eq:afs:univariate-filter} (cf.~Section~\ref{sec:afs:appendix:univariate-search-algorithm}).
+Fifth, we discuss further objective functions for multivariate filter feature selection, which we introduced in Section~\ref{sec:afs:approach:objectives:white-box} (cf.~Section~\ref{sec:afs:appendix:multivariate-filter-objectives}).
 
 \subsection{Aggregation Functions for Simultaneous Search}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
@@ -1886,8 +1901,9 @@ Also, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultan
 In this section, we discuss the time complexity of alternative feature selection as defined in Section~\ref{sec:afs:approach}.
 In particular, we are interested in scalability regarding the number of features~$n \in \mathbb{N}$, also considering the feature-set size~$k \in \mathbb{N}$ and the number of alternatives~$a \in \mathbb{N}_0$.
 Section~\ref{sec:afs:appendix:complexity:exhaustive} discusses exhaustive search, which works for arbitrary feature-selection methods.
-The subsequent sections~\ref{sec:afs:appendix:complexity:uni}, \ref{sec:afs:appendix:complexity:uni-min-partitioning}, \ref{sec:afs:appendix:complexity:uni:min-no-partitioning}, and \ref{sec:afs:appendix:complexity:uni-sum} analyze univariate filter feature selection in detail.
-Section~\ref{sec:afs:appendix:complexity:future} outlines potential future work on complexity.
+The four subsequent sections analyze univariate filter feature selection in detail:
+Section~\ref{sec:afs:appendix:complexity:uni} provides a general analysis, while Sections~\ref{sec:afs:appendix:complexity:uni-min-partitioning}) and~\ref{sec:afs:appendix:complexity:uni:min-no-partitioning}) investigate the minimum-quality objective in particular and Section~\ref{sec:afs:appendix:complexity:uni-sum} examines the summed-quality objective.
+Finally, Section~\ref{sec:afs:appendix:complexity:future} outlines potential future work on complexity.
 
 \subsubsection{Exhaustive Search for Arbitrary Feature-Selection Methods}
 \label{sec:afs:appendix:complexity:exhaustive}
@@ -1919,7 +1935,7 @@ Even better, since feature-set quality typically only depends on selected featur
 
 \paragraph{Sequential search}
 
-Like traditional feature selection, sequential search (cf. Definition~\ref{def:afs:sequential-alternative}) targets at finding a single feature set at once.
+Like traditional feature selection, sequential search (cf.~Definition~\ref{def:afs:sequential-alternative}) targets at finding a single feature set at once.
 Thus, the search space is the same.
 Unlike traditional feature selection, not all size-$k$ feature sets are valid anymore.
 In particular, the constraints for being alternative put an extra effort on each solution candidate in the search.
@@ -1938,7 +1954,7 @@ In case we only store feature sets of size~$k$ instead of the complete selection
 
 \paragraph{Simultaneous search}
 
-Simultaneous search (cf. Definition~\ref{def:afs:simultaneous-alternative}) enlarges the search space since it optimizes $a+1$ feature sets at once.
+Simultaneous search (cf.~Definition~\ref{def:afs:simultaneous-alternative}) enlarges the search space since it optimizes $a+1$ feature sets at once.
 Thus, an exhaustive search over size-$k$ feature sets iterates over~$O(n^{k \cdot (a+1)})$ solution candidates.
 As for sequential search, there is a small additional effort for constraint checking.
 Thus, we arrive at the following proposition:
