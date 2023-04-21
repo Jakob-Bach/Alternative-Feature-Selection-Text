@@ -670,12 +670,13 @@ We leave the formulation of specific approaches open for future work.
 \section{Related Work}
 \label{sec:afs:related-work}
 
-In this section, we review literature from areas related to alternative feature selection, within the field of feature selection itself, closely related fields, alternative clustering, and explainable artificial intelligence (XAI).
-To the best of our knowledge, searching for optimal alternative feature sets is novel.
+In this section, we review literature from areas related to alternative feature selection, within the field of feature selection itself (cf.~Section~\ref{sec:afs:related-work:feature-selection}), clustering (cf.~Section~\ref{sec:afs:related-work:clustering}), and explainable artificial intelligence (XAI; cf.~Section~\ref{sec:afs:related-work:xai}).
+To the best of our knowledge, searching for optimal alternative feature sets in the sense of this paper is novel.
 However, there is literature on optimal alternatives outside the field of feature selection.
 Also, there are works on finding multiple, diverse feature sets.
 
 \subsection{Feature Selection}
+\label{sec:afs:related-work:feature-selection}
 
 \paragraph{Traditional feature selection}
 
@@ -739,9 +740,7 @@ At most, introducing other kinds of constraints on feature sets might implicitly
 Also, most of the approaches are tied to these particular constraint types, while our integer-programming formulation also supports such constraints besides the ones for alternatives.
 \cite{bach2022empirical} is an exception in that regard since it models feature selection as a Satisfiability Modulo Theories (\textsc{SMT}) optimization problem, which admits our constraints for alternatives as well.
 
-\subsection{Fields Related to Feature Selection}
-
-\paragraph{Subgroup set discovery}
+\paragraph{Subgroup discovery}
 
 \cite{leeuwen2012diverse} presents six selection strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space, i.e., combinations of conditions on feature values, rather than only selecting features.
 Three of the strategies yield a fixed number of alternative subgroups, while the other three yield a variable number.
@@ -752,43 +751,64 @@ In contrast, we require dissimilarity independent from the quality, have a flexi
 Another strategy, \emph{variable-size description-based selection}, limits the total number of subgroups a feature may occur in but does not constrain the overlap of subgroups per se.
 The four remaining strategies in~\cite{leeuwen2012diverse} are more specific to subgroup discovery therefore have no obvious counterpart in our feature-selection scenario.
 
-\paragraph{Subspace clustering and subspace search}
+\subsection{Clustering}
+\label{sec:afs:related-work:clustering}
 
-Finding multiple useful feature set plays a role in subspace clustering~\cite{guan2011unified, hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
-These approaches strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
-While some subspace approaches only consider features utility in individual subspaces, others explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{fouche2021efficient, trittenbach2019dimension}, which bears some resemblance to alternative feature selection.
-Nevertheless, these scenarios are fundamentally different to ours, e.g., we are in a supervised-learning setting.
-
-\subsection{Alternative Clustering}
+\paragraph{Alternative clustering}
 
 Finding alternative solutions has been addressed extensively in the field of clustering.
 \cite{bailey2014alternative} gives a taxonomy and describes algorithms for alternative clustering.
 Our problem definition in Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints} is, on a high level, inspired by the one in~\cite{bailey2014alternative}:
 Find one or multiple solutions that maximize quality while minimizing similarity.
 \cite{bailey2014alternative} also distinguishes between singular and multiple alternatives, found sequentially or simultaneously.
-Nevertheless, the concrete problem definition for a clustering scenario and our feature-selection scenario is different.
 Besides constraint-based search for alternatives, \cite{bailey2014alternative} also discuss other solution paradigms, e.g., using feature selection and data transformation~\cite{tao2012novel}.
 
-Two examples of alternative clustering are \emph{COALA}~\cite{bae2006coala} and \emph{MAXIMUS}~\cite{bae2010clustering}.
+Nevertheless, the concrete problem definition for a clustering scenario and our feature-selection scenario is different.
+In particular, we want to find differently composed feature sets, while alternative clustering targets at different assignments of data objects to clusters.
+Also, our objective function, i.e., feature-set quality, relates to a supervised prediction scenario rather than an unsupervised one.
+Two exemplary approaches for alternative clustering are \emph{COALA}~\cite{bae2006coala} and \emph{MAXIMUS}~\cite{bae2010clustering}.
+
 COALA~\cite{bae2006coala} imposes \emph{cannot-link constraints} on pairs of data objects:
-Data objects from the same cluster should be assigned to different clusters in the alternative clustering.
-If observing the constraints is infeasible or violates a quality threshold, the algorithms proceeds without constraints.
-MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimilarity between clusterings, building on the value distributions in clusters, and uses a constrained clustering procedure.
+Data objects from the same cluster in the original clustering should be assigned to different clusters in the alternative clustering.
+In particular, note that the constraints relate to data objects rather than features.
+In each step of its iterative clustering procedure, COALA compares the quality of an action observing the constraints to another one violating the constraints.
+Based on a threshold on the quality ratio, either action is taken.
+
+MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimilarity between clusterings.
+In particular, it wants to maximize dissimilarity of the feature-value distributions in clusters between the clusterings.
+The output of the integer program leads to constraints for a subsequent clustering procedure.
+
+\paragraph{Subspace clustering and subspace search}
+
+Finding multiple useful feature set plays a role in subspace clustering~\cite{hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
+These approaches strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
+While some subspace approaches only consider features utility in individual subspaces, others explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{fouche2021efficient, trittenbach2019dimension}, which bears some resemblance to alternative feature selection.
+In particular, \cite{hu2018subspace} surveys subspace-clustering approaches yielding multiple results and discusses the redundancy aspect.
+However, subspace clustering and -search approaches differ from alternative feature selection in at least one of the following aspects:
+
+First, the objective function differs.
+In particular, definitions of subspace quality differ from feature-set quality in our scenario.
+Second, definitions of subspace redundancy may consider dissimilarity between projections of the entire data, i.e., data objects with feature values, into subspaces.
+Such definitions differ from our notion of feature-set dissimilarity, which purely bases on binary feature-selection decisions.
+Third, controlling dissimilarity in subspace approaches is often less straightforward than with our user-friendly parameter~$\tau$.
+E.g., dissimilarity might be added as a regularization term to the objective or their might not be explicit control by the user at all.
 
 \subsection{Explainable Artificial Intelligence (XAI)}
+\label{sec:afs:related-work:xai}
 
 In the field of XAI, alternative explanations might provide additional insights into predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust into the predictions~\cite{kim2021multi, wang2019designing}.
 In contrast, obtaining significantly different explanations for the same prediction might also raise doubts about how meaningful the explanations are~\cite{jain2019attention}.
 Finding diverse explanations is an issue for various explainers, e.g., for counterfactuals~\cite{dandl2020multi, karimi2020model, mohammadi2021scaling, mothilal2020explaining, russell2019efficient, wachter2017counterfactual}, criticisms~\cite{kim2016examples}, or semifactual explanations~\cite{artelt2022even}.
-There are several approaches to foster diversity, e.g., extending the optimization objective~\cite{artelt2022even, kim2016examples, mothilal2020explaining}, considering multiple local minima~\cite{wachter2017counterfactual}, using a search algorithm that maintains diversity~\cite{dandl2020multi}, or introducing constraints~\cite{karimi2020model, mohammadi2021scaling, russell2019efficient}.
+There are several approaches to foster diversity, e.g., ensembling different kinds of explanations~\cite{silva2019produce}, considering multiple local minima~\cite{wachter2017counterfactual}, using a search algorithm that maintains diversity~\cite{dandl2020multi}, extending the optimization objective~\cite{artelt2022even, kim2016examples, mothilal2020explaining}, or introducing constraints~\cite{karimi2020model, mohammadi2021scaling, russell2019efficient}.
 The last option is similar to the way we enforce alternatives.
-One can also ensemble different kinds of explanations~\cite{silva2019produce}.
+Of the various mentioned approaches, only~\cite{artelt2022even, mohammadi2021scaling, mothilal2020explaining} introduce a parameter to control diversity of solutions.
+Of these three works, only~\cite{mohammadi2021scaling} offer a user-friendly dissimilarity threshold in~$[0,1]$, while the other two approaches employ a regularization parameter in the objective.
 
-Despite similarities, all these XAI techniques tackle different problems than alternative feature selection.
-In particular, all the previously mentioned techniques provide local explanations, i.e., they target at prediction outcomes for individual data objects and build on individual feature values.
+Despite similarities, all the previously mentioned XAI techniques tackle different problems than alternative feature selection.
+In particular, they provide local explanations, i.e., they target at prediction outcomes for individual data objects and build on individual feature values.
 In contrast, we are interested in the global prediction quality of feature sets.
-For example, counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual} are an XAI technique that alters feature values as little as possible to produce an alternative prediction outcome.
-In contrast, alternative feature sets might alter the feature selection significantly while trying to maintain the original prediction quality.
+For example, counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual} alter feature \emph{values} as little as possible to produce an alternative prediction \emph{outcome}.
+In contrast, alternative feature sets might alter the feature \emph{selection} significantly while trying to maintain the original prediction \emph{quality}.
 
 \section{Experimental Design}
 \label{sec:afs:experimental-design}
