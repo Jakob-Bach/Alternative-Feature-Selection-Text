@@ -1928,8 +1928,8 @@ In this section, we discuss the time complexity of alternative feature selection
 In particular, we are interested in scalability regarding the number of features~$n \in \mathbb{N}$, also considering the feature-set size~$k \in \mathbb{N}$ and the number of alternatives~$a \in \mathbb{N}_0$.
 Section~\ref{sec:afs:appendix:complexity:exhaustive} discusses exhaustive search, which works for arbitrary feature-selection methods.
 The four subsequent sections analyze univariate filter feature selection in detail:
-Section~\ref{sec:afs:appendix:complexity:uni} provides a general analysis, while Sections~\ref{sec:afs:appendix:complexity:uni-min-partitioning}) and~\ref{sec:afs:appendix:complexity:uni:min-no-partitioning}) investigate the minimum-quality objective in particular and Section~\ref{sec:afs:appendix:complexity:uni-sum} examines the summed-quality objective.
-Finally, Section~\ref{sec:afs:appendix:complexity:future} outlines potential future work on complexity.
+Section~\ref{sec:afs:appendix:complexity:uni} provides a general analysis, while Sections~\ref{sec:afs:appendix:complexity:uni-min-partitioning} and~\ref{sec:afs:appendix:complexity:uni:min-no-partitioning} investigate the minimum-quality objective in particular and Section~\ref{sec:afs:appendix:complexity:uni-sum} examines the summed-quality objective.
+Finally, Section~\ref{sec:afs:appendix:complexity:summary} summarizes our key results and Section~\ref{sec:afs:appendix:complexity:future} outlines potential future work.
 
 \subsubsection{Exhaustive Search for Arbitrary Feature-Selection Methods}
 \label{sec:afs:appendix:complexity:exhaustive}
@@ -2269,14 +2269,24 @@ Each element can at most be assigned to one knapsack and the weights of all elem
 However, we have a special case here, where the feature qualities act as profits, the feature-set sizes as capacities, and each feature has a weight of one.
 In particular, these uniform weights enable the tractability result stated in Proposition~\ref{prop:afs:complexity-partitioning-sum}.
 
+\subsubsection{Summary}
+\label{sec:afs:appendix:complexity:summary}
+
+We showed that simultaneous search for alternative feature sets is $\mathcal{NP}$-hard in general (cf.~Corollary~\ref{corr:afs:complexity-sim}).
+Further, we obtained more specific $\mathcal{NP}$-hardness results for univariate feature qualities and the minimum-quality objective in simultaneous search.
+In particular, we analyzed the cases of complete partitioning, i.e., with $\tau = 1$ and $(a+1) \cdot k = n$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}) and established a relationship to the problem of \textsc{Balanced Number Partitioning}.
+We extended the $\mathcal{NP}$-hardness result to incomplete partitioning, i.e., $(a+1) \cdot k < n$ (cf.~Proposition~\ref{prop:afs:complexity-incomplete-partitioning-min-constrained-k}) and feature set overlap, i.e., $\tau < 1$ (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}).
+In contrast, we also inferred polynomial runtime for univariate feature qualities, the summed-quality-objective, and $\tau = 1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}), no matter if sequential or simultaneous search.
+For general rather than univariate feature quality, we placed sequential and simultaneous search in the parameterized complexity class $\mathcal{XP}$ (cf.~Propositions~\ref{prop:afs:complexity-exhaustive-sequential} and~\ref{prop:afs:complexity-exhaustive-simultaneuos}), having~$a$ and~$k$ as the parameters that drive the hardness of the problem.
+
 \subsubsection{Future Work}
 \label{sec:afs:appendix:complexity:future}
 
 \paragraph{Scenarios of alternative feature selection}
 
 Our prior complexity analyses focused on special cases of alternative feature selection, while other cases might be interesting as well.
-For example, though we obtained $\mathcal{NP}$-hardness for the minimum-quality-objective with feature-set overlap (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}, an analysis of the summed-quality-objective with overlap is open, even for sequential search, i.e., just optimizing one alternative at once.
-While the summed-quality objective admits polynomial runtime subject to $\tau=1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}), this result might not extend to~$\tau < 1$.
+For example, though we obtained $\mathcal{NP}$-hardness for the minimum-quality-objective with feature-set overlap, an analysis of the summed-quality-objective with overlap is open, even for sequential search, i.e., just optimizing one alternative at once.
+While the summed-quality objective admits polynomial runtime subject to $\tau=1$, this result might not extend to~$\tau < 1$.
 In particular, $\tau < 1$ increases the number of valid solutions, which could negatively affect the runtime for searching the optimum.
 
 Further, our complexity analyses mostly assumed univariate feature qualities.
