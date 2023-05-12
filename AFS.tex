@@ -2,7 +2,7 @@
 
 \title{
 	Finding Optimal Diverse Feature Sets\\
-	via Alternative Feature Selection
+	with Alternative Feature Selection
 }
 \author{
 	Jakob Bach~\orcidlink{0000-0003-0301-2798}\\
@@ -86,7 +86,7 @@ Also, we consider finding multiple alternatives rather than just one.
 Two points are essential for alternative feature selection, which we both address in this article.
 First, one needs to formalize and quantify what an alternative feature set is.
 Second, one needs an approach to find alternative feature sets efficiently.
-Ideally, the approach should be general, i.e., cover a broad range of existing feature-selection methods.
+Ideally, the approach should be general, i.e., cover a broad range of existing feature-selection methods, given the variety of the latter~\cite{chandrashekar2014survey, li2017feature}.
 
 \paragraph{Related work}
 
@@ -98,28 +98,31 @@ However, these works address different problems than alternative feature selecti
 
 \paragraph{Contributions}
 
-Our contribution is threefold.
+Our contribution is fourfold.
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we define alternatives via constraints on feature sets.
-Second, we discuss approaches to solve this optimization problem.
+Also, we admit sequential as well as simultaneous search for multiple alternatives.
+Second, we analyze the complexity of this optimization problem.
+Third, we discuss approaches to solve the problem.
 To that end, we describe how to integrate different categories of feature-selection methods in the objective function.
-Third, we evaluate alternative feature selection with comprehensive experiments.
+Fourth, we evaluate alternative feature selection with comprehensive experiments.
 We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 Our definition of alternatives is orthogonal to existing feature-selection methods, i.e., not tailored towards specific techniques.
 Further, this formulation allows integrating other constraints on feature sets, e.g., based on domain knowledge~\cite{bach2022empirical, groves2015toward}.
-Finally, we only require users to set two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative.
-In fact, one can see existence of these parameters positively, as they allow users to control the search for alternatives according to their needs.
+Finally, we allow users to control the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative.
 
 \paragraph{Results}
 
-Depending on the dataset and the parameters for searching alternatives, we could find alternative feature sets with similar quality as the original ones.
+From the theoretical perspective, we show that alternative feature selection is an $\mathcal{NP}$-hard optimization problem.
+Experimentally, we could find alternative feature sets with similar quality as the original ones, depending on the dataset and the parameters for searching alternatives.
 This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions.
 As expected, feature-set quality tends to decrease with the number of alternatives.
 The exact decrease depends on how the feature-set quality is distributed in the dataset.
 Further, we observed that the quality of alternative feature sets significantly depends on the dissimilarity threshold for being alternative.
 Thereby, this threshold allows the user to exercise use-case-specific control on the trade-off between feature sets being alternative and having high feature-set quality.
+Computationally, a sequential search for alternatives was significantly faster than searching for multiple alternatives at once, while yielding a similar quality.
 We publish our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and our experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
 
 \paragraph{Outline}
@@ -129,7 +132,7 @@ Section~\ref{sec:afs:approach} defines the problem of alternative feature select
 Section~\ref{sec:afs:related-work} reviews related work.
 Section~\ref{sec:afs:experimental-design} describes our experimental design and Section~\ref{sec:afs:evaluation} presents the experimental results.
 Section~\ref{sec:afs:conclusion} concludes.
-The appendix (cf.~Section~\ref{sec:afs:appendix}) contains technical details and approaches not used in our experiments.
+The appendix (cf.~Section~\ref{sec:afs:appendix}) contains complexity analyses, technical details, and approaches not used in our experiments.
 
 \section{Fundamentals}
 \label{sec:afs:fundamentals}
@@ -196,6 +199,7 @@ First, we define the structure of the optimization problem, i.e., objective and 
 Second, we formalize the notion of alternatives via constraints (cf.~Section~\ref{sec:afs:approach:constraints}).
 Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
 In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
+In addition, Appendix~\ref{sec:afs:appendix:complexity} analyzes the complexity of the optimization problem.
 
 \subsection{Optimization Problem}
 \label{sec:afs:approach:problem}
@@ -361,7 +365,8 @@ One can also encode such constraints into propositional logic (\textsc{SAT})~\ci
 If the user desires multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
 The number of alternatives~$a$ is a parameter to be set by the user.
 Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search procedures.
-Appendix~\ref{sec:afs:appendix:complexity} analyzes the computational complexity of the optimization problems.
+Appendix~\ref{sec:afs:appendix:complexity} analyzes the computational complexity of the optimization problems in detail.
+In particular, we show $\mathcal{NP}$-hardness for simultaneous search (cf.~Corollary~\ref{corr:afs:complexity-sim}).
 %
 \begin{table}[htb]
 	\centering
@@ -416,11 +421,12 @@ Further runtime gains might be possible if the solver keeps a state between iter
 However, as the solution space becomes narrower over iterations, feature-set quality can deteriorate with each further alternative.
 In particular, multiple alternatives from the same sequential search might differ significantly in their quality.
 As a remedy, the user can decide after each iteration if the feature-set quality already is unacceptably low or if another alternative should be found.
+In particular, the user does not need to define the number of alternatives~$a$ a priori.
 
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, we directly obtain multiple alternatives.
-The user needs to decide on the number of feature sets $\mathbb{F}$ beforehand.
+Thus, the user needs to decide on the number of alternatives beforehand.
 We formulate pairwise dissimilarity constraints:
 %
 \begin{definition}[Simultaneous alternatives]
@@ -592,7 +598,7 @@ While such an approach is technically simple, it might very inefficient, as ther
 
 Instead of considering all possible alternatives, one can also sample a limited number of them.
 Again, the naive way is sampling from all feature sets, but removing those samples that are not alternative enough.
-If the number of valid alternatives is low relative to the total number of feature sets, this approach might need a lot of samples.
+If the number of valid alternatives is low relative to the total number of possible feature sets, this approach might need a lot of samples.
 One could also observe the constraints in the sampling procedure, e.g., by using a solver for sampling.
 One might abandon the idea of uniform sampling in that case since uniform sampling from a constrained space is a computationally hard problem, believed to be harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
 
@@ -1731,7 +1737,7 @@ However, users might be interested in obtaining multiple, sufficiently different
 Such alternative feature set might provide alternative explanations for predictions from the data.
 
 In this article, we defined alternative feature selection as an optimization problem.
-We formalized alternatives via constraints, which are independent from the feature-selection method and can be combined with other constraints on feature sets, e.g., based on domain knowledge.
+We formalized alternatives via constraints, which are independent from the feature-selection method, can be combined with other constraints on feature sets, and allow the user to control alternatives according to their needs.
 Further, we presented approaches to solve this optimization problem for different categories of feature-selection methods.
 Finally, we ran an evaluation with 30 classification datasets and five feature-selection methods.
 We compared two search strategies for alternatives and varied the threshold for being alternative.
@@ -2021,7 +2027,8 @@ The same goes for the minimum-quality and the summed-quality objective (cf.~Sect
 Thus, alternative feature selection with a white-box objective suitable for \textsc{Integer programming} cannot be harder than $\mathcal{NP}$.
 However, since alternative feature selection only uses special types of constraints instead of expressing arbitrary integer linear problems, it could still be easier.
 Vice versa, the membership in $\mathcal{NP}$ based on \textsc{Integer programming} assumes a particular encoding of alternative feature selection, i.e., storing each constraint separately.
-If we defined the problem's input size only as the number of features~$n$ or the total encoding length of the objective function, the problem might become harder than $\mathcal{NP}$, e.g., for a high number of alternatives.
+If we instead define the problem's input size only as the number of features~$n$ or the total encoding length of the objective function plus parameters~$a$, $k$, and $\tau$, the problem could theoretically be harder than $\mathcal{NP}$, e.g., for a higher number of alternatives.
+In particular, increasing the number of alternatives would only increase the encoding length logarithmically but the effort for constraint checking quadratically.
 
 \paragraph{Leveraging monotonicity}
 
@@ -2086,6 +2093,7 @@ Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-u
 %
 \begin{corollary}[Complexity of simultaneous search with minimum-quality objective]
 	Simultaneous search for alternative feature sets with the minimum-quality objective is $\mathcal{NP}$-hard.
+	\label{corr:afs:complexity-sim}
 \end{corollary}
 %
 There are several exact algorithms for \textsc{Multi-Way Number Partitioning}, e.g., using branch-and-bound approaches, that might have exponential runtime~\cite{haouari2008maximizing, schreiber2018optimal, walter2017improved}.
