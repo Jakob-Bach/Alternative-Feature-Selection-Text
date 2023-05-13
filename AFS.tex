@@ -36,14 +36,14 @@
 \maketitle
 
 \begin{abstract}
-Feature-selection methods are popular to obtain small, interpretable, yet highly accurate prediction models.
-Existing feature-selection methods typically yield only one feature set, which might not be sufficient in some cases.
+Feature-selection methods are popular for obtaining small, interpretable, yet highly accurate prediction models.
+Existing feature-selection methods typically yield only one feature set, which might not suffice in some scenarios.
 For example, users might be interested in finding different feature sets with similar prediction quality, offering alternative explanations of the data.
 In this article, we introduce and formalize alternative feature selection as an optimization problem.
 Next, we analyze the complexity of this optimization problem and show $\mathcal{NP}$-hardness.
 Further, we discuss how to integrate various categories of existing feature-selection methods.
 Finally, we evaluate alternative feature selection in a study with 30 classification datasets.
-In our experiments, we observe that alternatives might indeed have similar prediction quality as the original feature sets, but several factors influence this outcome.
+In our experiments, we observe that alternatives might indeed have similar prediction quality as the original feature sets, though several factors influence this outcome.
 \end{abstract}
 %
 \textbf{Keywords:} feature selection, alternatives, constraints, mixed-integer programming, explainability, interpretability, XAI
@@ -54,7 +54,7 @@ In our experiments, we observe that alternatives might indeed have similar predi
 \paragraph{Motivation}
 
 Feature-selection methods are ubiquitous for a variety of reasons.
-By reducing dataset dimensionality, they lower the computational and memory requirements of prediction models.
+By reducing dataset dimensionality, they lower the prediction models' computational and memory requirements.
 Next, models might generalize better after removing irrelevant and spurious predictors.
 Finally, prediction models might become simpler and more comprehensive~\cite{li2017feature}, improving interpretability.
 
@@ -64,8 +64,8 @@ However, besides the optimal feature set, there might be other, differently comp
 For the user, such alternative feature sets might be interesting for multiple reasons.
 First, some originally selected features might be costly to obtain, so the user would prefer cheaper alternatives.
 Second, some originally selected features might contain sensitive information that should not be used in predictions.
-Third, the user might be interested in explanations for the prediction, rather than just making good predictions.
-In such a situation, knowing alternative feature sets allows the formulation of multiple, diverse explanations.
+Third, the user might be interested in explanations for predictions rather than just making good predictions.
+In such a scenario, knowing alternative feature sets allows the formulation of multiple, diverse explanations.
 Such alternative explanations can broaden the user's understanding of the domain and help gain deeper insights.
 
 \paragraph{Problem statement}
@@ -92,7 +92,7 @@ Ideally, the approach should be general, i.e., cover a broad range of existing f
 \paragraph{Related work}
 
 While finding alternative solutions has already been addressed extensively in the field of clustering~\cite{bailey2014alternative}, there is a lack of such approaches for feature selection.
-Only few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
+Only a few feature-selection methods target at obtaining multiple, diverse feature sets~\cite{borboudakis2021extending, siddiqi2020genetic}.
 In particular, techniques for ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} and statistically equivalent feature subsets~\cite{lagani2017feature} produce multiple feature sets but not optimal alternatives.
 In fields related to feature selection, the goal of obtaining multiple, diverse solutions has been studied as well, e.g., for subspace clustering~\cite{mueller2009relevant}, subspace search~\cite{trittenbach2019dimension}, or explainable-AI techniques~\cite{artelt2022even, kim2016examples, mothilal2020explaining, russell2019efficient} like counterfactuals.
 However, these works address different problems than alternative feature selection, as we discuss in Section~\ref{sec:afs:related-work}.
@@ -107,7 +107,7 @@ Second, we analyze the complexity of this optimization problem.
 Third, we discuss approaches to solve the problem.
 To that end, we describe how to integrate different categories of feature-selection methods in the objective function.
 Fourth, we evaluate alternative feature selection with comprehensive experiments.
-We use 30 classification dataset from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
+We use 30 classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
 We focus on the question if one can find alternative feature sets with similar feature-set quality as the original ones.
 
 Our definition of alternatives is orthogonal to existing feature-selection methods, i.e., not tailored towards specific techniques.
@@ -118,20 +118,20 @@ Finally, we allow users to control the search for alternatives with two paramete
 
 From the theoretical perspective, we show that alternative feature selection is an $\mathcal{NP}$-hard optimization problem.
 Experimentally, we could often find alternative feature sets with similar quality as the original ones.
-Thereby, several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and the parameters for searching alternatives.
-This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions, though concrete statements on the quality of alternatives are up to the use case.
-As expected, feature-set quality tends to decrease with the number of alternatives and dissimilarity threshold for being alternative.
+Thereby, several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and parameters for searching alternatives.
+This outcome encourages using alternative feature sets as a tool for alternative explanations of predictions.
+As expectable, feature-set quality tends to decrease with the number of alternatives and the dissimilarity threshold for being alternative.
 Thus, these parameters allow the user to exercise use-case-specific control on the trade-off between feature sets being alternative and having high feature-set quality.
-Also, depending on the number of features in the dataset, no valid alternatives might exist if the parameters values are too strict.
-Computationally, a sequential search for alternatives was significantly faster than searching for multiple alternatives at once, while yielding a similar quality.
-We publish our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and our experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
+Also, depending on the number of features in the dataset, no valid alternatives might exist if the parameter values are too strict.
+Computationally, a sequential search for alternatives was significantly faster than searching for multiple alternatives simultaneously while yielding a similar quality.
+Finally, we publish our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and our experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
 
 \paragraph{Outline}
 
-Section~\ref{sec:afs:fundamentals} explains fundamentals of feature selection.
+Section~\ref{sec:afs:fundamentals} introduces the fundamentals of feature selection.
 Section~\ref{sec:afs:approach} defines the problem of alternative feature selection and discusses solution approaches.
 Section~\ref{sec:afs:related-work} reviews related work.
-Section~\ref{sec:afs:experimental-design} describes our experimental design and Section~\ref{sec:afs:evaluation} presents the experimental results.
+Section~\ref{sec:afs:experimental-design} describes our experimental design, and Section~\ref{sec:afs:evaluation} presents the experimental results.
 Section~\ref{sec:afs:conclusion} concludes.
 The appendix (cf.~Section~\ref{sec:afs:appendix}) contains complexity analyses, technical details, and approaches not used in our experiments.
 
