@@ -151,7 +151,7 @@ Let $X_{\cdot{}j} \in \mathbb{R}^m$ denote the vector representation of the $j$-
 Further, let $y \in \mathbb{R}^m$ represent the prediction target.
 The actual domain of the target might also be smaller, e.g., $\{0,1\}$ for binary classification.
 
-With feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
+In feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
 The vector $s \in \{0,1\}^n$ combines all these selection decisions.
 The selected feature set is $F_s = \{f_j \mid s_j=1\}$.
 Let the function $Q(s,X,y)$ return the quality of such a feature set.
@@ -190,7 +190,7 @@ For example, tree-based models often use information gain or the Gini index to s
 
 Apart from traditional feature selection, there are various methods that assess feature importance after training a model.
 These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
-In particular, assessing feature importance plays a crucial role in the emerging field of ML interpretability~\cite{carvalho2019machine, molnar2020interpretable}.
+In particular, assessing feature importance plays a crucial role in the field of ML interpretability~\cite{carvalho2019machine, molnar2020interpretable}.
 
 \section{Alternative Feature Selection}
 \label{sec:afs:approach}
@@ -326,8 +326,8 @@ Further, $\tau$ then directly controls which fraction of features in one set nee
 	\label{eq:afs:dice-rearranged-equal-size}
 \end{equation}
 %
-Thus, if users are uncertain how to choose $\tau$ and $|F''|$ is reasonably small, they can try out all values of $\tau \in \{i / |F''|\}$ with $i \in \{0, 1, \dots, |F''|\}$.
-Put differently, $|F''| + 1$ values of $\tau$ cover all potential overlap sizes of the two feature sets.
+Thus, if users are uncertain how to choose $\tau$ and $|F''|$ is reasonably small, they can try out all values of $\tau \in \{i / |F''|\}$ with $i \in \{1, \dots, |F''|\}$.
+Put differently, $|F''|$ unique values of $\tau$ cover all potential overlap sizes of the two feature sets, excluding the case with full overlap.
 
 Up to now, we have used feature sets instead of the binary feature-selection vector $s$.
 However, expressing the feature-set sizes in terms of $s$ is straightforward:
@@ -342,7 +342,7 @@ However, expressing the feature-set sizes in terms of $s$ is straightforward:
 %
 The expression from Equation~\ref{eq:afs:feature-set-size} also helps to formulate a constraint for limiting the new feature set's size to a user-defined value~$k \in \mathbb{N}$.
 Further, combining Equation~\ref{eq:afs:jaccard-rearranged},~\ref{eq:afs:dice-rearranged},~or~\ref{eq:afs:dice-rearranged-equal-size} with Equation~\ref{eq:afs:feature-set-size} yields an inequality only involving sums and products of the binary decision variables and constant values.
-In fact, one can replace the product $s'_j \cdot s''_j$, which is non-linear, with linear constraints by introducing an auxiliary variable $t_j$~\cite{mosek2022modeling} as follows:
+In fact, one can replace the product $s'_j \cdot s''_j$, which is non-linear, with linear constraints by introducing an auxiliary variable $t_j$ as follows~\cite{mosek2022modeling}:
 %
 \begin{equation}
 	\begin{aligned}
@@ -506,7 +506,7 @@ Equation~\ref{eq:afs:univariate-filter} cannot express such conditional importan
 
 In theory, one would have to re-calculate feature importance for each possible set of selected features to capture all possible feature interactions.
 However, such a procedure demands extensive runtime, scales exponentially with the number of features, and makes white-box optimization infeasible.
-In practice, one can use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset, i.e., with all feature being present.
+In practice, one can use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all feature being present.
 One only needs to be aware that such an approach might not represent importances in feature subsets faithfully.
 
 \paragraph{Multivariate filter feature selection}
@@ -540,14 +540,14 @@ As a countermeasure, one can add a constraint on the feature-set size, as we do 
 If one still wants to prevent the selection of features with low correlation to the prediction target, one can also filter out these features before optimization.
 Second, we keep FCBF's constraints on feature-feature correlation.
 In particular, we prevent the simultaneous selection of two features if the correlation between them is at least as high as one of the features' correlation to the target.
-As the if-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the related linear constraint on~$s$ only if needed.
+As the `with'-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the related linear constraint on~$s$ only if needed.
 
 \paragraph{mRMR}
 
 Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} combines two criteria, i.e., feature relevance and feature redundancy.
 Relevance corresponds to the correlation between features and prediction target, which should be maximized, similar to the univariate filter.
 Redundancy corresponds to the correlation between features, which should be minimized.
-Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the objective is maximizing the following difference between relevance and redundancy:
+Using a bivariate dependency measure~$q(\cdot)$ to quantify correlation, the objective is maximizing the following difference between relevance and redundancy:
 %
 \begin{equation}
 	Q_{\text{mRMR}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sum_{j=1}^{n} s_j} - \frac{\sum_{j_1=1}^{n} \sum_{j_2=1}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}{(\sum_{j=1}^{n} s_j)^2}
@@ -624,7 +624,7 @@ First, the algorithm uses a solver to find one solution that is alternative enou
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
 Next, it tries `swapping' one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
 The algorithm calls the solver again to find a solution~$s'$ containing this change and satisfying the other constraints.
-If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again swapping the first feature.
+If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first feature.
 Else, it attempts to swap the next feature.
 In particular, we only evaluate one swap per feature before moving on rather than enumerating all valid solutions containing the swap.
 
@@ -633,7 +633,7 @@ In particular, $max\_iters$ only is an upper bound on the iteration count since 
 We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
 This also is an upper bound on the number of prediction models trained.
 However, not all solver calls might yield a valid feature set.
-
+%
 \begin{algorithm}[htb]
 	\DontPrintSemicolon
 	\KwIn{Dataset $X$, Prediction target $y$, \newline
@@ -787,7 +787,7 @@ The output of the integer program leads to constraints for a subsequent clusteri
 
 \paragraph{Subspace clustering and subspace search}
 
-Finding multiple useful feature set plays a role in subspace clustering~\cite{hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
+Finding multiple useful feature sets plays a role in subspace clustering~\cite{hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
 These approaches strive to improve the results of data-mining algorithms by using subspaces, i.e., feature sets, rather than the full space, i.e., all features.
 While some subspace approaches only consider features utility in individual subspaces, others explicitly try to remove redundancy between subspaces~\cite{mueller2009relevant, nguyen20134s} or foster subspace diversity~\cite{fouche2021efficient, trittenbach2019dimension}, which bears some resemblance to alternative feature selection.
 In particular, \cite{hu2018subspace} surveys subspace-clustering approaches yielding multiple results and discusses the redundancy aspect.
@@ -809,7 +809,7 @@ Finding diverse explanations is an issue for various explainers, e.g., for count
 There are several approaches to foster diversity, e.g., ensembling different kinds of explanations~\cite{silva2019produce}, considering multiple local minima~\cite{wachter2017counterfactual}, using a search algorithm that maintains diversity~\cite{dandl2020multi}, extending the optimization objective~\cite{artelt2022even, kim2016examples, mothilal2020explaining}, or introducing constraints~\cite{karimi2020model, mohammadi2021scaling, russell2019efficient}.
 The last option is similar to the way we enforce alternatives.
 Of the various mentioned approaches, only~\cite{artelt2022even, mohammadi2021scaling, mothilal2020explaining} introduce a parameter to control diversity of solutions.
-Of these three works, only~\cite{mohammadi2021scaling} offer a user-friendly dissimilarity threshold in~$[0,1]$, while the other two approaches employ a regularization parameter in the objective.
+Of these three works, only~\cite{mohammadi2021scaling} offers a user-friendly dissimilarity threshold in~$[0,1]$, while the other two approaches employ a regularization parameter in the objective.
 
 Despite similarities, all the previously mentioned XAI techniques tackle different problems than alternative feature selection.
 In particular, they provide local explanations, i.e., they target at prediction outcomes for individual data objects and build on individual feature values.
@@ -902,7 +902,7 @@ Further, even if we only evaluate our own approaches, we can still put the featu
 \paragraph{Search parametrization}
 
 We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
-For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the minimum-quality-objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
+For simultaneous search, we use the summed-quality objective from Equation~\ref{eq:afs:afs-simultaneous-sum-objective} as well as the minimum-quality objective from Equation~\ref{eq:afs:afs-simultaneous-min-objective}.
 We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
 This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
@@ -958,7 +958,7 @@ Second, we train predictions models with the found feature sets.
 We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
 This coefficient reaches its maximum of 1 for perfect predictions and is 0 for random guessing.
 
-To analyze how well feature-selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
+To analyze how well feature selection and prediction models generalize, we conduct stratified 10-fold cross-validation.
 Not only model training but also the search for alternative feature sets is limited to the training data.
 
 \paragraph{Runtime}
@@ -1327,7 +1327,7 @@ This observation holds for all four white-box feature selection methods, while t
 In contrast, for \emph{MI}, as visible in Figure~\ref{fig:afs:impact-search-mean-train-objective}, and \emph{Model Gain}, simultaneous search tends to develop a slight advantage over sequential search at least with a growing number of alternatives.
 
 The negligible quality difference between the search methods is also visible for the test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-objective} and the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc}.
-In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, other aspects of the experimental design, e.g., dataset, dissimilarity threshold~$\tau$, etc. cause a larger variation in prediction performance, which exceeds the variation between the search methods.
+In particular, as Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, other aspects of the experimental design, e.g., dataset, dissimilarity threshold~$\tau$, etc. cause a variation in prediction performance that exceeds the variation between the search methods.
 
 As a final quality comparison, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in feature-set quality between sequential and simultaneous search if it is compared on each search setting separately, i.e., each combination of dataset, fold, dissimilarity threshold~$\tau$, etc.
 The figure again shows that all feature-selection methods except \emph{Greedy Wrapper} exhibit little variation in quality between these two search approaches, apart from some outlying experimental settings, i.e., the difference in feature-set quality is usually close to zero.
@@ -1392,7 +1392,7 @@ While simultaneous search can yield better-performing feature sets in some situa
 
 A major reason for simultaneous search failing to consistently beat sequential search quality-wise is that search results can be sub-optimal.
 For \emph{Greedy Wrapper}, the search is heuristic per se, and only a tiny fraction of the search space is covered.
-For the four white-box feature-selection methods, the solver can time out.
+For all feature-selection methods, the solver can time out.
 As the optimization problem of simultaneous search is harder than for sequential search (cf.~Table~\ref{tab:afs:seq-sim-comparison}), it has a higher likelihood to run into timeouts.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} visualizes this phenomenon.
 In particular, for up to five alternatives and $k=5$, all sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility.
@@ -1764,7 +1764,7 @@ Finally, the quality decrease was more prominent on the training set than on the
 \paragraph{Dissimilarity threshold $\tau$ (cf.~Section~\ref{sec:afs:evaluation:search:tau})}
 
 As expectable, a higher dissimilarity threshold caused a stronger decrease of feature-set quality in terms of objective value for the feature-selection methods \emph{MI} and \emph{Model Gain}.
-This result shows that usera can control a trade-off between quality and dissimilarity, making a use-case-specific decision.
+This result shows that users can control a trade-off between quality and dissimilarity, making a use-case-specific decision.
 However, results regarding prediction performance and for the other three feature-selection methods were less clear.
 In any case, a higher~$\tau$ naturally caused more infeasible solutions, which users should be aware of.
 
@@ -1780,10 +1780,10 @@ Obtaining interpretable solutions is a highly active research area in machine le
 One way to foster interpretability is by selecting a small set of features for predictions.
 Traditional feature-selection methods yield \emph{one} feature set with high quality, e.g., regarding prediction performance.
 However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
-Such alternative feature set might provide alternative explanations for predictions from the data.
+Such alternative feature sets might provide alternative explanations for predictions from the data.
 
 In this article, we defined alternative feature selection as an optimization problem.
-We formalized alternatives via constraints, which are independent from the feature-selection method, can be combined with other constraints on feature sets, and allow users to control alternatives according to their needs.
+We formalized alternatives via constraints that are independent of the feature-selection method, can be combined with other constraints on feature sets, and allow users to control alternatives according to their needs.
 Additionally, Appendix~\ref{sec:afs:appendix:complexity} analyzes the complexity of this optimization problem.
 Further, we presented approaches to solve the optimization problem for different categories of feature-selection methods.
 Finally, we ran an evaluation with 30 classification datasets and five feature-selection methods.
@@ -2034,7 +2034,7 @@ The scalability with~$n$ is clearly worse than for sequential search since the n
 For parameterized complexity, the problem is again in class $\mathcal{XP}$ with the parameter~$a \cdot k$.
 Assuming~$a$ and~$k$ to be small and independent from~$n$, the time complexity is still polynomial in~$n$ but with a even worse exponent than in sequential search.
 
-Additionally, Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} assumes that constraint checking does not require linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}, which would increase the search space even further.
+Additionally, Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} assumes that constraint checking does not require linearization variables like $t^{(i_1,i_2)}_j$ in Equation~\ref{eq:afs:afs-simultaneous-complete}, which would enlarge the search space even further.
 Further, note that choosing between the summed-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective} and the minimum-quality objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) does not affect the complexity in exhaustive search, since computing both objectives requires one pass over all feature-set qualities.
 
 Finally, the complexity is lower for the special case~$0 < \tau \cdot k \leq 1$, i.e., if feature sets need to differ in only one feature.
@@ -2206,7 +2206,7 @@ However, if the qualities of the resulting alternative feature sets are not equa
 In that case, we can simply replace $f'$ with the feature that was not selected instead; the objective value remains the same and the solution becomes valid for~$I$.
 Thus, in any case, we can easily transform a solution for~$I'$ to a solution for~$I$.
 
-The previous argument shows that an algorithm for incomplete-partitioning problem instances can also solve arbitrary complete-partitioning problem instances with negligible computational overheard.
+The previous argument shows that an algorithm for incomplete-partitioning problem instances can also solve arbitrary complete-partitioning problem instances with negligible computational overhead.
 Thus, if a polynomial-time algorithm for incomplete partitioning existed, it could also solve complete partitioning in polynomial time.
 However, we know the latter problem type to be $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
 As a consequence, incomplete partitioning has to be $\mathcal{NP}$-hard.
@@ -2230,9 +2230,9 @@ Further, let the feature-set size~$k$ be fixed.
 As before, we define a new problem instance~$I'$ by adding a new feature~$f'$.
 However, this time, we increase the desired feature-set size to $k' = k + 1$.
 Further, we set $\tau' = (k' - 1) / k'$, thereby allowing an overlap of at most one feature between feature sets.
-Also, we choose~$f'$ to have a considerably higher feature-set quality than all other features.
+Also, we choose~$f'$ to have a considerably higher quality than all other features.
 The goal is to force the selection of~$f'$ in all feature sets since any selection not involving it would be worse, no matter which other features are selected.
-One possible choice is setting $q' = \sum_{j=1}^n q_j + \varepsilon$, with $\varepsilon \in \mathbb{R}_{\geq 0}$ being a small positive number, or, if the qualities are integers, $\varepsilon = 1$.
+One possible choice is setting $q' = \sum_{j=1}^n q_j + \varepsilon$, with $\varepsilon \in \mathbb{R}_{> 0}$ being a small positive number, or, if the qualities are integers, $\varepsilon = 1$.
 Hence, the quality of~$f'$ is higher than the quality of selecting all original features from~$I$.
 If we now obtain a solution for~$I'$, it contains~$f'$ in each feature set while the remaining features are part of exactly one feature set.
 Thus, we can remove~$f'$ to get feature sets of size~$k = k' - 1$ that constitute an optimal solution for the original problem instance~$I$.
