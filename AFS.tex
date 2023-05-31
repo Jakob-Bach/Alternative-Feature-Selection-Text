@@ -1108,7 +1108,7 @@ In particular, this normalization should reduce the influence of datasets and hi
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/afs-evaluation-metrics-overfitting.pdf}
 		\caption{
-			Training-test difference in feature-set quality by evaluation metric and feature-selection method.
+			Training-test difference in feature-set quality by feature-selection method.
 			Y-axis truncated to improve readability.
 		}
 		\label{fig:afs:evaluation-metrics-overfitting}
@@ -1418,15 +1418,15 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 		\cmidrule(r){2-4}
 		& seq. & sim. (min) & sim. (sum) \\
 		\midrule
-		FCBF & 0.02~s & 0.14~s & 0.12~s \\
-		Greedy Wrapper & 3.46~s & 3.09~s & 3.28~s \\
-		MI & 0.02~s & 1.25~s & 0.15~s \\
-		Model Gain & 0.02~s & 0.82~s & 0.13~s \\
-		mRMR & 2.80~s & 120.00~s & 239.69~s \\
+		FCBF & 0.18~s & 11.55~s & 13.40~s \\
+		Greedy Wrapper & 6.96~s & 10.67~s & 11.48~s \\
+		MI & 0.02~s & 44.21~s & 22.46~s \\
+		Model Gain & 0.02~s & 30.26~s & 19.52~s \\
+		mRMR & 35.78~s & 155.62~s & 189.29~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Median optimization time by feature-selection method and search method for alternatives.
+		Mean optimization time by feature-selection method and search method for alternatives.
 		Results with $k=5$ and up to five alternatives.
 	}
 	\label{tab:afs:impact-search-fs-method-optimization-time}
@@ -1440,15 +1440,15 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 		\cmidrule(r){2-6}
 		& FCBF & Wrapper & MI & Model Gain & mRMR \\
 		\midrule
-		1 & 0.04~s & 1.61~s & 0.01~s & 0.01~s & 12.09~s \\
-		2 & 0.07~s & 2.47~s & 0.05~s & 0.05~s & 179.85~s \\
-		3 & 0.13~s & 3.29~s & 0.20~s & 0.17~s & 239.93~s \\
-		4 & 0.21~s & 5.31~s & 1.75~s & 1.44~s & 299.91~s \\
-		5 & 0.28~s & 7.26~s & 61.34~s & 30.09~s & 359.91~s \\
+		1 & 0.42~s & 3.20~s & 0.02~s & 0.02~s & 44.96~s \\
+		2 & 0.91~s & 5.07~s & 0.07~s & 0.06~s & 119.42~s \\
+		3 & 3.11~s & 7.56~s & 0.25~s & 0.23~s & 206.00~s \\
+		4 & 14.98~s & 18.69~s & 3.73~s & 3.43~s & 258.60~s \\
+		5 & 47.57~s & 22.87~s & 108.22~s & 93.89~s & 317.44~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Median optimization time by feature-selection method and number of alternatives~$a$.
+		Mean optimization time by feature-selection method and number of alternatives~$a$.
 		Results from simultaneous search with summed-quality objective and $k=5$.
 	}
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
@@ -1457,9 +1457,9 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 \paragraph{Optimization time}
 
 Analyzing the actual optimization time instead of the optimization status also speaks in favor of sequential search.
-As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the median optimization time of sequential search is lower for all five feature-selection methods.
-In particular, the difference in median optimization time between sequential and simultaneous search is one to two orders of magnitude for the four white-box feature-selection methods.
-Further, \emph{MI}, and \emph{Model Gain} experiences a dramatic, clearly super-linear increase in median optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} displays.
+As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the mean optimization time of sequential search is lower for all five feature-selection methods.
+In particular, the difference in mean optimization time between sequential and simultaneous search is up to three orders of magnitude for the four white-box feature-selection methods.
+Further, \emph{MI}, and \emph{Model Gain} experiences a dramatic, clearly super-linear increase in mean optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} displays.
 In contrast, the runtime increase is considerably less for sequential search since it shows an approximately linear trend with the number of alternatives there.
 
 Based on all results described in this section, we focus on the sequential search in the following.
@@ -1544,24 +1544,49 @@ Figures~\ref{fig:afs:impact-num-alternatives-quality-max-fillna} and~\ref{fig:af
 In these figures, the downward trend of feature-set quality over the number of alternatives becomes slightly more prominent, particular for a high number of alternatives.
 This downward trend also depends on the dissimilarity threshold~$\tau$, which we analyze in the next section.
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-train-objective-max.pdf}
-		\caption{Training-set objective value.}
+		\caption{
+			Training-set objective value.
+			Infeasible feature sets excluded.
+		}
 		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-train-objective-max-fillna.pdf}
+		\caption{
+			Training-set objective value.
+			Infeasible feature sets assigned a quality of~0.
+		}
+		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max-fillna}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
 		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-decision-tree-test-mcc-max.pdf}
-		\caption{Test-set prediction performance.}
+		\caption{
+			Test-set prediction performance.
+			Infeasible feature sets excluded.
+		}
 		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max}
 	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna.pdf}
+		\caption{
+			Test-set prediction performance.
+			Infeasible feature sets assigned a quality of~0.
+		}
+		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna}
+	\end{subfigure}
 	\caption{
-		Median feature-set quality, max-normalized per experimental setting, over the number of alternatives, by evaluation metric.
-		Infeasible feature sets excluded.
+		Mean feature-set quality, max-normalized per experimental setting, over the number of alternatives, by evaluation metric and feature-selection method.
 		Results from sequential search with $k=5$.
 	}
 	\label{fig:afs:impact-num-alternatives-fs-method-quality}
@@ -1571,8 +1596,9 @@ This downward trend also depends on the dissimilarity threshold~$\tau$, which we
 
 While we discussed \emph{MI} before, the decrease of objective value over the number of alternatives occurs for all feature-selection methods in our experiments, as Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} shows.
 The strength of the decrease varies between the feature selection methods.
-For example, \emph{Greedy Wrapper} and \emph{mRMR} show little effect of increasing the number alternatives.
-Further, for the test-set prediction performance, displayed in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max} none of the feature-selection methods exhibits a strong decrease over the number of alternatives.
+For example, \emph{Greedy Wrapper} and \emph{mRMR} show little effect of increasing the number alternatives, while \emph{MI} and \emph{Model Gain} exhibit the strongest effect.
+As Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max-fillna} shows, the quality decrease becomes more prominent if one considers infeasible feature sets to have a quality of~0.
+Further, for the test-set prediction performance, displayed in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max} none of the feature-selection methods exhibits a strong decrease over the number of alternatives, unless we account for infeasible feature sets (cf.~Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna}).
 
 \subsubsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}} % \texorpdfstring prevents warning "Token not allowed in a PDF string"
 \label{sec:afs:evaluation:search:tau}
@@ -1688,24 +1714,49 @@ Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max
 In contrast, if only considering valid feature sets, the mean objective value can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$ or in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} for \emph{MI} and \emph{Model Gain}.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-train-objective-max.pdf}
-		\caption{Training-set objective value.}
+		\caption{
+			Training-set objective value.
+			Infeasible feature sets excluded.
+		}
 		\label{fig:afs:impact-tau-fs-method-train-objective-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-train-objective-max-fillna.pdf}
+		\caption{
+			Training-set objective value.
+			Infeasible feature sets assigned a quality of~0.
+		}
+		\label{fig:afs:impact-tau-fs-method-train-objective-max-fillna}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
 		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-decision-tree-test-mcc-max.pdf}
-		\caption{Test-set prediction performance.}
+		\caption{
+			Test-set prediction performance.
+			Infeasible feature sets excluded.
+		}
 		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max}
 	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=20 40 15 15, clip]{plots/afs-impact-tau-fs-method-decision-tree-test-mcc-max-fillna.pdf}
+		\caption{
+			Test-set prediction performance.
+			Infeasible feature sets assigned a quality of~0.
+		}
+		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max-fillna}
+	\end{subfigure}
 	\caption{
-		Median feature-set quality, max-normalized per experimental setting, over the dissimilarity threshold~$\tau$, by evaluation metric.
-		Infeasible feature sets excluded.
+		Mean feature-set quality, max-normalized per experimental setting, over the dissimilarity threshold~$\tau$, by evaluation metric and feature-selection method.
 		Results from sequential search with $k=10$.
 	}
 	\label{fig:afs:impact-tau-fs-method-quality}
@@ -1715,14 +1766,14 @@ This counterintuitive phenomenon can occur because some datasets run out of vali
 
 While the previous observations applied to \emph{MI} as feature-selection method, they do not hold universally, as Figure~\ref{fig:afs:impact-tau-fs-method-train-objective-max} shows.
 Besides \emph{MI}, the objective value of \emph{Model Gain} strongly depends on~$\tau$ as well.
-In contrast, the remaining three feature-selection methods exhibit less influence of~$\tau$ on the quality of found feature sets.
+In contrast, the remaining three feature-selection methods exhibit less influence of~$\tau$ on the quality of found feature sets, unless one also considers infeasible feature sets (cf.~Figure~\ref{fig:afs:impact-tau-fs-method-train-objective-max-fillna}).
 For \emph{Greedy Wrapper}, this outcome can be explained by the heuristic search procedure to find feature sets.
 For \emph{FCBF}, the fraction of infeasible solutions is much higher than for \emph{MI} in general, so this aspect plays a larger role than the quality variation of found feature sets.
 For \emph{mRMR}, the low influence of~$\tau$ matches the low influence of the number of alternatives.
 For this feature-selection method, alternative feature sets seem to vary little in their objective value.
 
-Despite different effects on the objective value, the effect of a higher~$\tau$ causing more infeasible feature sets remains for all feature-selection methods.
 Further, the test-set prediction performance does not vary considerably over $\tau$ for any of the feature-selection methods, as Figure~\ref{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max} displays.
+Only considering infeasible feature sets results in a decrease of prediction performance (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna}).
 
 \subsection{Summary}
 \label{sec:afs:evaluation:summary}
