@@ -1117,7 +1117,7 @@ In particular, this normalization should reduce the influence of datasets and hi
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 15 15 15, clip]{plots/afs-evaluation-metrics-correlation.pdf}
-		\caption{Correlation between evaluation metrics, each calculated on the training set and the test set.}
+		\caption{Correlation between evaluation metrics, first computed per feature-selection method and then averaged.}
 		\label{fig:afs:evaluation-metrics-correlation}
 	\end{subfigure}
 	\caption{
@@ -1146,13 +1146,18 @@ The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-ove
 \paragraph{Correlation between evaluation metrics}
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics over all experimental settings.
-As the performance of decision trees and random forests is highly correlated on the training set as well as the test set, we only report prediction performance of one model in the following:
+Since the different feature-selection methods have different objective functions, we computed the correlation for each feature-selection method separately and then averaged over them.
+The plot shows that the performance of decision trees and random forests is highly correlated on the training set as well as the test set.
+Thus, we only report prediction performance of one model in the following:
 We choose decision trees, as they always consider all features during training, while random forests involve random sampling of features.
 
 Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlation between training and test feature-set quality is strong for the optimization objective~$Q$ and moderate for prediction performance in terms of MCC, but not very strong in either case.
 This might be caused by different degrees of overfitting, depending on the experimental settings.
 Further, the correlation between optimization objective~$Q$ and prediction MCC is only weak.
 I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
+In particular, \emph{Greedy Wrapper} has a correlation of 0.88 between training-set objective value and test-set prediction performance.
+Since this feature-selection method uses prediction models for the objective value, the correlation is high.
+On the other hand of the spectrum, \emph{MI} with its simple univariate objective exhibits a correlation of -0.32 between training-set objective value and test-set prediction performance.
 
 \subsection{Feature-Selection Methods}
 \label{sec:afs:evaluation:feature-selection}
@@ -1297,7 +1302,7 @@ In this section, we evaluate the different choices for searching alternatives: t
 	\end{subfigure}
 	\caption{
 		Feature-set quality by feature-selection method and search method for alternatives.
-		Results with $k=5$ and up to five alternatives.
+		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
 	}
 	\label{fig:afs:impact-search-fs-method-quality}
 \end{figure}
@@ -1358,7 +1363,7 @@ While simultaneous search can yield better-performing feature sets in some situa
 	\end{tabular}
 	\caption{
 		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by feature-selection method and search method for alternatives.
-		Results with $k=5$ and up to five alternatives.
+		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
 		Excluding \emph{Greedy Wrapper}, which calls the solver multiple times, and checks satisfiability rather than optimizing.
 		Each row sums to 100\%.
 	}
@@ -1427,7 +1432,7 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 	\end{tabular}
 	\caption{
 		Mean optimization time by feature-selection method and search method for alternatives.
-		Results with $k=5$ and up to five alternatives.
+		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
 	}
 	\label{tab:afs:impact-search-fs-method-optimization-time}
 \end{table}
