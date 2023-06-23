@@ -622,13 +622,14 @@ Since the procedure is a heuristic, it might not yield a globally optimal featur
 Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only evaluates feature sets that satisfy the constraints for alternatives.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
-Next, it tries `swapping' one feature, i.e., selecting the feature if it was deselected or deselecting it if it was selected.
-The algorithm calls the solver again to find a solution~$s'$ containing this change and satisfying the other constraints.
-If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first feature.
-Else, it attempts to swap the next feature.
-In particular, we only evaluate one swap per feature before moving on rather than enumerating all valid solutions containing the swap.
+Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected.
+This swap might violate cardinality constraints as well as constraints for alternatives.
+Thus, the algorithm calls the solver again to find a solution~$s'$ containing this swap and satisfying the other constraints.
+If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first and second feature.
+Else, it attempts to swap the next pair of features.
+In particular, we only evaluate solution per swap before moving on rather than enumerating all valid solutions containing the swap.
 
-The algorithm terminates if either no swap of a feature leads to an improvement or a fixed number of iterations~$max\_iters$ is reached.
+The algorithm terminates if either no swap leads to an improvement or a fixed number of iterations~$max\_iters$ is reached.
 In particular, $max\_iters$ only is an upper bound on the iteration count since the algorithm can stop earlier.
 We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
 This also is an upper bound on the number of prediction models trained.
@@ -647,16 +648,22 @@ However, not all solver calls might yield a valid feature set.
 	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
 		\Return{$\emptyset$}
 	}
-	$j \leftarrow 1$ \tcp*{Index of feature to be swapped}
-	\While{$iters < max\_iters$ \textbf{and} $j \leq |s|$}{
-		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_j\})$ \tcp*{Try swapping one feature}
+	$j_1 \leftarrow 1$ \tcp*{Indices of feature to be swapped}
+	$j_2 \leftarrow j_1 + 1$\;
+	\While{$iters < max\_iters$ \textbf{and} $j_1 < |s|$}{
+		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_{j_1}, \neg s_{j_2}\})$ \tcp*{Try swapping two features}
 		$iters \leftarrow iters + 1$\;
 		\If(\tcp*[f]{Swap if improved}){$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
 			$s \leftarrow s'$\;
-			$j \leftarrow 1$\;
+			$j_1 \leftarrow 1$ \tcp*{Reset swap-feature indices}
+			$j_2 \leftarrow j_1 + 1$\;
 		}
-		\Else(\tcp*[f]{Try next feature}){
-			$j \leftarrow j + 1$\;
+		\ElseIf(\tcp*[f]{Try next swap; advance one index}){$j_2 < |s|$}{
+			$j_2 \leftarrow j_2 + 1$\;
+		}
+		\Else(\tcp*[f]{Try next swap; advance both indices}){
+			$j_1 \leftarrow j_1 + 1$\;
+			$j_2 \leftarrow j_1 + 1$\;
 		}
 	}
 	\Return{$s$}
