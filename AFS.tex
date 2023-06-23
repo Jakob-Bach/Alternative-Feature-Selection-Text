@@ -623,6 +623,7 @@ Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedu
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints.
 Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
 Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected.
+In case of simultaneous search, we swap the affected two features in each of the alternative feature sets.
 This swap might violate cardinality constraints as well as constraints for alternatives.
 Thus, the algorithm calls the solver again to find a solution~$s'$ containing this swap and satisfying the other constraints.
 If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first and second feature.
