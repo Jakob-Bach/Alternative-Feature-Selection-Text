@@ -69,13 +69,12 @@ This article addresses the problem of alternative feature selection, which we in
 Find multiple, sufficiently different feature sets that optimize feature-set quality.
 We provide formal definitions in Section~\ref{sec:afs:approach:constraints}.
 This problem entails an interesting trade-off:
-Ideally, the alternative feature sets should have similar quality.
-However, depending on how different the alternatives should be, one might have to compromise on quality.
-E.g., if there are only a few highly predictive features and most of them are part of one feature set, other alternatives might have significantly lower prediction quality.
-Users should be able to control the dissimilarity of alternatives and hence this quality trade-off.
+Depending on how different the alternatives should be, one might have to compromise on quality.
+In particular, a stronger dissimilarity requirement might entail the selection of more low-quality features in the alternatives.
 
 Two points are essential for alternative feature selection, which we both address in this article.
 First, one needs to formalize and quantify what an alternative feature set is.
+In particular, users should be able to control the dissimilarity of alternatives and hence the aforementioned quality trade-off.
 Second, one needs an approach to find alternative feature sets efficiently.
 Ideally, the approach should be general, i.e., cover a broad range of conventional feature-selection methods, given the variety of the latter~\cite{chandrashekar2014survey, li2017feature}.
 
@@ -91,40 +90,42 @@ These approaches are not directly applicable or easily adaptable to feature sele
 \paragraph{Contributions}
 
 Our contribution is fourfold.
+
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we define alternatives via constraints on feature sets.
-This approach is orthogonal to the feature-selection method itself. 
-As a wide variety of such methods exists~\cite{chandrashekar2014survey, li2017feature}, users can choose a method according to their needs/preferences. 
+This approach is orthogonal to the feature-selection method itself, so users can choose the latter according to their needs.
 This approach also allows integrating other constraints on feature sets, e.g., to capture domain knowledge \cite{bach2022empirical, groves2015toward}.
-Finally, this approach gives users control over the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold for feature sets being alternative. 
-Second, we analyze the complexity of this optimization problem.
+Finally, this approach lets users control the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold.
+
+Second, we analyze the computational complexity of this optimization problem.
 We show $\mathcal{NP}$-hardness, even for a simple notion of feature-set quality.
-Simultaneously, the runtime is polynomial if the feature-set sizes and the number of alternatives are fixed.
+
 Third, we discuss how to solve this optimization problem.
-To that end, we describe how to integrate different categories of conventional feature-selection methods in the objective function.
+To that end, we describe how to integrate different categories of conventional feature-selection methods in the objective function of the optimization problem.
+
 Fourth, we evaluate alternative feature selection with comprehensive experiments.
-We use 30 classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
-We focus on the feature-set quality of the alternatives relative to user parameters.
-we publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
+In particular, we use 30 classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
+We focus our evaluation on the feature-set quality of the alternatives relative to our user parameters.
+We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and experimental data\footnote{\url{https://www.dropbox.com/sh/3bmeoihgozmvfg3/AAD9AcRddqRVlu7tps6FxIKIa?dl=0}} online. % TODO
 
 \paragraph{Experimental results}
 
 We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and parameters for searching alternatives.
 As expectable, feature-set quality tends to decrease with the number of alternatives and the dissimilarity threshold for being alternative.
-Thus, these parameters allow users to exercise use-case-specific control on the trade-off between dissimilarity and quality of alternatives.
-Also, depending on the number of features in the dataset, even no valid alternatives might exist if the parameter values are too strict.
-Further, we observe that the prediction performance of feature sets may only weakly correlate with the quality assigned by feature-selection methods.
+Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
+Also, even no valid alternative may exist if the parameter values are too strict.
+Computationally, a sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
+Finally, we observe that the prediction performance of feature sets may only weakly correlate with the quality assigned by feature-selection methods.
 In particular, seemingly bad alternatives regarding the latter might still be good regarding the former.
-Computationally, a sequential search for alternatives was significantly faster than searching for multiple alternatives simultaneously while yielding a similar quality.
 
 \paragraph{Outline}
 
-Section~\ref{sec:afs:fundamentals} introduces the notation and fundamentals of feature selection.
+Section~\ref{sec:afs:fundamentals} introduces notation and fundamentals.
 Section~\ref{sec:afs:approach} describes and analyzes alternative feature selection.
 Section~\ref{sec:afs:related-work} reviews related work.
 Section~\ref{sec:afs:experimental-design} outlines our experimental design, while Section~\ref{sec:afs:evaluation} presents the experimental results.
 Section~\ref{sec:afs:conclusion} concludes.
-The appendix (cf.~Section~\ref{sec:afs:appendix}) contains technical details.
+Appendix~\ref{sec:afs:appendix} contains supplementary materials.
 
 \section{Fundamentals}
 \label{sec:afs:fundamentals}
@@ -134,41 +135,40 @@ In this section, we introduce basic notation (cf.~Section~\ref{sec:afs:fundament
 \subsection{Notation}
 \label{sec:afs:fundamentals:notation}
 
-Let $X \in \mathbb{R}^{m \times n}$ be a dataset represented as a matrix.
+$X \in \mathbb{R}^{m \times n}$ stands for a dataset in the form of a matrix.
 Each row is a data object, and each column is a feature.
-Let $F = \{f_1, \dots, f_n\}$ denote the set of feature names.
-We assume categorical features have already been made numeric, e.g., via one-hot encoding.
-Let $X_{\cdot{}j} \in \mathbb{R}^m$ denote the vector representation of the $j$-th feature.
-Further, let $y \in Y^m$ represent the prediction target with domain $Y$, e.g., $Y=\{0,1\}$ for binary classification or $Y=\mathbb{R}$ for regression.
+$F = \{f_1, \dots, f_n\}$ is the corresponding set of feature names.
+We assume that categorical features have already been made numeric, e.g., via one-hot encoding.
+$X_{\cdot{}j} \in \mathbb{R}^m$ denotes the vector representation of the $j$-th feature.
+$y \in Y^m$ represents the prediction target with domain $Y$, e.g., $Y=\{0,1\}$ for binary classification or $Y=\mathbb{R}$ for regression.
 
 In feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
-The vector $s \in \{0,1\}^n$ combines all these selection decisions.
-The selected feature set is $F_s = \{f_j \mid s_j=1\}$.
-Let the function $Q(s,X,y)$ return the quality of such a feature set.
-Without loss of generality, we assume this function should be maximized.
+The vector $s \in \{0,1\}^n$ combines all these selection decisions and yields the selected feature set $F_s = \{f_j \mid s_j=1\} \subseteq F$.
+The function $Q(s,X,y)$ return the quality of such a feature set.
+Without loss of generality, we assume that this function should be maximized.
 
 \subsection{Measuring Feature (Set) Quality}
 \label{sec:afs:fundamentals:quality}
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
-Note that we only give a short overview here; see~\cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
+We only give a short overview here; see~\cite{chandrashekar2014survey,li2017feature} for comprehensive surveys of feature selection.
 A conventional categorization of feature-selection methods distinguishes between filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
 \paragraph{Filter methods}
 
 Filter methods evaluate feature sets without training a prediction model.
-Univariate filters assess each feature independently, often assigning a score to each feature, while multivariate filters evaluate feature sets.
-Examples for univariate filters are the absolute Pearson correlation or the mutual information between a feature and the prediction target.
+Univariate filters assess each feature independently.
+They often assign a score to each feature, e.g., the absolute Pearson correlation or the mutual information between a feature and the prediction target.
 Such methods ignore potential interaction between features, e.g., if they are redundant to each other.
-In contrast, multivariate methods often combine a measure of feature relevance with a measure of feature redundancy.
-Examples for such methods include CFS~\cite{hall1999correlation, hall2000correlation}, FCBF~\cite{yu2003feature}, and mRMR~\cite{peng2005feature}.
-Another popular filter method is Relief~\cite{kira1992feature, robnik1997adaptation}, which assigns quality to individual features rather than feature sets but still uses other features indirectly in nearest-neighbor computations.
+In contrast, multivariate filters evaluate feature sets as a whole.
+Such methods often combine a measure of feature relevance with a measure of feature redundancy.
+Examples include CFS~\cite{hall1999correlation, hall2000correlation}, FCBF~\cite{yu2003feature}, and mRMR~\cite{peng2005feature}.
 
 \paragraph{Wrapper methods}
 
-Wrapper methods~\cite{kohavi1997wrappers} employ a generic search strategy over feature sets, e.g., genetic algorithms.
-Feature-set quality is a black-box function:
-Wrappers evaluate candidate feature sets from the search by training prediction models with them and measuring prediction quality.
+Wrapper methods~\cite{kohavi1997wrappers} evaluate feature sets by training prediction models with them and measuring prediction quality.
+They employ a generic search strategy to iterate over candidate feature sets, e.g., genetic algorithms.
+Feature-set quality is a black-box function in this search.
 
 \paragraph{Embedded methods}
 
@@ -186,7 +186,7 @@ In particular, assessing feature importance plays a crucial role in the field of
 \label{sec:afs:approach}
 
 In this section, we present the problem and approaches for alternative feature selection.
-First, we define the structure of the optimization problem, i.e., objective and constraints (cf.~Section~\ref{sec:afs:approach:problem}).
+First, we define the overall structure of the optimization problem, i.e., objective and constraints (cf.~Section~\ref{sec:afs:approach:problem}).
 Second, we formalize the notion of alternatives via constraints (cf.~Section~\ref{sec:afs:approach:constraints}).
 Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
 In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
@@ -510,7 +510,7 @@ One only needs to be aware that such an approach might not represent importances
 
 Several multivariate filter methods allow for a simple white-box formulation as well, though not necessarily a linear one.
 In the following, we describe FCBF~\cite{yu2003feature} and mRMR~\cite{peng2005feature}, which we use in our experiments.
-Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation} and and Relief~\cite{kira1992feature, robnik1997adaptation}.
+Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation} and Relief~\cite{kira1992feature, robnik1997adaptation}.
 
 \paragraph{FCBF}
 
