@@ -197,20 +197,18 @@ In addition, Appendix~\ref{sec:afs:appendix:complexity} analyzes the complexity 
 
 Alternative feature selection has two goals.
 First, the quality of an alternative feature set should be high.
-Second, an alternative feature set should differ from one or more existing feature set(s).
-There are different ways to combine these two goals in an optimization problem:
+Second, an alternative feature set should differ from one or more other feature set(s).
+There are several ways to combine these two goals in an optimization problem:
 
 First, one can consider both goals as objectives, obtaining an unconstrained multi-objective problem.
 Second, one can treat feature-set quality as objective and enforce alternatives with constraints.
 Third, one can consider being alternative as objective and constrain feature-set quality, e.g., with a lower bound.
 Fourth, one can define constraints for both, feature-set quality and being alternative, searching for feasible solutions instead of optimizing.
-Depending on the use case, any of these four formulations might be appropriate.
 
 We stick to the second formulation, i.e., optimizing feature-set quality subject to being alternative.
 This formulation has the advantage of keeping the original objective function of feature selection.
-Consequently, one does not need to specify a range or a threshold on feature-set quality.
-Instead, users control how alternative the new feature set should be.
-This yields the following optimization problem:
+Thus, users do not need to specify a range or a threshold on feature-set quality but can control how alternative the feature sets must be instead.
+We obtain the following optimization problem for a single alternative feature set~$F_s$:
 %
 \begin{equation}
 	\begin{aligned}
@@ -220,16 +218,15 @@ This yields the following optimization problem:
 	\label{eq:afs:afs-general}
 \end{equation}
 %
-We discuss suitable constraints for \emph{being alternative} and different objective functions $Q(s,X,y)$ in the following.
-Additionally, many feature-selection methods also limit the feature-set size $|F_s|$ to a user-defined value~$k \in \mathbb{N}$, as we do in our experiments as well.
-Such a requirement on feature-set cardinality adds a further, simple constraint to the optimization problem.
+We discuss different objective functions $Q(s,X,y)$ and suitable constraints for \emph{being alternative} in the following.
+Additionally, many feature-selection methods also limit the feature-set size $|F_s|$ to a user-defined value~$k \in \mathbb{N}$, which adds a further, simple constraint to the optimization problem.
 
 \subsection{Constraints -- Defining Alternatives}
 \label{sec:afs:approach:constraints}
 
 In this section, we formalize alternative feature sets.
 First, we discuss the base case where an individual feature set is an alternative to another one (cf.~Section~\ref{sec:afs:approach:constraints:single}).
-Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search procedures (cf.~Section~\ref{sec:afs:approach:constraints:multiple}).
+Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search methods (cf.~Section~\ref{sec:afs:approach:constraints:multiple}).
 
 Our notion of alternatives is independent of the feature-selection method.
 We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number of alternatives~$a$, which both allow users to control the search for alternatives.
@@ -239,44 +236,42 @@ We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number
 
 We consider a feature set to be an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this notion with a set-dissimilarity measure~\cite{choi2010survey, egghe2009new}.
-These measures typically assess how strongly two sets overlap and set this in relation to the size of the sets.
-For example, a simple and well-known set-dissimilarity measure is the Jaccard distance.
-Given two feature sets $F'$, $F''$, the Jaccard distance is defined as follows:
+These measures typically assess how strongly two sets overlap and relate this to their sizes.
+A well-known set-dissimilarity measure is the Jaccard distance, which is defined as follows for the feature sets $F'$ and $F''$:
 %
 \begin{equation}
 	d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F' \cup F''|} = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|}
 	\label{eq:afs:jaccard}
 \end{equation}
 %
-Another possible dissimilarity measure follows from the Dice coefficient:
+In this article, we use a dissimilarity measure based on the Dice coefficient:
 %
 \begin{equation}
 	d_{\text{Dice}}(F',F'') = 1 - \frac{2 \cdot |F' \cap F''|}{|F'| + |F''|}
 	\label{eq:afs:dice}
 \end{equation}
 %
-We do not have strong requirements on the set-dissimilarity measure~$d(\cdot)$.
+Generally, we do not have strong requirements on the set-dissimilarity measure~$d(\cdot)$.
 Our definitions of alternatives only assume symmetry, i.e., $d(F',F'')=d(F'',F')$, and non-negativity, i.e., $d(F',F'') \geq 0$, though one could adapt them to other conditions as well.
-In particular, the measure does not need to be a metric, but can also be a semi-metric~\cite{wilson1931semi} etc.
+In particular, the dissimilarity measure does not need to be a metric, but can also be a semi-metric~\cite{wilson1931semi} etc.
 
 We leverage the set-dissimilarity measure for the following definition:
 %
 \begin{definition}[Single alternative]
-	Given a symmetric, non-negative set-dissimilarity measure~$d(\cdot)$ and a dissimilarity threshold~$\tau \in \mathbb{R}_{\geq 0}$, a feature set $F'$ is an alternative to a feature set~$F''$ (and vice versa) if $d(F',F'') \geq \tau$.
+	Given a symmetric, non-negative set-dissimi\-larity measure~$d(\cdot)$ and a dissimilarity threshold~$\tau \in \mathbb{R}_{\geq 0}$, a feature set $F'$ is an alternative to a feature set~$F''$ (and vice versa) if $d(F',F'') \geq \tau$.
 	\label{def:afs:single-alternative}
 \end{definition}
 %
-The threshold~$\tau$ controls how alternative the new feature set should be and depends on the dataset as well as user preferences.
-In particular, requiring the new feature set to differ strongly from the existing one might cause a significant drop in feature-set quality.
-Some datasets might contain many features of similar utility, thereby enabling many alternatives of similar quality, while predictions on other datasets might depend on a few key features.
-Only users can decide which drop in feature-set quality is acceptable for them as a trade-off for obtaining an alternative feature set.
+The threshold~$\tau$ controls how alternative the feature sets must be and depends on the dataset as well as user preferences.
+In particular, requiring strong dissimilarity may cause a significant drop in feature-set quality.
+Some datasets may contain many features of similar utility, thereby enabling many alternatives of similar quality, while predictions on other datasets may depend on a few key features.
+Only users can decide which drop in feature-set quality is acceptable as a trade-off for obtaining alternatives.
 Thus, we leave $\tau$ as a parameter.
-In fact, it is the only parameter for our definition of single alternatives, unless one wants to vary the dissimilarity measure for feature sets as well.
 In case the set-dissimilarity measure $d(\cdot)$ is normalized to $[0,1]$, like the Dice dissimilarity or Jaccard distance, the interpretation of $\tau$ is user-friendly:
-Setting $\tau=0$ allows the alternative feature set to be identical, while $\tau=1$ requires the two feature sets to have no overlap.
+Setting $\tau=0$ allows identical alternatives, while $\tau=1$ implies zero overlap.
 
-If the choice of $\tau$ is unclear a priori, users can try out different values and compare results.
-One potential approach is a binary search:
+If the choice of $\tau$ is unclear a priori, users can try out different values and compare the resulting feature-set quality.
+One systematic approach is a binary search:
 Start with the mid-range value of $\tau=0$, i.e., 0.5 for $\tau \in [0,1]$.
 If the quality of the resulting alternative is too low, decrease $\tau$ to 0.25, i.e., allow more similarity.
 If the quality of the resulting alternative is acceptably high, increase $\tau$ to 0.75, i.e., check a more dissimilar feature set.
@@ -288,9 +283,6 @@ When implementing Definition~\ref{def:afs:single-alternative}, we can leverage t
 	Using the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}), one can express alternative feature sets (cf.~Definition~\ref{def:afs:single-alternative}) with 0-1 integer linear constraints.
 	\label{prop:afs:linear-constraints}
 \end{proposition}
-%
-This simple constraint type allows using a broad range of solvers, given a suitable objective function, which we discuss later.
-One can also encode such constraints into propositional logic (\textsc{SAT})~\cite{ulrich2022selecting}.
 %
 \begin{proof}
 We re-arrange terms in the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) to get rid of the quotient of set sizes:
@@ -325,14 +317,17 @@ Finally, we replace each product $s'_j \cdot s''_j$ with an auxiliary variable~$
 	\label{eq:afs:product-linear}
 \end{equation}
 %
-Combining Equations~\ref{eq:afs:dice-rearranged},~\ref{eq:afs:feature-set-size}, and~\ref{eq:afs:product-linear}, we obtain a set of constraints that only involve binary decision variables and are linear expressions regarding these variables.
-In particular, there are no products between variables, but only sum expressions and multiplications with constant values.
-If there is an existing feature set, i.e., either $s'$ or $s''$ is fixed to particular values, Equation~\ref{eq:afs:feature-set-size} already is linear without Equation~\ref{eq:afs:product-linear} since it only multiplies variables with constants in that case.
+Combining Equations~\ref{eq:afs:dice-rearranged},~\ref{eq:afs:feature-set-size}, and~\ref{eq:afs:product-linear}, we obtain a set of constraints that only involve linear expressions of binary decision variables.
+In particular, there are only sum expressions and multiplications with constants but no products between variables.
+If one feature set is known, i.e., either $s'$ or $s''$ is fixed, Equation~\ref{eq:afs:feature-set-size} only multiplies variables with constants and is already linear without Equation~\ref{eq:afs:product-linear}.
 \end{proof}
 %
-If the feature-set sizes $|F'|$ and $|F''|$ are known, Equation~\ref{eq:afs:dice-rearranged} implies that a threshold~$\tau$ corresponds to a particular maximum number of overlapping features~$|F' \cap F''|$.
-This correspondence eases the interpretation of~$\tau$, and is a reason why use the Dice dissimilarity in the following.
-In contrast, the Jaccard distance exhibits a non-linear relationship between $\tau$ and the maximum overlap size, based on re-arranging Equation~\ref{eq:afs:jaccard} in combination with Definition~\ref{def:afs:single-alternative}:
+Linear constraints allow using a broad range of solvers, given a suitable objective function, which we discuss later.
+As an alternative formulation, one could also encode such constraints into propositional logic (\textsc{SAT})~\cite{ulrich2022selecting}.
+
+If the set sizes $|F'|$ and $|F''|$ are constant, e.g., user-defined, Equation~\ref{eq:afs:dice-rearranged} implies that the threshold~$\tau$ has a linear relationship to the maximum number of overlapping features~$|F' \cap F''|$.
+This correspondence eases the interpretation of~$\tau$ and made us use the Dice dissimilarity in the following.
+In contrast, the Jaccard distance exhibits a non-linear relationship between $\tau$ and the overlap size, which follows from re-arranging Equation~\ref{eq:afs:jaccard} in combination with Definition~\ref{def:afs:single-alternative}:
 %
 \begin{equation}
 	\begin{aligned}
@@ -342,27 +337,26 @@ In contrast, the Jaccard distance exhibits a non-linear relationship between $\t
 	\label{eq:afs:jaccard-rearranged}
 \end{equation}
 %
-Further, if $|F'| = |F''|$, as in our experiments, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice-rearranged}) becomes identical to several other dissimilarity measures~\cite{egghe2009new}.
-The parameter~$\tau$ then directly controls which fraction of features in one set needs to differ from the other set, and vice versa:
+Further, if $|F'| = |F''|$, as in our experiments, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice-rearranged}) becomes identical to several other set-dissimilarity measures~\cite{egghe2009new}.
+The parameter~$\tau$ then directly controls which fraction of features in one set needs to differ from the other set, and vice versa, which further eases interpretability:
 %
 \begin{equation}
 	d_{\text{Dice}}(F',F'') \geq \tau \Leftrightarrow |F' \cap F''| \leq (1 - \tau) \cdot |F'| = (1 - \tau) \cdot |F''|
 	\label{eq:afs:dice-rearranged-equal-size}
 \end{equation}
 %
-Thus, if users are uncertain how to choose $\tau$ and $|F''|$ is reasonably small, they can try out all values of $\tau \in \{i / |F''|\}$ with $i \in \{1, \dots, |F''|\}$.
-Put differently, $|F''|$ unique values of $\tau$ cover all potential overlap sizes of the two feature sets, excluding the case with full overlap.
+Thus, if users are uncertain how to choose $\tau$ and $|F'|$ is reasonably small, they can try out all values of $\tau \in \{i / |F'|\}$ with $i \in \{1, \dots, |F'|\}$.
+In particular, these $|F'|$~unique values of $\tau$ suffice to produce all possible results that one could obtain with an arbitrary $\tau \in (0,1]$.
 
 \subsubsection{Multiple Alternatives}
 \label{sec:afs:approach:constraints:multiple}
 
 If users desire multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
 The number of alternatives~$a$ is a parameter to be set by the user.
-Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search procedures.
-Appendix~\ref{sec:afs:appendix:complexity} analyzes the computational complexity of the optimization problems in detail.
-In particular, we show $\mathcal{NP}$-hardness for simultaneous search (cf.~Proposition~\ref{prop:afs:complexity-sim}).
+The overall number of feature sets is $a + 1$ since we deem one feature set the `original' one.
+Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search methods.
 %
-\begin{table}[htb]
+\begin{table}[t]
 	\centering
 	\renewcommand*{\arraystretch}{1.3}
 	\begin{tabular}{lccc}
@@ -377,27 +371,24 @@ In particular, we show $\mathcal{NP}$-hardness for simultaneous search (cf.~Prop
 		Linearization constraints & $0$ & $0$ & $\frac{3 \cdot a \cdot (a+1) \cdot n}{2}$ \\
 		\bottomrule
 	\end{tabular}
-	\caption{Size of the optimization problems for $a$ alternatives ($a + 1$~feature sets overall, including the original one) and $n$ features.}
+	\caption{Size of the optimization problems for $a$ alternatives ($a + 1$~feature sets overall) and $n$ features.}
 	\label{tab:afs:seq-sim-comparison}
 \end{table}
-%
+
 \paragraph{Sequential alternatives}
 
-In the sequential case, users obtain several alternatives iteratively, with one alternative feature set per iteration.
-We call the first feature set, obtained without any constraints, the \emph{original} one.
-
-We constrain this new feature set to be an alternative to all previously found ones, which are given in the set~$\mathbb{F}$:
+With sequential search, users obtain several alternatives iteratively, with one feature set per iteration.
+We constrain this new set to be alternative to all previously found ones, which are given in the set~$\mathbb{F}$:
 %
 \begin{definition}[Sequential alternative]
 	A feature set~$F''$ is an alternative to a set of feature sets~$\mathbb{F}$ (and vice versa) if $F''$ is a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) to each $F' \in \mathbb{F}$.
 	\label{def:afs:sequential-alternative}
 \end{definition}
 %
-This definition duplicates the constraint for a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) and instantiates it for multiple existing feature sets.
-One could also use a less strict constraint, e.g., based on aggregated dissimilarity, like requiring only the average dissimilarity to all existing feature sets to pass the threshold.
-However, definitions like the latter might allow some feature sets to heavily overlap or even be identical if other feature sets are very dissimilar.
+One could also think of less strict constraints, e.g., requiring only the average dissimilarity to all previously found feature sets to pass a threshold~$\tau$.
+However, definitions like the latter may allow some feature sets to heavily overlap or even be identical if other feature sets are very dissimilar.
 Thus, we require pairwise dissimilarity in Definition~\ref{def:afs:sequential-alternative}.
-Instantiating Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sequential-alternative}, we obtain the following optimization problem for each iteration of the search:
+Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sequential-alternative}, we obtain the following optimization problem for each iteration of the search:
 %
 \begin{equation}
 	\begin{aligned}
@@ -407,12 +398,13 @@ Instantiating Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:seq
 	\label{eq:afs:afs-sequential}
 \end{equation}
 %
-The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of the new feature set~$F_s$.
+The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of one feature set at once.
 Thus, the number of variables in the optimization problem is independent of the number of alternatives~$a$.
-Instead, we solve the optimization problem repeatedly; each alternative only adds one new constraint to the problem.
-As we always compare the new, variable feature set to existing, constant feature sets, we also do not need to introduce auxiliary variables as in Equation~\ref{eq:afs:product-linear}.
-Overall, we expect the runtime of sequential search to scale well with the number of alternatives.
-Further runtime gains might be possible if the solver keeps a state between iterations and can warm-start.
+Instead, we solve the optimization problem repeatedly; each alternative only adds one constraint to the problem.
+The first, `original' feature set is the same as in conventional feature-selection without constraints for alternatives.
+As we always compare only one variable feature set to existing, constant feature sets, we also do not need to introduce auxiliary variables as in Equation~\ref{eq:afs:product-linear}.
+Thus, we expect the runtime of sequential search to scale well with the number of alternatives.
+Further runtime gains may arise if the solver keeps a state between iterations and can warm-start.
 
 However, as the solution space becomes narrower over iterations, feature-set quality can deteriorate with each further alternative.
 In particular, multiple alternatives from the same sequential search might differ significantly in their quality.
@@ -421,16 +413,15 @@ In particular, users do not need to define the number of alternatives~$a$ a prio
 
 \paragraph{Simultaneous alternatives}
 
-In the simultaneous case, we directly obtain multiple alternatives.
-Thus, users need to decide on the number of alternatives beforehand.
-We formulate pairwise dissimilarity constraints:
+With simultaneous search, users obtain multiple alternatives at once, so they need to decide on the number of alternatives beforehand.
+We use pairwise dissimilarity constraints again:
 %
 \begin{definition}[Simultaneous alternatives]
 	A set of feature sets~$\mathbb{F}$ contains simultaneous alternatives if each feature set~$F' \in \mathbb{F}$ is a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) to each other set~$F'' \in \mathbb{F}$, $F' \neq F''$.
 	\label{def:afs:simultaneous-alternative}
 \end{definition}
 %
-Instantiating Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:simultaneous-alternative}, we obtain the following optimization problem:
+Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:simultaneous-alternative}, we obtain the following optimization problem for $a+1$ feature sets:
 %
 \begin{equation}
 	\begin{aligned}
@@ -440,20 +431,18 @@ Instantiating Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sim
 	\label{eq:afs:afs-simultaneous}
 \end{equation}
 %
-This equation assumes we want to obtain $a$ alternative feature sets besides an `original' feature set.
-Since there is no order of feature sets here, opposed to sequential search, the original feature set is no dedicated feature set but can be any of the $a+1$~solutions.
-
-In contrast to the sequential case (Equation~\ref{eq:afs:afs-sequential}), we need to introduce further decision variables and modify the objective function here, as we optimize multiple feature sets at once.
-The operator~$\text{agg}(\cdot)$ defines how to aggregate the qualities of these feature sets in the objective.
+In contrast to the sequential case (cf.~Equation~\ref{eq:afs:afs-sequential}), we need to introduce further decision variables and modify the objective function here.
+The operator~$\text{agg}(\cdot)$ defines how to aggregate the feature-set qualities in the objective.
 In our experiments, we consider the sum as well as the minimum to instantiate~$\text{agg}(\cdot)$, which we refer to as \emph{sum-aggregation} and \emph{min-aggregation}.
+The latter explicitly fosters balanced feature-set qualities.
 Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation functions and ideas for further formulations in detail.
 
-Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as we need to tackle one large optimization problem instead of multiple smaller ones.
+Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as it tackles one large optimization problem instead of multiple smaller ones.
 In particular, the number of decision variables increases linearly with the number of alternatives~$a$ and the number of constraints even grows quadratically.
-Also, for each feature and each pair of alternatives, we need to introduce an auxiliary variable as in Equation~\ref{eq:afs:product-linear} if we want to obtain a linear problem.
+Also, for each feature and each pair of alternatives, we need to introduce an auxiliary variable (cf.~Equation~\ref{eq:afs:product-linear}) if we want to obtain a linear problem.
 
 In contrast to the greedy procedure of sequential search, simultaneous search optimizes alternatives globally.
-Thus, the simultaneous procedure should yield same or higher average feature-set quality for the same number of alternatives.
+Thus, the simultaneous procedure should yield the same or higher average feature-set quality for the same number of alternatives.
 Also, the quality can be more evenly distributed over the alternatives, as opposed to the dropping quality over the course of the sequential procedure.
 However, increasing the number of alternatives still has a negative effect on the average feature-set quality.
 Further, opposed to the sequential procedure, there are no intermediate steps where users could interrupt the search.
@@ -469,15 +458,14 @@ We distinguish between white-box optimization (cf.~Section~\ref{sec:afs:approach
 \label{sec:afs:approach:objectives:white-box}
 
 If the feature-set quality function~$Q(s,X,y)$ is sufficiently simple, one can tackle alternative feature selection with a suitable white-box solver.
-In Section~\ref{sec:afs:approach:constraints}, we already showed that our notion of alternative feature sets results in 0-1 integer linear constraints.
-In this section, we discuss white-box optimization objectives for different feature-selection methods.
+We already showed that our notion of alternative feature sets results in 0-1 integer linear constraints (c.f.~Proposition~\ref{prop:afs:linear-constraints}).
+We now discuss several feature-selection methods with objectives that admit formulating a 0-1 integer linear problem.
+Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~describes feature-selection methods that we did not include in our experiments.
 
 \paragraph{Univariate filter feature selection}
 
-For univariate filter feature selection, the objective function is linear.
-Thus, the optimization problem of alternative feature selection becomes a 0-1 integer linear problem.
-
-In particular, univariate filter methods decompose the quality of a feature set into the quality of the individual features:
+For univariate filter feature selection, the objective function is linear by default.
+In particular, these methods decompose the quality of a feature set into the quality of the individual features:
 %
 \begin{equation}
 	Q_{\text{uni}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j
@@ -485,39 +473,29 @@ In particular, univariate filter methods decompose the quality of a feature set 
 \end{equation}
 %
 Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between one feature and the prediction target.
-Thus, the values of~$q(\cdot)$ for different features are independent from each other.
 Appendix~\ref{sec:afs:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
 Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver.
 
-Alternatively, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat}, in particular, a weighted \textsc{Max One} problem~\cite{khanna1997complete}, since the univariate objective only is a sum of weighted binary variables.
-One would need to apply a cardinality encoding~\cite{sinz2005towards} for the constraints involving~$k$.
+Instead of an integer problem, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat} for this objective, i.e., a weighted \textsc{Max One} problem~\cite{khanna1997complete}.
+In particular, Equation~\ref{eq:afs:univariate-filter} is a sum of weighted binary variables, and the constraints for alternatives can be turned into SAT formulas as well, using a cardinality encoding~\cite{sinz2005towards} for the sum expressions.
 
 \paragraph{Post-hoc feature importance}
 
 From the technical perspective, one can also insert values of post-hoc feature-importance scores into Equation~\ref{eq:afs:univariate-filter}.
-For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them instead of the bivariate dependency values~$q(X_{\cdot{}j},y)$.
+For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them for~$q(X_{\cdot{}j},y)$.
 However, such post-hoc importance scores often evaluate the usefulness of each feature in the presence of other features.
 Thus, importance scores of different features are not independent from each other, violating the implicit assumption behind Equation~\ref{eq:afs:univariate-filter}.
 For example, a feature might show high post-hoc importance if another feature is present, due to feature interaction, but low importance else.
 Equation~\ref{eq:afs:univariate-filter} cannot express such conditional importance but requires one overall quality value for each feature.
-
-In theory, one would have to re-calculate feature importance for each possible set of selected features to capture all possible feature interactions.
-However, such a procedure demands extensive runtime, scales exponentially with the number of features, and makes white-box optimization infeasible.
-In practice, one can use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all feature being present.
-One only needs to be aware that such an approach might not represent importances in feature subsets faithfully.
-
-\paragraph{Multivariate filter feature selection}
-
-Several multivariate filter methods allow for a simple white-box formulation as well, though not necessarily a linear one.
-In the following, we describe FCBF~\cite{yu2003feature} and mRMR~\cite{peng2005feature}, which we use in our experiments.
-Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~discusses CFS~\cite{hall1999correlation, hall2000correlation} and Relief~\cite{kira1992feature, robnik1997adaptation}.
+Re-calculating feature importance for each possible alternative feature set clearly is infeasible.
+In practice, one can still use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all feature being present.
+While such an approach might not represent importances in feature subsets faithfully, it can serve as a heuristic nevertheless.
 
 \paragraph{FCBF}
 
-The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance, expressed by two conditions on selected features:
-First, a selected feature's correlation to the prediction target needs to pass a pre-defined threshold.
-Second, a selected feature's correlation to the target needs to be higher than each other selected feature's correlation to the given feature.
-While the original FCBF algorithm uses a heuristic search to find predominant features, we propose a formulation as a constrained optimization problem to allow a white-box search for alternatives:
+The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance:
+Each selected feature' correlation with the prediction target must exceed a pre-defined threshold and the correlation of each other selected feature with the given one.
+While the original FCBF uses a heuristic search to find predominant features, we propose a formulation as a constrained optimization problem to enable a white-box search for alternatives:
 %
 \begin{equation}
 	\begin{aligned}
@@ -528,19 +506,18 @@ While the original FCBF algorithm uses a heuristic search to find predominant fe
 	\label{eq:afs:fcbf}
 \end{equation}
 %
-Our formulation still addresses the two aspects of predominance.
-First, we drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate-filter case.
-This change can lead to large feature sets, which might containing many low-quality features.
-As a countermeasure, one can add a constraint on the feature-set size, as we do in our experiments.
-If one still wants to prevent the selection of features with low correlation to the prediction target, one can also filter out these features before optimization.
-Second, we keep FCBF's constraints on feature-feature correlation.
+We drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate-filter case.
+This change could lead to large feature sets that contain many low-quality features.
+As a countermeasure, one can constrain the feature-set sizes, as we do in our experiments.
+Additionally, one could also filter out the features with low target correlation before optimization.
+Further, we keep FCBF's constraints on feature-feature correlation.
 In particular, we prevent the simultaneous selection of two features if the correlation between them is at least as high as one of the features' correlation to the target.
-As the `with'-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can pre-compute whether it holds and add the related linear constraint on~$s$ only if needed.
+As the `with'-condition in Equation~\ref{eq:afs:fcbf} does not depend on the decision variables~$s$, one can check whether it holds before optimization and add the corresponding linear constraint on~$s$ only if needed.
 
 \paragraph{mRMR}
 
 Minimal Redundancy Maximum Relevance (mRMR)~\cite{peng2005feature} combines two criteria, i.e., feature relevance and feature redundancy.
-Relevance corresponds to the dependency between features and prediction target, which should be maximized, similar to the univariate filter.
+Relevance corresponds to the dependency between features and prediction target, which should be maximized, as for univariate filters.
 Redundancy corresponds to the dependency between features, which should be minimized.
 Using a bivariate dependency measure~$q(\cdot)$, the objective is maximizing the following difference between relevance and redundancy:
 %
@@ -550,7 +527,7 @@ Using a bivariate dependency measure~$q(\cdot)$, the objective is maximizing the
 \end{equation}
 %
 If one knows the feature-set size $\sum_{j=1}^{n} s_j$ to be a constant~$k$, the denominators of both fractions are constant, so the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}.
-If one additionally replaces the product terms $s_{j_1} \cdot s_{j_2}$ according to Equation~\ref{eq:afs:product-linear}, the problem becomes linear.
+If one additionally replaces each product terms $s_{j_1} \cdot s_{j_2}$ according to Equation~\ref{eq:afs:product-linear}, the problem becomes linear.
 However, there is a more efficient linearization~\cite{nguyen2009optimizing, nguyen2010towards}, which we use in our experiments:
 %
 \begin{equation}
@@ -569,69 +546,47 @@ Thus, one can use one real-valued auxiliary variable $z_j$ for each feature inst
 Since redundancy should be minimized, $z_j$ assumes the value of $A_j$ with equality if the feature with index~$j$ is selected~($s_j=1$) and is zero else ($s_j=0$).
 To that end, $M$ is a large positive value that deactivates the constraint on $z_j$ if $s_j=0$.
 
-Since we assume the feature-set size~$k \in \mathbb{N}$ to be user-defined before optimization, Equation~\ref{eq:afs:mrmr-linear} requires less auxiliary variables and constraints than the more general formulation in~\cite{nguyen2009optimizing, nguyen2010towards}.
-Further, following~\cite{nguyen2014effective}, we set the self-redundancy terms, i.e., the dependency of a feature to itself, to zero and thereby exclude them from the objective.
+Since Equation~\ref{eq:afs:mrmr-linear} assumes the feature-set size~$k \in \mathbb{N}$ to be user-defined before optimization, it requires less auxiliary variables and constraints than the more general formulation in~\cite{nguyen2009optimizing, nguyen2010towards}.
+Further, following~\cite{nguyen2014effective}, we set the self-redundancy terms~$q(X_{\cdot{}j},X_{\cdot{}j})$, to zero and thereby exclude them from the objective.
 Thus, the redundancy term uses $k \cdot (k-1)$ instead of $k^2$ for averaging.
 
 \subsubsection{Black-Box Optimization}
 \label{sec:afs:approach:objectives:black-box}
 
-If feature-set quality has not simple closed-form expression, one needs to treat it as a black-box function when searching for alternative feature sets.
-This situation applies to the category of wrapper feature selection.
-One can optimize such black-box functions using search heuristics, systematically iterating over candidate feature sets.
-However, search heuristics often assume an unconstrained search space.
-For example, they might propose a candidate feature set that is not alternative enough.
-We see multiple ways to address this challenge:
+If feature-set quality has no closed-form expression, one has to treat it as a black-box function when searching for alternatives.
+This situation applies to wrapper feature-selection methods, which use prediction models to assess feature-set quality.
+One can optimize such black-box functions with search heuristics that systematically iterate over candidate feature sets.
+However, search heuristics often assume an unconstrained search space and may propose candidate feature sets that are not alternative enough.
+We see four ways to address this issue:
 
 \paragraph{Enumerating feature sets}
 
-One can relinquish the idea of a search heuristic and just enumerate all feature sets that fulfill the constraints for being alternative.
-This most naive idea is iterating over all feature sets and sorting out those not alternative enough.
-A bit more focused is using a solver to enumerate all valid alternatives.
-While such an approach is technically simple, it might very inefficient, as there can be a huge number of alternative feature sets.
+Instead of using a search heuristic, one may just enumerate all feature sets that are alternative enough.
+E.g., once can iterate over all feature sets and sort out those violating the constraints, or use a solver to directly enumerate all valid alternatives.
+Both approaches are usually very inefficient, as there can be a huge number of alternatives.
 
 \paragraph{Sampling feature sets}
 
 Instead of considering all possible alternatives, one can also sample a limited number of them.
-Again, the naive way is sampling from all feature sets, but removing those samples that are not alternative enough.
-If the number of valid alternatives is low relative to the total number of possible feature sets, this approach might need a lot of samples.
-One could also observe the constraints in the sampling procedure, e.g., by using a solver for sampling.
-One might abandon the idea of uniform sampling in that case since uniform sampling from a constrained space is a computationally hard problem, believed to be harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
+E.g., one could sample from all feature sets but remove samples that are not alternative enough.
+However, if the number of valid alternatives is small, this approach might need a lot of samples.
+One could also sample with the help of a solver.
+However, uniform sampling from a constrained space is a computationally hard problem, possibly harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
 
 \paragraph{Multi-objective optimization}
 
-If one considers alternative feature selection as a multi-objective problem, as mentioned in Section~\ref{sec:afs:approach:problem}, there are no hard constraints anymore.
-Given a suitable multi-objective search procedure, the decision on trading off being alternative against feature-set quality might be postponed till after the search.
+If one phrases alternative feature selection as a multi-objective problem, (cf.~Section~\ref{sec:afs:approach:problem}), there are no hard constraints anymore and one could apply a standard multi-objective black-box search procedure.
+However, we chose to analyze a different problem formulation.
 
 \paragraph{Adapting search}
 
-One can adapt a search heuristic to consider the constraints for being alternative.
-One idea is to prevent the search heuristic from producing feature sets that violate the constraints, or at least making the latter less likely, e.g., be penalizing the objective function accordingly.
-Another idea is to `repair' feature sets proposed by the search that are not alternative enough.
-For example, one can replace a feature set violating the constraint with the most similar feature set satisfying the constraints.
-Such solver-assisted search approaches are common in search procedure for valid configuration in software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}.
-One could also apply solver-based repair to randomly sampled feature sets.
+One can adapt an existing search heuristic to consider the constraints for alternatives.
+One idea is to prevent the search from producing feature sets that violate the constraints, or at least making the latter less likely, e.g., with a penalty in the objective function.
+Another idea is to `repair' feature sets proposed by the search that violate constraints, e.g., replacing them with the most similar feature sets satisfying the constraints.
+Such solver-assisted search approaches are common in search procedures for software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}.
+One could also apply solver-based repair to sampled feature sets.
 
-As a simple wrapper approach for our experiments, we use a greedy hill-climbing strategy, as displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
-Since the procedure is a heuristic, it might not yield a globally optimal feature set but get stuck in local optima.
-Compared to standard hill-climbing~\cite{kohavi1997wrappers}, our search procedure only evaluates feature sets that satisfy the constraints for alternatives.
-First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints (Line~\ref{al:afs:greedy-wrapper:line:init}).
-Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
-Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected (Line~\ref{al:afs:greedy-wrapper:line:swap}).
-In case of simultaneous search, we swap the affected two features in each of the alternative feature sets.
-This swap might violate cardinality constraints as well as constraints for alternatives.
-Thus, the algorithm calls the solver again to find a solution~$s'$ containing this swap and satisfying the other constraints.
-If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first and second feature (Lines~\ref{al:afs:greedy-wrapper:line:improved-start}-\ref{al:afs:greedy-wrapper:line:improved-end}).
-Else, it attempts to swap the next pair of features (Lines~\ref{al:afs:greedy-wrapper:line:next-start}-\ref{al:afs:greedy-wrapper:line:next-end}).
-In particular, we only evaluate solution per swap before moving on rather than enumerating all valid solutions containing the swap.
-
-The algorithm terminates if either no swap leads to an improvement or a fixed number of iterations~$max\_iters$ is reached (Line~\ref{al:afs:greedy-wrapper:line:stop}).
-In particular, $max\_iters$ only is an upper bound on the iteration count since the algorithm can stop earlier.
-We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets, as this step might be costly.
-This also is an upper bound on the number of prediction models trained.
-However, not all solver calls might yield a valid feature set.
-%
-\begin{algorithm}[htb]
+\begin{algorithm}[t]
 	\DontPrintSemicolon
 	\KwIn{Dataset $X$ with $n$ features, Prediction target $y$, \newline
 		Feature-set quality function $Q(\cdot)$, \newline
@@ -641,9 +596,7 @@ However, not all solver calls might yield a valid feature set.
 	\BlankLine
 	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative} \label{al:afs:greedy-wrapper:line:init}
 	$iters \leftarrow 1$ \tcp*{Number of iterations = solver calls}
-	\If(\tcp*[f]{No valid alternative}){$s = \emptyset$}{
-		\Return{$\emptyset$}
-	}
+	\lIf(\tcp*[f]{No valid alternative}){$s = \emptyset$}{\Return{$\emptyset$}}
 	$j_1 \leftarrow 1$ \tcp*{Indices of feature to be swapped}
 	$j_2 \leftarrow j_1 + 1$\;
 	\While{$iters < max\_iters$ \textbf{and} $j_1 < n$}{ \label{al:afs:greedy-wrapper:line:stop}
@@ -667,15 +620,36 @@ However, not all solver calls might yield a valid feature set.
 	\label{al:afs:greedy-wrapper}
 \end{algorithm}
 
+\paragraph{Greedy Wrapper}
+
+For wrapper feature selection in our experiments, we propose a method that falls into the category \emph{adapting search}.
+In particular, we adapt a greedy hill-climbing strategy~\cite{kohavi1997wrappers} that observes constraints, as displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
+First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints (Line~\ref{al:afs:greedy-wrapper:line:init}).
+Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
+Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected (Line~\ref{al:afs:greedy-wrapper:line:swap}).
+In case of simultaneous search, we swap the affected two features in each of the alternative feature sets.
+This swap might violate cardinality constraints as well as constraints for alternatives.
+Thus, the algorithm calls the solver again to find a solution~$s'$ containing this swap and satisfying the other constraints.
+If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first and second feature (Lines~\ref{al:afs:greedy-wrapper:line:improved-start}-\ref{al:afs:greedy-wrapper:line:improved-end}).
+Else, it attempts to swap the next pair of features (Lines~\ref{al:afs:greedy-wrapper:line:next-start}-\ref{al:afs:greedy-wrapper:line:next-end}).
+In particular, we only evaluate one solution per swap before moving on rather than enumerating all valid solutions containing the swap.
+
+The algorithm terminates if either no swap leads to an improvement or a fixed number of iterations~$max\_iters$ is reached (Line~\ref{al:afs:greedy-wrapper:line:stop}).
+Due to its heuristic nature, the algorithm might get stuck in local optima rather than yielding the global optimum.
+In particular, $max\_iters$ only is an upper bound on the iteration count since the algorithm can stop earlier.
+We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets.
+This also is an upper bound on the number of prediction models trained.
+However, not all solver calls might yield a valid feature set.
+
 \subsubsection{Embedding Alternatives}
 \label{sec:afs:approach:objectives:embedding}
 
-If feature selection is embedded into training a prediction model, there is no general approach for finding alternative feature sets.
-Instead, one would need to embed the search for alternatives into training as well.
+If feature selection is embedded into a prediction model, there is no general approach for finding alternative feature sets.
+Instead, one would need to embed the search for alternatives into model training as well.
 Thus, we leave the formulation of specific approaches open for future work.
-For example, in the heuristic training procedure of decision trees, one could consider alternatives when creating splits, e.g., prevent splitting on a feature if the resulting feature set of the tree was too similar to a given feature set.
-As another example, there are various formal encodings of prediction models, e.g., \textsc{SAT} encodings~\cite{narodytska2018learning, schidler2021sat, yu2021learning}, where training already uses a solver.
-In such representations, one might directly add constraints for alternatives without modifying the training procedure.
+E.g., one could adapt the training of decision trees to not split on a feature if the resulting feature set of the tree was too similar to a given feature set.
+As another example, there are various formal encodings of prediction models, e.g., as \textsc{SAT} formulas~\cite{narodytska2018learning, schidler2021sat, yu2021learning}, where `training' already uses a solver.
+In such representations, one may directly add constraints for alternatives.
 
 \section{Related Work}
 \label{sec:afs:related-work}
@@ -862,7 +836,7 @@ We consider two metrics related to runtime.
 First, we analyze the \emph{optimization time}.
 For white-box feature-selection methods, this corresponds to the runtime of one solver call for simultaneous search and the summed runtime of multiple solver calls for sequential search.
 We exclude the time for computing the feature-feature and feature-target dependencies before optimization.
-In particular, one only needs to conduct such computations once before searching the original feature set and can then re-use them in each search for alternatives.
+In particular, one only needs to conduct such computations once and can then re-use them in each search for alternatives.
 For \emph{Greedy Wrapper}, we measure the runtime of the full black-box optimization procedure, involving multiple solver calls and model trainings.
 
 As second runtime metric, we examine the \emph{optimization status}, which can take four values.
@@ -932,7 +906,7 @@ We only evaluate approaches for searching alternatives that we proposed in this 
 As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate under different notions what constitutes an alternative feature set, and often only work for particular feature-selection methods.
 All these points prevent a meaningful comparison of these approaches to ours.
 E.g., a feature set considered alternative in related work might violate our constraints for being alternative, and might not support setting a dissimilarity threshold~$\tau$.
-Further, even if we only evaluate our own approaches, we can still put the feature-set quality of the alternatives into perspective by comparing it to the original feature sets.
+Further, even if we only evaluate our own approaches, we can still put the feature-set quality of the alternatives into perspective by comparing them to each other.
 
 \paragraph{Search parametrization}
 
