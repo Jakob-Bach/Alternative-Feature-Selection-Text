@@ -25,7 +25,8 @@
 
 \newtheorem{proposition}{Proposition}
 \theoremstyle{definition}
-\newtheorem{definition}[proposition]{Definition} % re-use counter of propositions
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
 
 \newcommand{\stirling}[2]{\genfrac\{\}{0pt}{}{#1}{#2}} % used for Stirling numbers of the second kind
 
@@ -435,7 +436,7 @@ In contrast to the sequential case (cf.~Equation~\ref{eq:afs:afs-sequential}), w
 The operator~$\text{agg}(\cdot)$ defines how to aggregate the feature-set qualities in the objective.
 In our experiments, we consider the sum as well as the minimum to instantiate~$\text{agg}(\cdot)$, which we refer to as \emph{sum-aggregation} and \emph{min-aggregation}.
 The latter explicitly fosters balanced feature-set qualities.
-Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation functions and ideas for further formulations in detail.
+Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation operators and ideas for further formulations in detail.
 
 Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as it tackles one large optimization problem instead of multiple smaller ones.
 In particular, the number of decision variables increases linearly with the number of alternatives~$a$ and the number of constraints even grows quadratically.
@@ -1823,17 +1824,16 @@ Thus, practitioners could use our generic search methods for alternatives in dom
 \label{sec:afs:appendix}
 
 In this section, we provide technical details and discuss approaches not used in our experiments.
-Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses aggregation functions for the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
+Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses aggregation operators for the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
 Section~\ref{sec:afs:appendix:complete-optimization-problem} provides complete definitions of the alternative-feature-selection problem, which we described over the course of Section~\ref{sec:afs:approach}.
 Section~\ref{sec:afs:appendix:complexity} discusses the computational complexity of said optimization problem.
 Section~\ref{sec:afs:appendix:univariate-search-algorithm} presents a greedy heuristic for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses further objective functions for multivariate filter feature selection, complementing Section~\ref{sec:afs:approach:objectives:white-box}.
 
-\subsection{Aggregation Functions for Simultaneous Search}
+\subsection{Aggregation Operators for Simultaneous Search}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
 
-Equation~\ref{eq:afs:afs-simultaneous} introduced the optimization problem of simultaneous search but did not define the aggregation function~$\text{agg}(\cdot)$ in the objective.
-In this section, we discusses the two functions we use in our experiments, sum and minimum, as well as further approaches for handling the quality of multiple alternatives.
+In this section, we discuss operators to aggregate feature-set quality of multiple alternatives in the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
 
 \paragraph{Sum-aggregation}
 
@@ -1844,17 +1844,21 @@ The arguably simplest way to aggregate the qualities of multiple feature sets is
 	\label{eq:afs:afs-simultaneous-sum-objective}
 \end{equation}
 %
-While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality, though the latter could be one of the reasons for searching simultaneously.
-For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with six features, the feature qualities~$q = (1,2,3,7,8,9)$, desired feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of at most one feature between feature sets here.
-Sequential search yields the selection $s^{(0)} = (0,0,0,1,1,1)$, $s^{(1)} = (0,1,1,0,0,1)$, and $s^{(2)} = (1,0,1,0,1,0)$, with an optimal summed feature-set quality of $24+14+12=50$.
-One simultaneous-search solution consists of the feature sets $s^{(0)} = (0,0,1,0,1,1)$, $s^{(1)} = (0,1,0,1,0,1)$, and $s^{(2)} = (1,0,0,1,1,0)$, with an optimal summed feature-set quality of $20+18+16=54$.
-Another simultaneous-search solution is $s^{(0)} = (1,0,0,0,1,1)$, $s^{(1)} = (0,1,0,1,0,1)$, and $s^{(2)} = (0,0,1,1,1,0)$, with an optimal summed feature-set quality of $18+18+18=54$.
-This example provides us with several insights.
-First, sequential search yields worse quality than simultaneous search here, i.e., 50 vs.~54, due to its greedy search procedure.
-Second, the three feature-set qualities of the sequential solutions, i.e., 24, 14, and~12, differ significantly.
-Third, simultaneous search can yield multiple solutions that all share the same summed feature-set quality.
-However, the feature-set qualities in the second solution, i.e., 18, 18, and~18, are more balanced than in the first solution, i.e., 20, 18, and~16.
-With sum-aggregation, both these solutions are optimal, which might not satisfy the users' needs in some scenarios.
+While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality:
+%
+\begin{example}
+Consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with $n=6$~features, feature qualities~$q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
+Sequential search yields the selection $s^{(0)} = (1,1,1,0,0,0)$, $s^{(1)} = (1,0,0,1,1,0)$, and $s^{(2)} = (0,1,0,1,0,1)$, with a summed quality of $24+14+12=50$.
+One simultaneous-search solution consists of the feature sets $s^{(0)} = (1,1,0,1,0,0)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,0,0,1)$, with a summed quality of $20+18+16=54$.
+Another simultaneous-search solution is $s^{(0)} = (1,1,0,0,0,1)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,1,0,0)$, with a summed quality of $18+18+18=54$.
+\end{example}
+%
+This example allows several insights.
+First, sequential search yields worse quality than simultaneous search here, i.e., 50 vs.~54.
+Second, the feature-set qualities of the sequential solution, i.e., 24, 14, and~12, differ significantly.
+Third, simultaneous search can yield multiple solutions whose feature-set quality is differently balanced.
+Here, the feature-set qualities in the second simultaneous-search solution, i.e., 18, 18, and~18, are more balanced than in the first one, i.e., 20, 18, and~16.
+However, both solutions are equally optimal for sum-aggregation.
 
 \paragraph{Min-aggregation}
 
@@ -1865,18 +1869,22 @@ To actively foster balanced feature-set qualities in simultaneous search, we pro
 	\label{eq:afs:afs-simultaneous-min-objective}
 \end{equation}
 %
-In the terms of social choice theory, this re-formulated objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
+In the terms of social choice theory, this objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
 Note that optimizing the objective with either sum-aggregation or min-aggregation does not necessarily optimize the other one.
-Previously, we already showed an example for a solution optimizing sum-aggregation but not min-aggregation.
-In the following, we demonstrate the other direction.
-For example, consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with six features, the feature qualities~$q = (1,4,5,6,10,11)$, desired feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of at most one feature between feature sets here.
-One solution optimizing the objective with min-aggregation is $s^{(0)} = (0,1,0,0,1,1)$ and $s^{(1)} = (0,0,1,1,0,1)$, with a summed feature-set quality of $25+22=47$.
-Another solution is $s^{(0)} = (1,0,0,0,1,1)$ and $s^{(1)} = (0,0,1,1,0,1)$, with a summed feature-set quality of $22+22=44$.
-While both solutions have the same minimum feature-set quality of~22, only the first solution optimizes the objective with sum-aggregation.
-In particular, min-aggregation allows reducing the quality of feature sets that are above the current minimum of all feature sets.
+We already showed an example for a solution optimizing sum-aggregation but not min-aggregation.
+In the following, we demonstrate the other direction:
+%
+\begin{example}
+Consider univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}) with $n=6$~features, feature qualities~$q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
+One solution optimizing the objective with min-aggregation is $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $25+22=47$.
+Another solution is $s^{(0)} = (1,1,0,0,0,1)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $22+22=44$.
+\end{example}
+%
+While both solutions have the same minimum quality, only the first solution optimizes the objective with sum-aggregation.
+In particular, min-aggregation allows reducing the quality of sets that are above the minimum of all sets.
 
-From the technical perspective, Equation~\ref{eq:afs:afs-simultaneous-min-objective} has the disadvantage of being a non-linear expression regarding the decision variables $s^{(0)}, \dots, s^{(a)}$.
-However, we can linearize it with the help of an auxiliary variable~$Q_{\text{min}}$ and one additional constraint per feature set:
+From the technical perspective, Equation~\ref{eq:afs:afs-simultaneous-min-objective} has the disadvantage of being non-linear regarding the decision variables $s^{(0)}, \dots, s^{(a)}$.
+However, we can linearize it with one constraint per feature set and an auxiliary variable~$Q_{\text{min}}$:
 %
 \begin{equation}
 	\begin{aligned}
@@ -1892,17 +1900,17 @@ This situation relieves us from introducing further auxiliary variables that are
 
 \paragraph{Further approaches for balancing quality}
 
-Min-aggregation provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all feature sets.
-One can alleviate this problem in several ways, particularly by adapting the objective and/or constraints.
-First, theoretical problems related to alternative feature selection also use other objectives for balanced quality~\cite{korf2010objective, lawrinenko2017identical} (cf.~Section~\ref{sec:afs:appendix:complexity:uni-min-partitioning}).
-E.g., one could minimize the difference in quality between the highest-quality feature set and the lowest-quality feature set.
-Second, one could use sum-aggregation but explicitly constrain the minimum or maximum quality of all feature sets, or the difference between the feature sets' qualities.
+Min-aggregation provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all sets.
+One can alleviate this issue by adapting the objective and/or constraints.
+First, work on number partitioning also use other objectives for balancing~\cite{korf2010objective, lawrinenko2017identical} (cf.~Section~\ref{sec:afs:appendix:complexity:uni-min-partitioning}).
+E.g., one could minimize the difference between maximum and minimum feature-set quality.
+Second, one could use sum-aggregation but constrain the minimum or maximum quality of sets, or the difference between the qualities.
 However, such constraint-based approaches introduce one or several parameters bounding feature-set quality, which are difficult to determine a priori.
-Third, one could consider balanced feature sets' qualities as another objective besides the maximizing the summed quality.
+Third, one could consider balancing qualities as another objective besides the maximizing the summed quality.
 One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
-In both cases, users might need to define an acceptable trade-off between the two objectives.
-It currently is an open question if always one solution exists that is jointly optimal for both objectives.
-If yes, then optimizing a weighted combination of the two objectives would also optimize each of the two objectives on its own, assuming positive weights for each objective, e.g., equal weighting.
+In both cases, users may need to define an acceptable trade-off between the two objectives.
+It is an open question if always one solution exists that jointly optimizes min- and sum-aggregation.
+If yes, then optimizing a weighted combination of the two objectives would also optimize each of them on its own, assuming positive weights.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
