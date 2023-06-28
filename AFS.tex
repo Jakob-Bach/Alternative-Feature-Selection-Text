@@ -57,7 +57,7 @@ By reducing dataset dimensionality, they lower the prediction models' computatio
 Next, models might generalize better after removing irrelevant and spurious predictors.
 Finally, prediction models might become simpler~\cite{li2017feature}, improving interpretability.
 
-Conventional feature-selection methods mostly return only one feature set~\cite{borboudakis2021extending}.
+Most Conventional feature-selection methods only return one feature set~\cite{borboudakis2021extending}.
 These methods optimize a criterion of feature-set quality, e.g., prediction performance.
 However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
 Such alternative feature sets are interesting for users, e.g., to obtain several diverse explanations.
@@ -1799,8 +1799,8 @@ Further, our search procedures for alternatives would need adaptation to also wo
 
 \paragraph{Alternatives (constraints)}
 
-One could vary the notion of alternatives (cf.~Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints}), e.g., the set-dissimilarity measure, the definitions for multiple alternatives, or by using soft constraints instead of hard constraints.
-While we tried to make general and straightforward decisions for each of these points, particular applications might demand other formal definitions of alternatives.
+One could vary the definition of alternatives (cf.~Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints}), e.g., the set-dissimilarity measure, the definitions for multiple alternatives, or by using soft constraints instead of hard constraints.
+While we made general and straightforward decisions for each of these points, particular applications might demand other formalizations of alternatives.
 
 \paragraph{Simultaneous search}
 
@@ -1909,16 +1909,15 @@ If yes, then optimizing a weighted combination of the two objectives would also 
 
 In this section, we provide complete specifications of the alternative-feature-selection problem for sequential and simultaneous search.
 In particular, we combine all relevant definitions and equations from Section~\ref{sec:afs:approach}.
-For the objective, we consider an univariate filter feature-selection method, as defined in the Equation~\ref{eq:afs:univariate-filter}.
+We use the objective of univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 The corresponding feature qualities $q(\cdot)$ are constants in the optimization problem.
-To measure feature-set dissimilarity for alternatives, we use the Dice dissimilarity from Equation~\ref{eq:afs:dice-rearranged-equal-size}.
+We use the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}) to measure feature-set dissimilarity for alternatives.
 The dissimilarity threshold~$\tau \in [0,1]$ is a user-defined constant.
-Further, we assume that each feature set should have a fixed, user-defined size~$k \in \mathbb{N}$, as in our experiments.
+Further, we assume fixed, user-defined feature-set sizes~$k \in \mathbb{N}$.
 
 \paragraph{Sequential alternatives}
 
-In the sequential case, only one feature set~$F_s$ is variable.
-In contrast, the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their selection vectors $\bar{s}$ are constants in the optimization problem.
+In the sequential case, only one feature set~$F_s$ is variable in the optimization problem, while the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their selection vectors $\bar{s}$ are constants.
 %
 \begin{equation}
 	\begin{aligned}
@@ -1933,9 +1932,9 @@ In contrast, the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their s
 \paragraph{Simultaneous alternatives}
 
 In the simultaneous case, all feature sets are variable.
-Let~$a \in \mathbb{N}$ denote the number of alternatives, which corresponds to the number of feature sets minus one.
-Further, we introduce auxiliary variables according to Equation~\ref{eq:afs:product-linear} to linearize products between variables.
-Also, we use sum-aggregation in the objective (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}).
+$a \in \mathbb{N}$ denotes the number of alternatives, which corresponds to the number of feature sets minus one.
+Next, we introduce auxiliary variables according to linearize products between variables (cf.~Equation~\ref{eq:afs:product-linear}).
+Finally, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) in the objective here.
 %
 \begin{equation}
 	\begin{aligned}
@@ -2455,7 +2454,7 @@ Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the obj
 	\label{eq:afs:cfs}
 \end{equation}
 %
-One can square this objective to get rid of the square root in the denominator~\cite{nguyen2010towards}.
+One can square this objective to remove the square root in the denominator~\cite{nguyen2010towards}.
 Nevertheless, the objective remains non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
 However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}, allowing to formulate alternative feature selection as a linear problem.
 
