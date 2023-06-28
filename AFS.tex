@@ -792,102 +792,96 @@ In contrast, alternative feature sets might alter the feature \emph{selection} \
 
 In this section, we describe our experimental design.
 We give a brief overview of its goal and components (cf.~Section~\ref{sec:afs:experimental-design:overview}) before elaborating on the components in detail.
-In particular, we describe evaluation (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) metrics, methods (cf.~Section~\ref{sec:afs:experimental-design:approaches}), datasets (cf.~Section~\ref{sec:afs:experimental-design:datasets}), and implementation (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
+In particular, we describe evaluation metrics (cf.~Section~\ref{sec:afs:experimental-design:evaluation}), methods (cf.~Section~\ref{sec:afs:experimental-design:approaches}), datasets (cf.~Section~\ref{sec:afs:experimental-design:datasets}), and implementation (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
 
 \subsection{Overview}
 \label{sec:afs:experimental-design:overview}
 
 We conduct experiments with 30 binary-classification datasets.
-In our evaluation, we focus on the trade-off between feature-set quality and obtaining alternative feature sets.
+Our evaluation focuses on the trade-off between feature-set quality and obtaining alternative feature sets.
 We compare five feature-selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets and analyze prediction performance.
-To find multiple alternative feature sets, we consider a simultaneous as well as a sequential approach.
-We systematically vary the number of alternatives and the dissimilarity threshold for being alternative.
+To find alternatives, we consider simultaneous as well as sequential search.
+We systematically vary the number of alternatives and the dissimilarity threshold for alternatives.
 
 \subsection{Evaluation Metrics}
 \label{sec:afs:experimental-design:evaluation}
 
-Our evaluation focuses on the quality of alternative feature sets.
-In addition, we evaluate runtime of the search for alternatives.
-
 \paragraph{Feature-set quality}
 
-We use two kinds of metrics for feature-set quality.
-First, we evaluate the objective functions~$Q(s,X,y)$ of the feature-selection methods, which guided the search for feature sets, and report their \emph{objective value}.
+We use two metrics for feature-set quality.
+First, we report the \emph{objective value}~$Q(s,X,y)$ of the feature-selection methods, which guided the search for alternatives.
 Second, we train predictions models with the found feature sets.
-We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC), which is insensitive to class imbalance.
-This coefficient reaches its maximum of 1 for perfect predictions and is 0 for random guessing.
-
+We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC).
+This coefficient is insensitive to class imbalance, reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
 To analyze how well feature selection and prediction models generalize, we conduct stratified 5-fold cross-validation.
-Not only model training but also the search for alternative feature sets is limited to the training data.
+The search for alternatives and model training are limited to the training data.
 
 \paragraph{Runtime}
 
 We consider two metrics related to runtime.
 
 First, we analyze the \emph{optimization time}.
-For white-box feature-selection methods, this corresponds to the runtime of one solver call for simultaneous search and the summed runtime of multiple solver calls for sequential search.
-We exclude the time for computing the feature-feature and feature-target dependencies before optimization.
-In particular, one only needs to conduct such computations once and can then re-use them in each search for alternatives.
+For white-box feature-selection methods, we measure the total runtime of solver calls.
+We exclude the time for computing feature qualities and feature dependencies for the objective, since one can compute these values once per dataset and then re-use them in each solver call.
 For \emph{Greedy Wrapper}, we measure the runtime of the full black-box optimization procedure, involving multiple solver calls and model trainings.
 
-As second runtime metric, we examine the \emph{optimization status}, which can take four values.
-If the solver finished before reaching its timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., that no solution exists.
-If the solver reached its timeout, it either found a \emph{feasible} solution, whose optimality it could not prove, or found no valid solution though one might exist, so the problem is \emph{not solved}.
+Second, we examine the \emph{optimization status}, which can take four values.
+If the solver finished before reaching a timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., no solution exists.
+If the solver reached its timeout, it either found a \emph{feasible} solution whose optimality it could not prove, or found no valid solution though one might exist, so the problem is \emph{not solved}.
 
 \subsection{Methods}
 \label{sec:afs:experimental-design:approaches}
 
-Our experimental design comprises multiple approaches for feature selection (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}), defining alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}), and making predictions (cf.~Section~\ref{sec:afs:experimental-design:approaches:prediction}).
+We compare several approaches for making predictions (cf.~Section~\ref{sec:afs:experimental-design:approaches:prediction}), feature selection (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}), and defining alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}).
+
+\subsubsection{Prediction}
+\label{sec:afs:experimental-design:approaches:prediction}
+
+As prediction models, we use decision trees~\cite{breiman1984classification} and random forests with 100 trees \cite{breiman2001random}.
+Both these models allow learning of complex, non-linear dependencies from the data.
+We leave the hyperparameters of the models at their defaults except for using information gain instead of Gini impurity as split criterion, to be consistent to our parametrization of filter feature-selection methods.
+
+Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
+Thus, they might not use all features from the alternative feature sets.
+However, this is not a problem for our study.
+We are interested in which performance the models achieve if they are limited to certain feature sets, not if and how they use each feature from these sets.
 
 \subsubsection{Feature Selection (Objective Functions)}
 \label{sec:afs:experimental-design:approaches:feature-selection}
 
 We search for alternatives under different notions of feature-set quality as objective function.
-To have a diverse set of feature-selection methods, we consider the different categories from Section~\ref{sec:afs:fundamentals:quality}.
-We choose five well-known feature-selection methods that are either parameter-free or easy to parameterize.
-See Section~\ref{sec:afs:approach:objectives} for details on the objective function of each method.
-One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four methods have white-box objectives.
-As explained in Section~\ref{sec:afs:approach:objectives:embedding}, we do not include an embedded feature-selection method.
+We choose five well-known feature-selection methods that have zero or few parameters.
+Also, they cover the different categories from Section~\ref{sec:afs:fundamentals:quality} except \emph{embedded}, as explained in Section~\ref{sec:afs:approach:objectives:embedding}.
+One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four are white-box.
 
 With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
-We enforce the desired $k$ with a simple constraint in our optimization problems, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
+We enforce the desired $k$ with a simple constraint in optimization, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
 
-\paragraph{MI}
+\paragraph{Filter feature selection}
 
-For univariate filtering, we use Equation~\ref{eq:afs:univariate-filter} with mutual information~\cite{kraskov2004estimating} as the dependency measure~$q(\cdot)$.
+We evaluate three filter methods, all using mutual information~\cite{kraskov2004estimating} as the dependency measure~$q(\cdot)$.
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
-To improve comparability between datasets and values of $k$, we normalize the qualities per dataset and cross-validation fold such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
+\emph{MI} denotes a univariate filter (cf.~Equation~\ref{eq:afs:univariate-filter}), while \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) and \emph{mRMR} (cf.~Equation~\ref{eq:afs:mrmr-linear}) are multivariate.
+Since mutual information has no fixed upper bound, we normalize per dataset and cross-validation fold to improve the comparability of feature-set quality.
+For \emph{FCBF} and \emph{MI}, we normalize the individual features' qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
+For \emph{mRMR}, we min-max-normalize all mutual-information values to $[0,1]$, so the overall objective is in $[-1,1]$.
 
-\paragraph{FCBF}
+\paragraph{Wrapper feature selection}
 
-As one multivariate filter method, we use our constrained formulation of FCBF~\cite{yu2003feature} according to Equation~\ref{eq:afs:fcbf}.
-As bivariate dependency measure within FCBF, we rely on mutual information again, normalized to sum up to 1.
+As a wrapper method, we employ the greedy hill-climbing strategy from Algorithm~\ref{al:afs:greedy-wrapper} and call it \emph{Greedy Wrapper}.
+We set $max\_iters$ to 1000.
+To evaluate feature-set quality within the wrapper, we apply a stratified 80:20 holdout split and train decision trees.
+$Q(s,X,y)$ corresponds to the prediction performance in terms of MCC on the 20\% validation part.
 
-\paragraph{mRMR}
+\paragraph{Post-hoc feature importance}
 
-As second multivariate filter method, we use the linearized formulation of mRMR~\cite{peng2005feature} from Equation~\ref{eq:afs:mrmr-linear}.
-Again, we measure bivariate dependencies with mutual information.
-While the objective of mRMR already normalizes with the number of features, we also min-max-normalize all mutual-information values per dataset and cross-validation fold such that they are in $[0,1]$.
-Thus, the overall objective is in $[-1,1]$.
-
-\paragraph{Greedy Wrapper}
-
-As a wrapper method, we employ the greedy hill-climbing strategy from Algorithm~\ref{al:afs:greedy-wrapper} with $max\_iters$ set to 1000.
-To evaluate feature-set quality within the wrapper, we choose a decision tree as the prediction model and MCC~\cite{matthews1975comparison} as the performance metric.
-To test generalization performance, we apply a stratified 80:20 holdout split:
-$Q(s,X,y)$ corresponds to the MCC on the 20\% validation part of the data.
-
-\paragraph{Model Gain}
-
-As post-hoc importance measure, we take model-based feature importance provided by \emph{scikit-learn}.
+As post-hoc importance measure, we use model-based feature importance provided by \emph{scikit-learn}.
 Again, we use a decision tree as the model.
-There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain, i.e., mutual information.
+There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain.
 These importances are normalized to sum up to 1 by default.
-We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat the importances like univariate filter scores.
-Note that the interpretation is different, though.
-In univariate filters, the scores consider features independently.
-Here, the scores originate from trees trained with all features rather than assessing features in isolation.
+We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores.
+The interpretation is different, though, since the scores originate from trees trained with all features rather than assessing features in isolation.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
@@ -895,59 +889,41 @@ Here, the scores originate from trees trained with all features rather than asse
 \paragraph{Competitors}
 
 We only evaluate approaches for searching alternatives that we proposed in this article.
-As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate under different notions what constitutes an alternative feature set, and often only work for particular feature-selection methods.
+As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate with different notions of alternatives, and may only work for particular feature-selection methods.
 All these points prevent a meaningful comparison of these approaches to ours.
-E.g., a feature set considered alternative in related work might violate our constraints for being alternative, and might not support setting a dissimilarity threshold~$\tau$.
-Further, even if we only evaluate our own approaches, we can still put the feature-set quality of the alternatives into perspective by comparing them to each other.
+E.g., a feature set considered alternative in related work might violate our constraints for alternatives.
+Further, within our own approaches, we can still put the feature-set quality into perspective by comparing alternatives to each other.
 
 \paragraph{Search parametrization}
 
-We employ \emph{sequential} as well as \emph{simultaneous} search for alternatives, using the corresponding definitions from Section~\ref{sec:afs:approach:constraints:multiple}.
-For simultaneous search, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) as well as min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
-We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search, while we examine $a \in \{1, \dots, 5\}$ alternatives for simultaneous search.
-This difference stems from the increased runtime for simultaneous search, caused by the larger size of the optimization problem, i.e., more decision variables and more constraints.
-For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the overlap, or rather the difference, between feature sets.
-Thus, for $k=5$, we consider values of $\tau$ from 0.2 to 1 with a step size of 0.2, corresponding to an overlap of four to zero features.
-For $k=10$ we consider values of $\tau$ from 0.1 to 1 with a step size of 0.1.
-Naturally, we exclude $\tau = 0$, which would allow returning duplicate feature sets.
+We employ \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) search for alternatives.
+For the latter, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
+We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search and $a \in \{1, \dots, 5\}$ for simultaneous search due to the higher runtime of the latter.
+For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the feature-set overlap.
+Thus, for $k=5$, we consider $\tau \in \{0.2, 0.4, 0.6, 0.8, 1\}$, corresponding to an overlap of four to zero features.
+For $k=10$ we consider $\tau \in \{0.1, 0.2, \dots, 1\}$.
+We exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
 \paragraph{Optimization}
 
-All our search approaches are solver-based.
-For \emph{Greedy Wrapper}, the solver assists in finding valid solutions but the search procedure might not cover the complete solution space.
-For the white-box feature-set qualities, a solver carries out the entire search for alternatives by solving the underlying optimization problems exactly.
-Thus, given sufficient solving time, these alternatives are guaranteed to be optimal.
-Developing heuristic search procedures, which might be faster but suboptimal, is out of scope of the current article.
-In particular, our evaluation focuses on the quality of alternatives rather than the runtime for finding them.
+All search approaches for alternatives rely on solvers.
+With \emph{Greedy Wrapper} as the feature-selection method, the search procedure is heuristic and might not cover the entire search space.
+There, the solver only assists in finding valid solutions but does not optimize.
+For the white-box feature-selection methods, the solver solves the underlying optimization problems exactly.
+Thus, given sufficient solving time, these alternatives are globally optimal.
 
 \paragraph{Timeout}
 
-To make a large-scale evaluation feasible, we still need to keep runtime under control.
-Since solver runtime may vary considerably, even for optimization problems of the same size, we employ a timeout for the solver.
-In particular, we grant each solver call 60~seconds multiplied with the number of desired feature sets.
-Thus, sequential search, which optimizes feature sets one at a time, conducts multiple solver calls with 60~s timeout.
-In contrast, simultaneous search, which optimizes multiple feature sets at once, proportionally gets more time.
+We employ a solver timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, even for optimization problems of the same size.
+In particular, we grant each solver call 60~s multiplied with the number of feature sets.
+Thus, sequential search conducts multiple solver calls with 60~s timeout, while simultaneous search conducts one solver call with proportionally more time.
 The summed timeout for a fixed number of alternatives still is the same for both search methods.
-For 84\% of the feature sets in our evaluation, the solver finished within the given timeout.
-
-\subsubsection{Prediction}
-\label{sec:afs:experimental-design:approaches:prediction}
-
-As prediction models, we use decision trees~\cite{breiman1984classification} as well as random forests with 100 trees \cite{breiman2001random}.
-Both types of models allow learning of complex, non-linear dependencies from the data.
-We leave the hyperparameters of the models mostly at their defaults, apart from two changes:
-First, we choose information gain instead of Gini impurity as split criterion, to be consistent to our filter feature-selection methods.
-Second, we specify a random seed for reproducibility reasons.
-
-Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
-Thus, they might not use all features that we provide to them.
-However, this is no problem for our study.
-We are interested in which performance the models achieve if they are limited to small alternative feature sets, not how they use each feature from an alternative.
+For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
 
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
 
-\begin{table}[htbp]
+\begin{table}[p]
 	\centering
 	\begin{tabular}{lrr}
 		\toprule
@@ -992,15 +968,14 @@ We are interested in which performance the models achieve if they are limited to
 	}
 	\label{tab:afs:datasets}
 \end{table}
-%
-We evaluate alternative feature selection on a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
-To focus on one machine-learning task type, we only consider binary-classification datasets.
-However, alternative feature selection is possible for regression and multi-class problems as well.
-We filter out datasets containing less than 100 data objects, since very small datasets might entail a high uncertainty when estimating and evaluating feature-set quality.
-Apart from this special case, the number of data objects should have no systematic impact on the feature-set quality and is therefore unimportant for our evaluation.
-Also, we filter out datasets with less than 15 features to leave some room for alternatives.
-Next, we remove one dataset with 1000 features, which would dominate the overall runtime of the experiments.
-Finally, we manually remove datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
+
+We evaluate alternative feature selection on the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
+To harmonize evaluation, we only consider binary-classification datasets, though alternative feature selection also works for regression and multi-class problems.
+We exclude datasets with less than 100 data objects, since they might entail a high uncertainty when assessing feature-set quality.
+Otherwise, the number of data objects should not systematically impact the feature-set quality and is unimportant for our evaluation.
+Also, we exclude datasets with less than 15 features to leave some room for alternatives.
+Next, we exclude one dataset with 1000 features, which would dominate the overall runtime of the experiments.
+Finally, we manually exclude datasets that seem to be duplicated or modified versions of other datasets from the benchmark.
 
 In consequence, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features.
 The datasets contain no missing values.
@@ -1010,16 +985,11 @@ Table~\ref{tab:afs:datasets} lists these datasets.
 \subsection{Implementation and Execution}
 \label{sec:afs:experimental-design:implementation}
 
-We implement our experimental pipeline in Python~3.8.
-For machine learning, we use the package \emph{scikit-learn}~\cite{pedregosa2011scikit-learn}.
-To express and solve the constrained optimization problems, we use the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools}.
-A requirements file in our GitHub repository specifies the versions of all software dependencies.
-All calls of solvers and machine-learning routines are single-threaded in our implementation.
-However, the experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods.
-
-We ran the pipeline on a server with an \emph{AMD EPYC 7551} CPU, having 32 physical cores and a base clock of 2.0~GHz.
-The server had 128~GB RAM and \emph{Ubuntu 20.04.5 LTS} as operating system.
-With this setup, running the parallelized pipeline took roughly 141~hours, i.e., nearly six days.
+We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn}~\cite{pedregosa2011scikit-learn} for machine learning and the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools} for optimization.
+A requirements file in our code specifies the versions of all packages.
+The experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while solver calls and model training are single-threaded.
+We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32 physical cores and a base clock of 2.0~GHz.
+The parallelized pipeline run took roughly 141~hours, i.e., nearly six days.
 
 \section{Evaluation}
 \label{sec:afs:evaluation}
