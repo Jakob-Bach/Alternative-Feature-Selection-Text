@@ -1775,51 +1775,47 @@ In this section, we summarize our work (cf.~Section~\ref{sec:afs:conclusion:conc
 \subsection{Conclusions}
 \label{sec:afs:conclusion:conclusion}
 
-Obtaining interpretable solutions is a highly active research area in machine learning.
-One way to foster interpretability is by selecting a small set of features for predictions.
-Conventional feature-selection methods yield \emph{one} feature set with high quality, e.g., regarding prediction performance.
-However, users might be interested in obtaining multiple, sufficiently different feature sets that, at the same time, have high quality.
-Such alternative feature sets might provide alternative explanations for predictions from the data.
+Feature-selection methods are a valuable tool to foster interpretable predictions.
+Conventional feature-selection methods typically yield only one feature set.
+However, users may be interested in obtaining multiple, sufficiently diverse feature sets that also have high quality.
+Such alternative feature sets may provide alternative explanations for predictions from the data.
 
 In this article, we defined alternative feature selection as an optimization problem.
 We formalized alternatives via constraints that are independent of the feature-selection method, can be combined with other constraints on feature sets, and allow users to control diversity according to their needs.
 We analyzed the complexity of this optimization problem and proofed $\mathcal{NP}$-hardness, even for simple notions of feature-set quality.
 Further, we discussed how to integrate different categories of conventional feature-selection methods.
 Finally, we evaluated alternative feature selection with 30 classification datasets and five feature-selection methods.
-We compared two search methods for alternatives and varied the number of alternatives as well as the threshold for being alternative.
+We compared two search methods for alternatives and varied the number of alternatives as well as the threshold for alternatives.
 
 \subsection{Future Work}
 \label{sec:afs:conclusion:future-work}
 
-There are several points for applying, extending, or modifying alternative feature selection.
-
 \paragraph{Feature selection (objective function)}
 
-One can search for alternatives with other feature-selection methods than the five we analyzed.
-For wrapper feature selection, which requires black-box optimization, there are multiple ways to consider alternatives (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
-As we saw in our experiments, achieving a high feature-set quality within a reasonable time frame poses a particular challenge for this category of feature-selection methods.
-Further, our generic search procedures need adaptation to work for the category of embedded feature selection (cf.~Section~\ref{sec:afs:approach:objectives:embedding}), which we did not consider in our experiments.
+One could search for alternatives with other feature-selection methods than the five we analyzed.
+For wrapper feature selection, which requires black-box optimization, we implemented only one of several ways to consider alternatives (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
+As our experiments showed, the runtime poses a particular challenge for this category of feature selection.
+Further, our search procedures for alternatives would need adaptation to also work for embedded feature selection (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
 
 \paragraph{Alternatives (constraints)}
 
-One can vary the notion of alternatives (cf.~Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints}), e.g., the set-dissimilarity measure, the definitions for multiple alternatives, or by using soft constraints instead of hard constraints.
+One could vary the notion of alternatives (cf.~Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints}), e.g., the set-dissimilarity measure, the definitions for multiple alternatives, or by using soft constraints instead of hard constraints.
 While we tried to make general and straightforward decisions for each of these points, particular applications might demand other formal definitions of alternatives.
 
-\paragraph{Simultaneous alternatives}
+\paragraph{Simultaneous search}
 
-Our experiments (cf.~Section~\ref{sec:afs:evaluation:search:method}) as well as theoretical analysis (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that simultaneous search scales badly with the number of alternatives.
-One way to alleviate this is finding a more efficient problem formulation, e.g., by loosening the constraints for alternatives.
-However, looser constraints bear the danger of allowing identical feature sets as valid alternatives.
-Further, one can limit the solver runtime and take the intermediate results once the timeout is reached.
-We already used a fixed timeout in our experiments, but studying the exact influence of different timeouts one the feature-set quality is a topic for future work.
-Next, one can use a different solver, e.g., one that supports non-linear terms so the auxiliary variables and constraints from Equation~\ref{eq:afs:product-linear} become superfluous.
-Finally, one can develop a heuristic rather than an exact search procedure.
+Our experiments (cf.~Section~\ref{sec:afs:evaluation:search:method}) and theoretical analyses (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that simultaneous search scales badly with the number of alternatives.
+One could try to find a more efficient problem formulation, e.g., by loosening the constraints for alternatives, which could bear the danger of allowing identical feature sets as alternatives.
+Further, one could limit the solver runtime and take the intermediate results once the timeout is reached.
+We already used a fixed timeout in our experiments, but studying the exact influence of timeouts one the feature-set quality is a topic for future work.
+Next, one could use a different solver, e.g., one that supports non-linear terms so the auxiliary variables from Equation~\ref{eq:afs:product-linear} become superfluous.
+Finally, one could develop a heuristic rather than an exact search procedure (cf.~Section~\ref{sec:afs:appendix:univariate-search-algorithm}).
 
 \paragraph{Datasets}
 
-Our evaluation builds on benchmark datasets from various domains.
-While we could uncover several general trends, the existence and the quality of alternative feature sets clearly depends on the dataset (cf.~Section~\ref{sec:afs:evaluation:datasets}).
-Thus, practitioners can use our generic search methods for alternatives in domain-specific case studies.
+Our evaluation uses datasets from various domains.
+While we could uncover several general trends, the existence and the quality of alternatives clearly depends on the dataset (cf.~Section~\ref{sec:afs:evaluation:datasets}).
+Thus, practitioners could use our generic search methods for alternatives in domain-specific case studies.
 
 \appendix
 
