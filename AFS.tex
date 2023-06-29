@@ -2187,10 +2187,10 @@ Thus, practitioners could use our generic search methods for alternatives in dom
 
 In this section, we provide technical details and discuss approaches not used in our experiments.
 Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses aggregation operators for the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
+Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses further objective functions for multivariate filter feature selection, amending Section~\ref{sec:afs:approach:objectives:white-box}.
 Section~\ref{sec:afs:appendix:complete-optimization-problem} provides complete definitions of the alternative-feature-selection problem, which we described over the course of Section~\ref{sec:afs:approach}.
-Section~\ref{sec:afs:appendix:complexity} extends the complexity analysis from Section\ref{sec:afs:approach:complexity}.
+Section~\ref{sec:afs:appendix:complexity} amends the complexity analysis from Section\ref{sec:afs:approach:complexity}.
 Section~\ref{sec:afs:appendix:univariate-search-algorithm} presents a greedy heuristic for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
-Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses further objective functions for multivariate filter feature selection, complementing Section~\ref{sec:afs:approach:objectives:white-box}.
 
 \subsection{Aggregation Operators for Simultaneous Search}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
@@ -2273,6 +2273,33 @@ One can then optimize two objectives simultaneously, filtering results for Paret
 In both cases, users may need to define an acceptable trade-off between the two objectives.
 It is an open question if always one solution exists that jointly optimizes min- and sum-aggregation.
 If yes, then optimizing a weighted combination of the two objectives would also optimize each of them on its own, assuming positive weights.
+
+\subsection{Further Objectives for Multivariate Filter Methods}
+\label{sec:afs:appendix:multivariate-filter-objectives}
+
+While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF and mRMR as multivariate filter feature-selection methods, we discuss the objectives of CFS and Relief here.
+
+\paragraph{CFS}
+
+Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} follows a similar principle as mRMR but uses the ratio instead of the difference between a relevance term and a redundancy term for feature-set quality.
+Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the objective is as follows:
+%
+\begin{equation}
+	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
+	\label{eq:afs:cfs}
+\end{equation}
+%
+One can square this objective to remove the square root in the denominator~\cite{nguyen2010towards}.
+Nevertheless, the objective remains non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
+However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}, allowing to formulate alternative feature selection as a linear problem.
+
+\paragraph{Relief}
+
+Relief~\cite{kira1992feature, robnik1997adaptation} builds on the idea that data objects with a similar value of the prediction target should have similar feature values, but data objects that differ in their target should differ in their feature values.
+Relief assigns a score to each feature by sampling data objects and quantifying the difference in feature values and target values compared to their nearest neighbors.
+We deem Relief to be multivariate since the nearest-neighbor computations involve all features instead of considering them independently.
+However, the resulting feature scores can directly be put into the univariate-filter objective (cf.~Equation~\ref{eq:afs:univariate-filter}) to obtain a linear problem.
+One can also use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
 
 \subsection{Complete Specifications of the Optimization Problem}
 \label{sec:afs:appendix:complete-optimization-problem}
@@ -2454,33 +2481,6 @@ Simultaneous search with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultane
 
 Overall, greedy replacement is a fast search procedure for special scenarios, but a solver-based search for alternatives is more general.
 Our experiments in Section~\ref{sec:afs:evaluation} consistently use a solver.
-
-\subsection{Further Objectives for Multivariate Filter Methods}
-\label{sec:afs:appendix:multivariate-filter-objectives}
-
-While Section~\ref{sec:afs:approach:objectives:white-box} already addressed FCBF and mRMR as multivariate filter feature-selection methods, we discuss the objectives of CFS and Relief here.
-
-\paragraph{CFS}
-
-Correlation-based Feature Selection (CFS)~\cite{hall1999correlation, hall2000correlation} follows a similar principle as mRMR but uses the ratio instead of the difference between a relevance term and a redundancy term for feature-set quality.
-Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the objective is as follows:
-%
-\begin{equation}
-	Q_{\text{CFS}}(s,X,y) = \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{\sqrt{\sum_{j=1}^{n} s_j + \sum_{j_1=1}^{n} \sum_{\substack{j_2=1 \\ j_2 \neq j_1}}^{n} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_1} \cdot s_{j_2}}}
-	\label{eq:afs:cfs}
-\end{equation}
-%
-One can square this objective to remove the square root in the denominator~\cite{nguyen2010towards}.
-Nevertheless, the objective remains non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
-However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}, allowing to formulate alternative feature selection as a linear problem.
-
-\paragraph{Relief}
-
-Relief~\cite{kira1992feature, robnik1997adaptation} builds on the idea that data objects with a similar value of the prediction target should have similar feature values, but data objects that differ in their target should differ in their feature values.
-Relief assigns a score to each feature by sampling data objects and quantifying the difference in feature values and target values compared to their nearest neighbors.
-We deem Relief to be multivariate since the nearest-neighbor computations involve all features instead of considering them independently.
-However, the resulting feature scores can directly be put into the univariate-filter objective (cf.~Equation~\ref{eq:afs:univariate-filter}) to obtain a linear problem.
-One can also use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
