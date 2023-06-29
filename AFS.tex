@@ -1104,6 +1104,7 @@ Our problem definition in Sections~\ref{sec:afs:approach:problem} and~\ref{sec:a
 Find multiple solutions that maximize quality while minimizing similarity.
 \cite{bailey2014alternative} also distinguishes between singular/multiple alternatives, and sequential/simultaneous search.
 They mention constraint-based search for alternatives as one of several solution paradigms.
+In particular, feature selection can also help to find alternative clusterings~\cite{tao2012novel}.
 Nevertheless, the problem definition for alternatives in clustering and feature selection is fundamentally different.
 First, the notion of dissimilarity differs, as we want to find differently composed feature sets, while alternative clustering targets at different assignments of data objects to clusters.
 Second, our objective function, i.e., feature-set quality, relates to a supervised prediction scenario while clustering is unsupervised.
@@ -1173,7 +1174,7 @@ We systematically vary the number of alternatives and the dissimilarity threshol
 We use two metrics for feature-set quality.
 First, we report the \emph{objective value}~$Q(s,X,y)$ of the feature-selection methods, which guided the search for alternatives.
 Second, we train predictions models with the found feature sets.
-We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC).
+We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC)~\cite{matthews1975comparison}.
 This coefficient is insensitive to class imbalance, reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
 To analyze how well feature selection and prediction models generalize, we conduct stratified 5-fold cross-validation.
 The search for alternatives and model training are limited to the training data.
