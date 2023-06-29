@@ -475,7 +475,7 @@ In particular, these methods decompose the quality of a feature set into the qua
 %
 Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between one feature and the prediction target.
 Appendix~\ref{sec:afs:appendix:complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
-Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver.
+Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver. TODO
 
 Instead of an integer problem, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat} for this objective, i.e., a weighted \textsc{Max One} problem~\cite{khanna1997complete}.
 In particular, Equation~\ref{eq:afs:univariate-filter} is a sum of weighted binary variables, and the constraints for alternatives can be turned into SAT formulas as well, using a cardinality encoding~\cite{sinz2005towards} for the sum expressions.
@@ -2400,6 +2400,13 @@ This particular problem formulation assumes univariate qualities and $\tau=1$ ag
 For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter} and Section~\ref{sec:afs:appendix:complete-optimization-problem}), one can easily find a limited number of optimal alternative feature sets without a solver.
 To this end, we propose the following \emph{greedy-replacement} procedure, displayed in Algorithm~\ref{al:afs:greedy-replacement}:
 
+TODO: use proof-sketch environment in complexity part
+TODO: can adapt this procedure to min-quality objective, potentially using number partitioning heuristics (have a look at the latter!) (e.g., always select features of highest quality, bring the rest in some (sorted?) order and sequentially assign to set with currently lowest sum)
+TODO: think if sequential search can act as bound for simultaneous search
+TODO: think if PTAS / APX can be shown
+- relaxation also gives an bound on objective (though no solution) but might be very loose
+- if you can use the top features and there are still unused features, you have at least a certain approximation ratio (depending on how large the quality of the top (1-tau)*k features is relative to the top k features -> poly-apx or even apx, depending on whether you consider k fixed)
+
 \paragraph{Procedure}
 
 The univariate objective function does not contain interaction terms between features.
@@ -2466,6 +2473,9 @@ In particular, assembling feature sets of different sizes in different order can
 \paragraph{Limitations}
 
 For a fixed~$k$, not even a simultaneous search can surpass the summed quality of the solutions yielded by the sequential greedy-replacement procedure, though the former might compose the feature sets differently.
+
+TODO: that's wrong, see 2023-01-18 and 2022-05-23 thoughts; even with unused features available, greedy replacement can be worse than both sequential and simultaneous search (add an example with qualities 1-9, k =3, tau = 1, a = 2, as shown to Matthias)
+
 However, greedy replacement only works as long as some features have not been part of any feature set yet, i.e., $k + i \cdot \lceil \tau \cdot k \rceil \leq n$.
 Once this pool of unused features is exhausted, one would need another strategy to find further alternatives.
 Additionally, continuing search from the results of greedy replacement might then perform worse than a simultaneous search.
