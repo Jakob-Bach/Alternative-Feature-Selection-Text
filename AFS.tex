@@ -1078,17 +1078,6 @@ There, the solver only assists in finding valid solutions but does not optimize.
 For the white-box feature-selection methods, the solver solves the underlying optimization problems exactly.
 Thus, given sufficient solving time, these alternatives are globally optimal.
 
-\paragraph{Timeout}
-
-We employ a solver timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, even for optimization problems of the same size.
-In particular, we grant each solver call 60~s multiplied with the number of feature sets.
-Thus, sequential search conducts multiple solver calls with 60~s timeout, while simultaneous search conducts one solver call with proportionally more time.
-The summed timeout for a fixed number of alternatives still is the same for both search methods.
-For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
-
-\subsection{Datasets}
-\label{sec:afs:experimental-design:datasets}
-
 \begin{table}[p]
 	\centering
 	\begin{tabular}{lrr}
@@ -1134,6 +1123,17 @@ For 84\% of the feature sets in our evaluation, the solver finished before the t
 	}
 	\label{tab:afs:datasets}
 \end{table}
+
+\paragraph{Timeout}
+
+We employ a solver timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, even for optimization problems of the same size.
+In particular, we grant each solver call 60~s multiplied with the number of feature sets.
+Thus, sequential search conducts multiple solver calls with 60~s timeout, while simultaneous search conducts one solver call with proportionally more time.
+The summed timeout for a fixed number of alternatives still is the same for both search methods.
+For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
+
+\subsection{Datasets}
+\label{sec:afs:experimental-design:datasets}
 
 We evaluate alternative feature selection on the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
 To harmonize evaluation, we only consider binary-classification datasets, though alternative feature selection also works for regression and multi-class problems.
