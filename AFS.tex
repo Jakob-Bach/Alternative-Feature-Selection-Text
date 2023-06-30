@@ -356,7 +356,7 @@ If users desire multiple alternative feature sets rather than only one, we can c
 The number of alternatives~$a$ is a parameter to be set by the user.
 The overall number of feature sets is $a + 1$ since we deem one feature set the `original' one.
 Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search methods.
-%
+
 \begin{table}[t]
 	\centering
 	\renewcommand*{\arraystretch}{1.3}
@@ -1168,7 +1168,7 @@ Finally, Section~\ref{sec:afs:evaluation:summary} summarizes our key findings.
 \subsection{Datasets}
 \label{sec:afs:evaluation:datasets}
 
-\begin{figure}[htb]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1207,7 +1207,7 @@ In particular, this normalization should reduce the influence of datasets and hi
 \subsection{Feature-Set Quality Metrics}
 \label{sec:afs:evaluation:metrics}
 
-\begin{figure}[htb]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1271,7 +1271,7 @@ However, with decision trees as prediction models, redundant features may not hu
 \subsection{Feature-Selection Methods}
 \label{sec:afs:evaluation:feature-selection}
 
-\begin{figure}[htb]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1391,7 +1391,7 @@ In this section, we evaluate the different choices for searching alternatives: t
 	\label{fig:afs:impact-search-quality}
 \end{figure}
 
-\begin{figure}[htb]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1448,7 +1448,7 @@ The figure again shows that all feature-selection methods except \emph{Greedy Wr
 Additionally, the figure highlights that outliers can occur in both directions:
 While simultaneous search can yield better-performing feature sets in some situations, sequential search can be significantly better in other scenarios.
 
-\begin{table}[htb]
+\begin{table}[t]
 	\centering
 	\begin{tabular}{llrrrr}
 		\toprule
@@ -1478,8 +1478,8 @@ While simultaneous search can yield better-performing feature sets in some situa
 	}
 	\label{tab:afs:impact-search-fs-method-optimization-status}
 \end{table}
-%
-\begin{table}[htb]
+
+\begin{table}[t]
 	\centering
 	\begin{tabular}{rrrrr}
 		\toprule
@@ -1524,7 +1524,7 @@ For simultaneous search with $k=5$ and sum-aggregation, roughly 7\% of the white
 Remember that we grant simultaneous searches proportionally more time to obtain more feature sets.
 The nevertheless observed increase in timeouts suggests that runtime increases super-proportionally, as we analyze next.
 
-\begin{table}[htb]
+\begin{table}[t]
 	\centering
 	\begin{tabular}{lrrr}
 		\toprule
@@ -1545,8 +1545,8 @@ The nevertheless observed increase in timeouts suggests that runtime increases s
 	}
 	\label{tab:afs:impact-search-fs-method-optimization-time}
 \end{table}
-%
-\begin{table}[htb]
+
+\begin{table}[t]
 	\centering
 	\begin{tabular}{lrrrrr}
 		\toprule
@@ -1658,7 +1658,7 @@ Figures~\ref{fig:afs:impact-num-alternatives-quality-max-fillna} and~\ref{fig:af
 In these figures, the downward trend of feature-set quality over the number of alternatives becomes slightly more prominent, particular for a high number of alternatives.
 This downward trend also depends on the dissimilarity threshold~$\tau$, which we analyze in the next section.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1796,7 +1796,7 @@ As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays,
 In contrast, the effect of~$\tau$ on prediction performance exhibits a less clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
 This result underlines our previous observation that the objective value is only partially indicate of prediction performance.
 
-\begin{figure}[htbp]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -1828,7 +1828,7 @@ Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max
 In contrast, if only considering valid feature sets, the mean objective value can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$ or in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} for \emph{MI} and \emph{Model Gain}.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality is determined for different sets of datasets at each number of alternatives.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
@@ -2402,7 +2402,7 @@ We only replace the remaining $\lceil \tau \cdot k \rceil$~features from alterna
 To this end, we fill up the feature sets with the highest-quality features that were not part of any feature set yet, which ensures a sufficient pairwise dissimilarity between feature sets.
 We continue this procedure till we reach the desired number of alternatives or till there are not enough unused features to form further alternatives.
 
-\begin{algorithm}[htb]
+\begin{algorithm}[t]
 	\DontPrintSemicolon
 	\KwIn{Univariate feature qualities~$q_j$ with $j \in \{1, \dots, n\}$, \newline
 		Feature-set size~$k$, \newline
