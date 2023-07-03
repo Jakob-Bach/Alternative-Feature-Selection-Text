@@ -2203,7 +2203,6 @@ Finally, one could re-formulate alternative feature selection similar to \textsc
 For an objective consisting of univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter} and Section~\ref{sec:afs:appendix:univariate-complete-optimization-problem}), one can easily find a limited number of optimal alternative feature sets without a solver.
 To this end, we propose the following \emph{greedy-replacement} procedure, displayed in Algorithm~\ref{al:afs:greedy-replacement}:
 
-TODO: use proof-sketch environment in complexity part
 TODO: can adapt this procedure to min-quality objective, potentially using number partitioning heuristics (have a look at the latter!) (e.g., always select features of highest quality, bring the rest in some (sorted?) order and sequentially assign to set with currently lowest sum)
 TODO: think if sequential search can act as bound for simultaneous search
 TODO: think if PTAS / APX can be shown
