@@ -1155,7 +1155,7 @@ We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn
 A requirements file in our code specifies the versions of all packages.
 The experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while solver calls and model training are single-threaded.
 We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32 physical cores and a base clock of 2.0~GHz.
-The parallelized pipeline run took roughly 141~hours, i.e., nearly six days.
+The parallelized pipeline run took roughly 255~hours, i.e., about 10.6 days.
 
 \section{Evaluation}
 \label{sec:afs:evaluation}
@@ -1264,8 +1264,8 @@ While obtaining alternatives of homogeneous quality can be one goal of simultane
 However, we found that simultaneous search is not clearly better than sequential search in that regard.
 In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective in search runs for \emph{MI} as feature-selection method and $k=5$.
 We observe that all search methods yield very similar distribution of feature-set quality.
-This observation holds for all four white-box feature selection methods, while the heuristic \emph{Greedy Wrapper} even favors sequential search.
-In contrast, for \emph{MI}, as visible in Figure~\ref{fig:afs:impact-search-mean-train-objective}, and \emph{Model Gain}, simultaneous search tends to develop a slight advantage with a growing number of alternatives.
+The other four feature-selection methods also do not show a general quality advantage of simultaneous search.
+At most, simultaneous search tends to develop a slight advantage with a growing number of alternatives for \emph{MI}, as visible in Figure~\ref{fig:afs:impact-search-mean-train-objective}, and \emph{Model Gain}.
 
 The test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-objective} and the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc} also exhibit the negligible quality difference between the search methods.
 As Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, the variation in prediction performance caused by other dimensions of the experimental design, e.g., dataset, dissimilarity threshold~$\tau$, etc., exceeds the variation due to the search methods.
@@ -1278,24 +1278,24 @@ While simultaneous search can yield better feature sets in some scenarios, seque
 
 \begin{table}[t]
 	\centering
-	\begin{tabular}{llrrrr}
+	\begin{tabular}{llrrr}
 		\toprule
-		Selection & Search & \multicolumn{4}{c}{Optimization status} \\
-		\cmidrule(r){3-6}
-		& & Infeasible & Not solved & Feasible & Optimal \\
+		Selection & Search & \multicolumn{3}{c}{Optimization status} \\
+		\cmidrule(r){3-5}
+		& & Infeasible & Feasible & Optimal \\
 		\midrule
-		FCBF & seq. & 70.25\% & 0.00\% & 0.00\% & 29.75\% \\
-		FCBF & sim. (min) & 74.13\% & 0.08\% & 1.45\% & 24.33\% \\
-		FCBF & sim. (sum) & 74.12\% & 0.09\% & 2.01\% & 23.77\% \\
-		MI & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
-		MI & sim. (min) & 4.67\% & 0.00\% & 8.80\% & 86.53\% \\
-		MI & sim. (sum) & 4.67\% & 0.00\% & 2.44\% & 92.89\% \\
-		Model Gain & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
-		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.25\% & 90.08\% \\
-		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.75\% & 93.59\% \\
-		mRMR & seq. & 1.96\% & 0.00\% & 9.90\% & 88.14\% \\
-		mRMR & sim. (min) & 4.67\% & 0.00\% & 48.72\% & 46.61\% \\
-		mRMR & sim. (sum) & 4.67\% & 0.00\% & 66.99\% & 28.35\% \\
+		FCBF & seq. & 66.39\% & 0.00\% & 33.61\% \\
+		FCBF & sim. (min) & 73.07\% & 1.73\% & 25.20\% \\
+		FCBF & sim. (sum) & 73.07\% & 2.19\% & 24.75\% \\
+		MI & seq. & 1.97\% & 0.00\% & 98.03\% \\
+		MI & sim. (min) & 4.67\% & 9.60\% & 85.73\% \\
+		MI & sim. (sum) & 4.67\% & 3.17\% & 92.16\% \\
+		Model Gain & seq. & 1.97\% & 0.00\% & 98.03\% \\
+		Model Gain & sim. (min) & 4.67\% & 5.55\% & 89.79\% \\
+		Model Gain & sim. (sum) & 4.67\% & 1.92\% & 93.41\% \\
+		mRMR & seq. & 1.95\% & 8.67\% & 89.38\% \\
+		mRMR & sim. (min) & 4.67\% & 49.04\% & 46.29\% \\
+		mRMR & sim. (sum) & 4.67\% & 67.39\% & 27.95\% \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1308,17 +1308,17 @@ While simultaneous search can yield better feature sets in some scenarios, seque
 
 \begin{table}[t]
 	\centering
-	\begin{tabular}{rrrrr}
+	\begin{tabular}{rrrr}
 		\toprule
-		$a$ & \multicolumn{4}{c}{Optimization status} \\
-		\cmidrule(r){2-5}
-		& Infeasible & Not solved & Feasible & Optimal \\
+		$a$ & \multicolumn{3}{c}{Optimization status} \\
+		\cmidrule(r){2-4}
+		& Infeasible & Feasible & Optimal \\
 		\midrule
-		1 & 16.88\% & 0.00\% & 7.45\% & 75.67\% \\
-		2 & 17.97\% & 0.00\% & 13.63\% & 68.40\% \\
-		3 & 20.20\% & 0.00\% & 20.03\% & 59.77\% \\
-		4 & 26.90\% & 0.02\% & 21.42\% & 51.67\% \\
-		5 & 28.20\% & 0.10\% & 28.95\% & 42.75\% \\
+		1 & 16.10\% & 7.57\% & 76.33\% \\
+		2 & 17.50\% & 13.43\% & 69.07\% \\
+		3 & 20.00\% & 20.40\% & 59.60\% \\
+		4 & 27.00\% & 21.47\% & 51.53\% \\
+		5 & 28.23\% & 30.47\% & 41.30\% \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1335,17 +1335,17 @@ A major reason for simultaneous search failing to consistently beat sequential s
 For \emph{Greedy Wrapper}, the search is heuristic per se and does not cover the entire search space.
 For all feature-selection methods, the solver can time out.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} shows that simultaneous search has a higher likelihood of timeouts than sequential search, likely due to the larger size of the optimization problem (cf.~Table~\ref{tab:afs:seq-sim-comparison}).
-In particular, for up to five alternatives and $k=5$, all sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility, while \emph{mRMR} had about 10\% timeouts.
+In particular, for up to five alternatives and $k=5$, all sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility, while \emph{mRMR} had about 9\% timeouts.
 In contrast, for simultaneous search with sum-aggregation, all feature-selection methods experience timeouts:
-Roughly 2\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution but could not proof optimality.
+Roughly 2-3\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution but could not proof optimality.
 Such timeout-affected simultaneous solutions can be worse than optimal sequential solutions.
-Also, a few simultaneous search runs for \emph{FCBF} indicate \emph{not solved}, i.e., the solver did not find a feasible solution without being able to proof infeasibility.
+The optimization status \emph{not solved}, i.e., not finding a feasible solution without proofing infeasibility, did not occur in the displayed results.
 Min-aggregation instead of sum-aggregation in simultaneous search increases the number of timeouts for \emph{MI} and \emph{Model Gain} but decreases them for \emph{FCBF} and \emph{mRMR}.
 Still, sequential search incurs less timeouts for all these four feature-selection methods.
 
 Finally, note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
-For simultaneous search with $k=5$ and sum-aggregation, roughly 7\% of the white-box searches timed out for~$a=1$ but 20\% for~$a=3$ and 29\% for~$a=5$.
-Despite we grant simultaneous searches proportionally more time for multiple alternatives, the observed increase in timeouts suggests that runtime increases super-proportionally, as we analyze next.
+For simultaneous search with $k=5$ and sum-aggregation, roughly 8\% of the white-box searches timed out for~$a=1$ but 20\% for~$a=3$ and 30\% for~$a=5$.
+While we grant simultaneous searches proportionally more time for multiple alternatives, the observed increase in timeouts suggests that runtime increases super-proportionally, as we analyze next.
 
 \begin{table}[t]
 	\centering
@@ -1355,11 +1355,11 @@ Despite we grant simultaneous searches proportionally more time for multiple alt
 		\cmidrule(r){2-4}
 		& seq. & sim. (min) & sim. (sum) \\
 		\midrule
-		FCBF & 0.18~s & 11.55~s & 13.40~s \\
-		Greedy Wrapper & 6.96~s & 10.67~s & 11.48~s \\
-		MI & 0.02~s & 44.21~s & 22.46~s \\
-		Model Gain & 0.02~s & 30.26~s & 19.52~s \\
-		mRMR & 35.78~s & 155.62~s & 189.29~s \\
+		FCBF & 0.22~s & 11.91~s & 13.09~s \\
+		Greedy Wrapper & 54.23~s & 61.10~s & 63.45~s \\
+		MI & 0.03~s & 48.25~s & 25.39~s \\
+		Model Gain & 0.03~s & 30.91~s & 19.98~s \\
+		mRMR & 34.12~s & 157.87~s & 189.76~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1377,11 +1377,11 @@ Despite we grant simultaneous searches proportionally more time for multiple alt
 		\cmidrule(r){2-6}
 		& FCBF & Wrapper & MI & Model Gain & mRMR \\
 		\midrule
-		1 & 0.42~s & 3.20~s & 0.02~s & 0.02~s & 44.96~s \\
-		2 & 0.91~s & 5.07~s & 0.07~s & 0.06~s & 119.42~s \\
-		3 & 3.11~s & 7.56~s & 0.25~s & 0.23~s & 206.00~s \\
-		4 & 14.98~s & 18.69~s & 3.73~s & 3.43~s & 258.60~s \\
-		5 & 47.57~s & 22.87~s & 108.22~s & 93.89~s & 317.44~s \\
+		1 & 0.52~s & 25.94~s & 0.03~s & 0.02~s & 44.99~s \\
+		2 & 0.95~s & 39.44~s & 0.09~s & 0.08~s & 118.80~s \\
+		3 & 3.26~s & 56.52~s & 0.31~s & 0.27~s & 208.90~s \\
+		4 & 14.02~s & 86.13~s & 3.84~s & 3.59~s & 258.40~s \\
+		5 & 46.71~s & 109.20~s & 122.69~s & 95.94~s & 317.69~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1396,7 +1396,7 @@ Despite we grant simultaneous searches proportionally more time for multiple alt
 The actual optimization times also speak in favor of sequential search.
 As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the mean optimization time of sequential search is lower for all five feature-selection methods.
 In particular, the difference between sequential and simultaneous search is up to three orders of magnitude for the four white-box feature-selection methods.
-Further, \emph{MI}, and \emph{Model Gain} experiences a dramatic increase in optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} displays.
+Further, \emph{FCBF}, \emph{MI}, and \emph{Model Gain} experiences a dramatic increase in optimization time with the number of alternatives~$a$ in simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} displays.
 In contrast, the runtime increase is considerably less for sequential search, which shows an approximately linear trend with the number of alternatives there.
 
 Based on all results described in this section, we focus on the sequential search in the following.
@@ -1405,9 +1405,9 @@ In particular, it appeared to be significantly faster than simultaneous search w
 Another interesting question for practitioners is how the runtime relates to~$n$, the number of features in the dataset.
 One would expect a positive correlation since the optimization problem's instance size increases with~$n$.
 Roughly speaking, this trend appears in our experimental data indeed.
-However, the observed trend is rather noisy, and some higher-dimensional datasets even show lower average runtimes than lower-dimensional datasets.
-This results indicates that several other factors than~$n$ influence runtime.
-Besides factors related to the datasets and experimental design, the heuristics used by the solver may also play a role, e.g., work better for some problem instances than for others.
+However, the observed trend is rather noisy, particularly for simultaneous search, and some higher-dimensional datasets even show lower average runtimes than lower-dimensional datasets.
+This result indicates that several other factors than~$n$ influence runtime.
+Besides factors related to the datasets and experimental design, the heuristics used by the solver may also cause runtime to fluctuate considerably.
 
 \subsection{Number of Alternatives \texorpdfstring{$a$}{}}
 \label{sec:afs:evaluation:num-alternatives}
@@ -1459,10 +1459,8 @@ For comparison, Figure~\ref{fig:afs:impact-num-alternatives-quality-min-max} use
 This figure makes the decrease in quality over the alternatives more visible.
 In particular, this figure highlights that the training-set objective value decreases most from the original feature set to the first alternative but less beyond.
 
-Additionally, Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} show that the test-set objective value also drops most from the original feature set to the first alternative.
-However, the decrease in median test-set objective value over the alternatives only occurs for the first few alternatives.
-For further alternatives, the value of this metric is stable.
-Additionally, the initial decrease is less prominent than on the training set.
+Additionally, Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} show that the test-set objective value also drops most to the first alternative.
+However, this decrease is less prominent than on the training set and there is no clear trend beyond the first few alternatives.
 In particular, alternatives can even have a higher test-set objective value than the original feature set due to overfitting.
 Similar findings hold for test-set prediction performance.
 Overall, these results indicate that alternative feature sets fulfill their purpose of being different solutions with similar quality.
@@ -2370,9 +2368,9 @@ This variation supports our normalization of feature-set of quality when analyzi
 \paragraph{Prediction models and overfitting}
 
 As one can expect, random forests have a higher average prediction performance than decision trees.
-Further, both model types exhibit overfitting, i.e., there is a gap between training-set and test-set prediction performance.
-In particular, over all experimental settings, both model types have a mean training-set MCC of 0.85 (median: 1.0).
-In contrast, decision trees have a mean MCC of 0.48 (median: 0.54) on the test set, while random forests have a slightly higher mean MCC of 0.52 (median: 0.63).
+Further, both model types exhibit overfitting, i.e., there is a gap between training-set and test-set performance.
+In particular, over all experimental settings, both model types have a mean training-set MCC around 0.85-0.86 (median: 1.0).
+In contrast, decision trees have a mean MCC of 0.47 (median: 0.53) on the test set, while random forests have a slightly higher mean MCC of 0.52 (median: 0.61).
 I.e., prediction performance is significantly worse on the test set than on the training set.
 The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of, the trees or prune them after training.
 
@@ -2395,7 +2393,7 @@ Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlat
 This result might be caused by overfitting, whose strength may depend on the experimental settings.
 Further, the correlation between optimization objective~$Q$ and prediction MCC is only weak to moderate as well.
 I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
-Among the five feature-selection methods, \emph{Greedy Wrapper} has the highest correlation between training-set objective value and test-set MCC, with a value of 0.43.
+Among the five feature-selection methods, \emph{Greedy Wrapper} has the highest correlation between training-set objective value and test-set MCC, with a value of 0.48.
 Since this feature-selection method uses prediction performance in its objective, a comparatively high correlation is expected.
 On the other end of the spectrum, \emph{mRMR} exhibits a correlation of -0.05 between training-set objective value and test-set MCC.
 This filter method penalizes correlation between features in its objective.
@@ -2435,21 +2433,20 @@ As the five feature-selection methods employ different objective functions~$Q$, 
 However, we can analyze prediction performance of the obtained feature sets.
 Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set MCC on the original feature sets of sequential search between feature-selection methods.
 On average, \emph{Model Gain} is the best feature-selection method, though not clearly better than the other feature-selection methods:
-The median test-set MCC of decision trees is 0.59 for \emph{Model Gain}, 0.57 for \emph{FCBF}, and 0.54 for \emph{MI}, 0.53 for \emph{mRMR}, and 0.46 for \emph{Greedy Wrapper}.
+The median test-set MCC of decision trees is 0.60 for \emph{Model Gain}, 0.53 for \emph{FCBF}, 0.54 for \emph{MI}, 0.54 for \emph{mRMR}, and 0.51 for \emph{Greedy Wrapper}.
 In particular, the univariate, model-free method \emph{MI} keeps up surprisingly well with more sophisticated methods.
 Thus, the analyses of alternative feature sets in Section~\ref{sec:afs:evaluation} focus on \emph{MI} while still discussing the remaining feature-selection methods.
 The overall best feature-selection method, \emph{Model Gain}, uses the same objective function as \emph{MI} but obtains its feature qualities from a prediction model rather than a bivariate dependency measure, which might boost its performance. 
 
 The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
-The wrapper search can only evaluate a fraction of all feasible feature sets and might get stuck in local optima, while the remaining feature-selection methods optimize globally.
-In particular, \emph{Greedy Wrapper} only performed 71 iterations on average (median: 50) to determine the original feature sets of sequential search.
-The figures concerning all experimental settings are similar, with a mean of 65 and a median of 45.
-Thus, \emph{Greedy Wrapper} usually stayed significantly below the 1000~iterations we granted it.
+This method can only evaluate a fraction of all feasible feature sets while the remaining feature-selection methods optimize globally.
+In particular, \emph{Greedy Wrapper} performed 629 iterations on average (median: 561) to determine the original feature sets of sequential search.
+However, the number of possible feature sets is much higher, e.g., $2^{15}=32768$ for the lowest-dimensional datasets in our evaluation (cf.~Table~\ref{tab:afs:datasets}).
 
 Further, \emph{FCBF}'s results may be taken with a grain of salt:
 Over all experimental settings, 89\% of feature sets for \emph{FCBF} were infeasible, i.e., no feature set satisfied the constraints.
 In contrast, this figure only is 18\% for \emph{MI}.
-Even the original feature set in sequential search is infeasible in 76\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
+Even the original feature set in sequential search is infeasible in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
 In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint, i.e., enforcing a feature-set size~$k$, may make the problem infeasible, especially if~$k$ gets larger.
 
 \paragraph{Influence of feature-set size~$k$}
@@ -2463,6 +2460,7 @@ The latter insight applies to \emph{mRMR} as well since it normalizes its object
 As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance.
 In particular, all feature-selection methods except \emph{FCBF} show a median difference in test-set MCC close to zero when comparing $k=5$ to $k=10$.
 Thus, Section~\ref{sec:afs:evaluation} focuses on smaller feature sets, i.e., $k=5$.
+For \emph{FBCF}, the fraction of feasible feature sets changes considerably from $k=5$ to $k=10$, so one cannot directly compare the overall quality between these two settings.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
