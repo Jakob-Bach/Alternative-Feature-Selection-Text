@@ -979,8 +979,8 @@ We use two metrics for feature-set quality.
 First, we report the \emph{objective value}~$Q(s,X,y)$ of the feature-selection methods, which guided the search for alternatives.
 Second, we train predictions models with the found feature sets.
 We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC)~\cite{matthews1975comparison}.
-This coefficient is insensitive to class imbalance, reaches its maximum of 1 for perfect predictions, and is 0 for random guessing.
-To analyze how well feature selection and prediction models generalize, we conduct stratified 5-fold cross-validation.
+This coefficient is insensitive to class imbalance, reaches its maximum of~1 for perfect predictions, and is~0 for random guessing.
+To analyze how well feature selection and prediction models generalize, we conduct stratified five-fold cross-validation.
 The search for alternatives and model training are limited to the training data.
 
 \paragraph{Runtime}
@@ -1030,7 +1030,7 @@ We evaluate three filter methods, all using mutual information~\cite{kraskov2004
 This measure allows to capture arbitrary dependencies rather than, say, just linear correlations.
 \emph{MI} denotes a univariate filter (cf.~Equation~\ref{eq:afs:univariate-filter}), while \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) and \emph{mRMR} (cf.~Equation~\ref{eq:afs:mrmr-linear}) are multivariate.
 Since mutual information has no fixed upper bound, we normalize per dataset and cross-validation fold to improve the comparability of feature-set quality.
-For \emph{FCBF} and \emph{MI}, we normalize the individual features' qualities such that selecting all features yields a quality of 1 and selecting no feature yields a quality of 0.
+For \emph{FCBF} and \emph{MI}, we normalize the individual features' qualities such that selecting all features yields a quality of~1 and selecting no feature yields a quality of~0.
 For \emph{mRMR}, we min-max-normalize all mutual-information values to $[0,1]$, so the overall objective is in $[-1,1]$.
 
 \paragraph{Wrapper feature selection}
@@ -1045,7 +1045,7 @@ $Q(s,X,y)$ corresponds to the prediction performance in terms of MCC on the 20\%
 As post-hoc importance measure, we use model-based feature importance provided by \emph{scikit-learn}.
 Again, we use a decision tree as the model.
 There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain.
-These importances are normalized to sum up to 1 by default.
+These importances are normalized to sum up to~1 by default.
 We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores.
 The interpretation is different, though, since the scores originate from trees trained with all features rather than assessing features in isolation.
 
@@ -1154,8 +1154,8 @@ Table~\ref{tab:afs:datasets} lists these datasets.
 We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn}~\cite{pedregosa2011scikit-learn} for machine learning and the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools} for optimization.
 A requirements file in our code specifies the versions of all packages.
 The experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while solver calls and model training are single-threaded.
-We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32 physical cores and a base clock of 2.0~GHz.
-The parallelized pipeline run took roughly 255~hours, i.e., about 10.6 days.
+We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32~physical cores and a base clock of 2.0~GHz.
+The parallelized pipeline run took roughly 255~hours, i.e., about 10.6~days.
 
 \section{Evaluation}
 \label{sec:afs:evaluation}
@@ -2433,17 +2433,17 @@ As the five feature-selection methods employ different objective functions~$Q$, 
 However, we can analyze prediction performance of the obtained feature sets.
 Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set MCC on the original feature sets of sequential search between feature-selection methods.
 On average, \emph{Model Gain} is the best feature-selection method, though not clearly better than the other feature-selection methods:
-The median test-set MCC of decision trees is 0.60 for \emph{Model Gain}, 0.53 for \emph{FCBF}, 0.54 for \emph{MI}, 0.54 for \emph{mRMR}, and 0.51 for \emph{Greedy Wrapper}.
+The mean test-set MCC of decision trees is 0.53 for \emph{Model Gain}, 0.49 for \emph{Greedy Wrapper}, 0.47 for \emph{MI}, 0.46 for \emph{mRMR}, 0.43 for \emph{FCBF}.
 In particular, the univariate, model-free method \emph{MI} keeps up surprisingly well with more sophisticated methods.
 Thus, the analyses of alternative feature sets in Section~\ref{sec:afs:evaluation} focus on \emph{MI} while still discussing the remaining feature-selection methods.
 The overall best feature-selection method, \emph{Model Gain}, uses the same objective function as \emph{MI} but obtains its feature qualities from a prediction model rather than a bivariate dependency measure, which might boost its performance. 
 
-The relatively bad performance of \emph{Greedy Wrapper} might result from its heuristic nature:
-This method can only evaluate a fraction of all feasible feature sets while the remaining feature-selection methods optimize globally.
+While \emph{Greedy Wrapper} uses actual prediction performance to assess feature-set quality, its heuristic nature might prevent better results:
+This method only evaluates a fraction of all feature sets while the other feature-selection methods optimize globally.
 In particular, \emph{Greedy Wrapper} performed 629 iterations on average (median: 561) to determine the original feature sets of sequential search.
-However, the number of possible feature sets is much higher, e.g., $2^{15}=32768$ for the lowest-dimensional datasets in our evaluation (cf.~Table~\ref{tab:afs:datasets}).
+However, the number of possible feature sets is much higher, e.g., already $2^{15}=32768$ for the lowest-dimensional datasets in our evaluation (cf.~Table~\ref{tab:afs:datasets}).
 
-Further, \emph{FCBF}'s results may be taken with a grain of salt:
+\emph{FCBF}'s results may be taken with a grain of salt:
 Over all experimental settings, 89\% of feature sets for \emph{FCBF} were infeasible, i.e., no feature set satisfied the constraints.
 In contrast, this figure only is 18\% for \emph{MI}.
 Even the original feature set in sequential search is infeasible in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
@@ -2453,14 +2453,14 @@ In particular, the combination of feature-correlation constraints in our formula
 
 As one can expect, larger feature sets usually exhibit higher feature-set quality than smaller feature sets in our experiments.
 However, the increase in quality with $k$ is not proportional, and there might even be a decrease.
-As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of sequential search, \emph{MI}, \emph{FCBF}, and \emph{Model Gain} exhibit an increase of the training-set objective value~$Q_\text{train}$ from~$k=5$ to~$k=10$, i.e., the difference depicted in Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} is positive.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of sequential search, \emph{MI} and \emph{Model Gain} exhibit an increase of the training-set objective value~$Q_\text{train}$ from~$k=5$ to~$k=10$, i.e., the difference depicted in Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} is positive.
 As these objectives are monotonic in the set of selected features, a decrease in the training-set objective value is not possible.
 In contrast, the heuristic \emph{Greedy Wrapper} does not necessarily benefit from more features.
 The latter insight applies to \emph{mRMR} as well since it normalizes its objective with the number of selected features and penalizes feature redundancy.
+For \emph{FBCF}, the fraction of feasible feature sets changes considerably from $k=5$ to $k=10$, so one cannot directly compare the overall quality between these two settings.
 As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance.
 In particular, all feature-selection methods except \emph{FCBF} show a median difference in test-set MCC close to zero when comparing $k=5$ to $k=10$.
 Thus, Section~\ref{sec:afs:evaluation} focuses on smaller feature sets, i.e., $k=5$.
-For \emph{FBCF}, the fraction of feasible feature sets changes considerably from $k=5$ to $k=10$, so one cannot directly compare the overall quality between these two settings.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
