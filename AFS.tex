@@ -145,7 +145,7 @@ $y \in Y^m$ represents the prediction target with domain $Y$, e.g., $Y=\{0,1\}$ 
 
 In feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
 The vector $s \in \{0,1\}^n$ combines all these selection decisions and yields the selected feature set $F_s = \{f_j \mid s_j=1\} \subseteq F$.
-The function $Q(s,X,y)$ return the quality of such a feature set.
+The function $Q(s,X,y)$ returns the quality of such a feature set.
 Without loss of generality, we assume that this function should be maximized.
 
 \subsection{Measuring Feature (Set) Quality}
@@ -160,7 +160,7 @@ A conventional categorization of feature-selection methods distinguishes between
 Filter methods evaluate feature sets without training a prediction model.
 Univariate filters assess each feature independently.
 They often assign a score to each feature, e.g., the absolute Pearson correlation or the mutual information between a feature and the prediction target.
-Such methods ignore potential interaction between features, e.g., if they are redundant to each other.
+Such methods ignore potential interactions between features, e.g., redundancies.
 In contrast, multivariate filters evaluate feature sets as a whole.
 Such methods often combine a measure of feature relevance with a measure of feature redundancy.
 Examples include CFS~\cite{hall1999correlation, hall2000correlation}, FCBF~\cite{yu2003feature}, and mRMR~\cite{peng2005feature}.
@@ -180,8 +180,8 @@ For example, tree-based models often use information gain or the Gini index to s
 \paragraph{Post-hoc feature-importance methods}
 
 Apart from conventional feature selection, there are various methods that assess feature importance after training a model.
-These methods range range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
-In particular, assessing feature importance plays a crucial role in the field of ML interpretability~\cite{carvalho2019machine, molnar2020interpretable}.
+These methods range from local explanation methods like LIME~\cite{ribeiro2016should} or SHAP~\cite{lundberg2017unified} to global importance methods like permutation importance~\cite{breiman2001random} or SAGE~\cite{covert2020understanding}.
+In particular, assessing feature importance plays a crucial role in the field of machine-learning interpretability~\cite{carvalho2019machine, molnar2020interpretable}.
 
 \section{Alternative Feature Selection}
 \label{sec:afs:approach}
