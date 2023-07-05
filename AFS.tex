@@ -54,15 +54,15 @@ We observe that alternative feature sets may indeed have high prediction quality
 \paragraph{Motivation}
 
 Feature-selection methods are ubiquitous for a variety of reasons.
-By reducing dataset dimensionality, they lower the prediction models' computational cost and memory requirements.
-Next, models might generalize better after removing irrelevant and spurious predictors.
-Finally, prediction models might become simpler~\cite{li2017feature}, improving interpretability.
+By reducing dataset dimensionality, they lower the computational cost and memory requirements of prediction models.
+Next, models may generalize better after removing irrelevant and spurious predictors.
+Finally, prediction models may become simpler~\cite{li2017feature}, improving interpretability.
 
-Most Conventional feature-selection methods only return one feature set~\cite{borboudakis2021extending}.
+Most conventional feature-selection methods only return one feature set~\cite{borboudakis2021extending}.
 These methods optimize a criterion of feature-set quality, e.g., prediction performance.
 However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
 Such alternative feature sets are interesting for users, e.g., to obtain several diverse explanations.
-Alternative explanations can provide additional insights into predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust in the predictions~\cite{kim2021multi, wang2019designing}.
+Alternative explanations can provide additional insights into predictions, enable users to develop and test different hypotheses, appeal to different kinds of users, and foster trust in the predictions~\cite{kim2021multi, wang2019designing}.
 
 \paragraph{Problem statement}
 
@@ -71,7 +71,7 @@ Find multiple, sufficiently different feature sets that optimize feature-set qua
 We provide formal definitions in Section~\ref{sec:afs:approach:constraints}.
 This problem entails an interesting trade-off:
 Depending on how different the alternatives should be, one might have to compromise on quality.
-In particular, a stronger dissimilarity requirement might entail the selection of more low-quality features in the alternatives.
+In particular, a stronger dissimilarity requirement might require selecting more low-quality features in the alternatives.
 
 Two points are essential for alternative feature selection, which we both address in this article.
 First, one needs to formalize and quantify what an alternative feature set is.
@@ -94,7 +94,7 @@ Our contribution is fourfold.
 
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we define alternatives via constraints on feature sets.
-This approach is orthogonal to the feature-selection method itself, so users can choose the latter according to their needs.
+This approach is orthogonal to the feature-selection method itself so that users can choose the latter according to their needs.
 This approach also allows integrating other constraints on feature sets, e.g., to capture domain knowledge \cite{bach2022empirical, groves2015toward}.
 Finally, this approach lets users control the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold.
 
@@ -112,7 +112,7 @@ We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-
 \paragraph{Experimental results}
 
 We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and parameters for searching alternatives.
-As expectable, feature-set quality tends to decrease with the number of alternatives and the dissimilarity threshold for being alternative.
+As expectable, feature-set quality tends to decrease with the number of alternatives and the dissimilarity threshold for alternatives.
 Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
 Also, even no valid alternative may exist if the parameter values are too strict.
 Computationally, a sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
