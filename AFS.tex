@@ -189,7 +189,7 @@ In particular, assessing feature importance plays a crucial role in the field of
 In this section, we present the problem and approaches for alternative feature selection.
 First, we define the overall structure of the optimization problem, i.e., objective and constraints (cf.~Section~\ref{sec:afs:approach:problem}).
 Second, we formalize the notion of alternatives via constraints (cf.~Section~\ref{sec:afs:approach:constraints}).
-Third, we discuss different objective functions, corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
+Third, we discuss different objective functions corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
 In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
 Fourth, we analyze the computational complexity of the optimization problem (cf.~Section~\ref{sec:afs:approach:complexity}).
 
@@ -219,7 +219,7 @@ We obtain the following optimization problem for a single alternative feature se
 	\label{eq:afs:afs-general}
 \end{equation}
 %
-We discuss different objective functions $Q(s,X,y)$ and suitable constraints for \emph{being alternative} in the following.
+In the following, we discuss different objective functions $Q(s,X,y)$ and suitable constraints for \emph{being alternative}.
 Additionally, many feature-selection methods also limit the feature-set size $|F_s|$ to a user-defined value~$k \in \mathbb{N}$, which adds a further, simple constraint to the optimization problem.
 
 \subsection{Constraints -- Defining Alternatives}
@@ -227,18 +227,18 @@ Additionally, many feature-selection methods also limit the feature-set size $|F
 
 In this section, we formalize alternative feature sets.
 First, we discuss the base case where an individual feature set is an alternative to another one (cf.~Section~\ref{sec:afs:approach:constraints:single}).
-Second, we extend this notion to multiple alternatives, considering sequential as well as simultaneous search methods (cf.~Section~\ref{sec:afs:approach:constraints:multiple}).
+Second, we extend this notion to multiple alternatives, considering sequential and simultaneous search methods (cf.~Section~\ref{sec:afs:approach:constraints:multiple}).
 
 Our notion of alternatives is independent of the feature-selection method.
-We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number of alternatives~$a$, which both allow users to control the search for alternatives.
+We provide two parameters, i.e., a dissimilarity threshold~$\tau$ and the number of alternatives~$a$, allowing users to control the search for alternatives.
 
 \subsubsection{Single Alternative}
 \label{sec:afs:approach:constraints:single}
 
-We consider a feature set to be an alternative to another feature set if it differs sufficiently.
+We consider a feature set an alternative to another feature set if it differs sufficiently.
 Mathematically, we express this notion with a set-dissimilarity measure~\cite{choi2010survey, egghe2009new}.
 These measures typically assess how strongly two sets overlap and relate this to their sizes.
-A well-known set-dissimilarity measure is the Jaccard distance, which is defined as follows for the feature sets $F'$ and $F''$:
+E.g., a well-known set-dissimilarity measure is the Jaccard distance, which is defined as follows for the feature sets $F'$ and $F''$:
 %
 \begin{equation}
 	d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F' \cup F''|} = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|}
@@ -254,7 +254,7 @@ In this article, we use a dissimilarity measure based on the Dice coefficient:
 %
 Generally, we do not have strong requirements on the set-dissimilarity measure~$d(\cdot)$.
 Our definitions of alternatives only assume symmetry, i.e., $d(F',F'')=d(F'',F')$, and non-negativity, i.e., $d(F',F'') \geq 0$, though one could adapt them to other conditions as well.
-In particular, the dissimilarity measure does not need to be a metric, but can also be a semi-metric~\cite{wilson1931semi} etc.
+In particular, the dissimilarity measure does not need to be a metric but can also be a semi-metric~\cite{wilson1931semi} like~$d_{\text{Dice}}(\cdot)$.
 
 We leverage the set-dissimilarity measure for the following definition:
 %
@@ -323,11 +323,11 @@ In particular, there are only sum expressions and multiplications with constants
 If one feature set is known, i.e., either $s'$ or $s''$ is fixed, Equation~\ref{eq:afs:feature-set-size} only multiplies variables with constants and is already linear without Equation~\ref{eq:afs:product-linear}.
 \end{proof}
 %
-Linear constraints allow using a broad range of solvers, given a suitable objective function, which we discuss later.
+Given a suitable objective function, which we discuss later, linear constraints allow using a broad range of solvers.
 As an alternative formulation, one could also encode such constraints into propositional logic (\textsc{SAT})~\cite{ulrich2022selecting}.
 
 If the set sizes $|F'|$ and $|F''|$ are constant, e.g., user-defined, Equation~\ref{eq:afs:dice-rearranged} implies that the threshold~$\tau$ has a linear relationship to the maximum number of overlapping features~$|F' \cap F''|$.
-This correspondence eases the interpretation of~$\tau$ and made us use the Dice dissimilarity in the following.
+This correspondence eases the interpretation of~$\tau$ and makes us use the Dice dissimilarity in the following.
 In contrast, the Jaccard distance exhibits a non-linear relationship between $\tau$ and the overlap size, which follows from re-arranging Equation~\ref{eq:afs:jaccard} in combination with Definition~\ref{def:afs:single-alternative}:
 %
 \begin{equation}
@@ -339,7 +339,7 @@ In contrast, the Jaccard distance exhibits a non-linear relationship between $\t
 \end{equation}
 %
 Further, if $|F'| = |F''|$, as in our experiments, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice-rearranged}) becomes identical to several other set-dissimilarity measures~\cite{egghe2009new}.
-The parameter~$\tau$ then directly controls which fraction of features in one set needs to differ from the other set, and vice versa, which further eases interpretability:
+The parameter~$\tau$ then directly expresses which fraction of features in one set needs to differ from the other set and vice versa, which further eases interpretability:
 %
 \begin{equation}
 	d_{\text{Dice}}(F',F'') \geq \tau \Leftrightarrow |F' \cap F''| \leq (1 - \tau) \cdot |F'| = (1 - \tau) \cdot |F''|
@@ -352,7 +352,7 @@ In particular, these $|F'|$~unique values of $\tau$ suffice to produce all possi
 \subsubsection{Multiple Alternatives}
 \label{sec:afs:approach:constraints:multiple}
 
-If users desire multiple alternative feature sets rather than only one, we can compute these alternatives either sequentially or simultaneously.
+If users desire multiple alternative feature sets rather than only one, we can determine these alternatives sequentially or simultaneously.
 The number of alternatives~$a$ is a parameter to be set by the user.
 The overall number of feature sets is $a + 1$ since we deem one feature set the `original' one.
 Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search methods.
@@ -379,7 +379,7 @@ Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization pr
 \paragraph{Sequential alternatives}
 
 With sequential search, users obtain several alternatives iteratively, with one feature set per iteration.
-We constrain this new set to be alternative to all previously found ones, which are given in the set~$\mathbb{F}$:
+We constrain this new set to be an alternative to all previously found ones, which are given in the set~$\mathbb{F}$:
 %
 \begin{definition}[Sequential alternative]
 	A feature set~$F''$ is an alternative to a set of feature sets~$\mathbb{F}$ (and vice versa) if $F''$ is a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) to each $F' \in \mathbb{F}$.
@@ -387,7 +387,7 @@ We constrain this new set to be alternative to all previously found ones, which 
 \end{definition}
 %
 One could also think of less strict constraints, e.g., requiring only the average dissimilarity to all previously found feature sets to pass a threshold~$\tau$.
-However, definitions like the latter may allow some feature sets to heavily overlap or even be identical if other feature sets are very dissimilar.
+However, definitions like the latter may allow some feature sets to overlap heavily or even be identical if other feature sets are very dissimilar.
 Thus, we require pairwise dissimilarity in Definition~\ref{def:afs:sequential-alternative}.
 Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sequential-alternative}, we obtain the following optimization problem for each iteration of the search:
 %
@@ -402,14 +402,14 @@ Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sequent
 The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of one feature set at once.
 Thus, the number of variables in the optimization problem is independent of the number of alternatives~$a$.
 Instead, we solve the optimization problem repeatedly; each alternative only adds one constraint to the problem.
-The first, `original' feature set is the same as in conventional feature-selection without constraints for alternatives.
+The first, `original' feature set is the same as in conventional feature selection without constraints for alternatives.
 As we always compare only one variable feature set to existing, constant feature sets, we also do not need to introduce auxiliary variables as in Equation~\ref{eq:afs:product-linear}.
 Thus, we expect the runtime of sequential search to scale well with the number of alternatives.
 Further runtime gains may arise if the solver keeps a state between iterations and can warm-start.
 
 However, as the solution space becomes narrower over iterations, feature-set quality can deteriorate with each further alternative.
 In particular, multiple alternatives from the same sequential search might differ significantly in their quality.
-As a remedy, users can decide after each iteration if the feature-set quality already is unacceptably low or if another alternative should be found.
+As a remedy, users can decide after each iteration if the feature-set quality is already unacceptably low or if another alternative should be found.
 In particular, users do not need to define the number of alternatives~$a$ a priori.
 
 \paragraph{Simultaneous alternatives}
@@ -433,20 +433,20 @@ Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:simulta
 \end{equation}
 %
 In contrast to the sequential case (cf.~Equation~\ref{eq:afs:afs-sequential}), we need to introduce further decision variables and modify the objective function here.
-The operator~$\text{agg}(\cdot)$ defines how to aggregate the feature-set qualities in the objective.
+The operator~$\text{agg}(\cdot)$ defines how to aggregate the feature-set qualities of the alternatives.
 In our experiments, we consider the sum as well as the minimum to instantiate~$\text{agg}(\cdot)$, which we refer to as \emph{sum-aggregation} and \emph{min-aggregation}.
 The latter explicitly fosters balanced feature-set qualities.
-Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation operators and ideas for further formulations in detail.
+Appendix~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses these two aggregation operators and additional ideas for balancing qualities in detail.
 
 Runtime-wise, we expect simultaneous search to scale worse with the number of alternatives than sequential search, as it tackles one large optimization problem instead of multiple smaller ones.
-In particular, the number of decision variables increases linearly with the number of alternatives~$a$ and the number of constraints even grows quadratically.
-Also, for each feature and each pair of alternatives, we need to introduce an auxiliary variable (cf.~Equation~\ref{eq:afs:product-linear}) if we want to obtain a linear problem.
+In particular, the number of decision variables increases linearly with the number of alternatives~$a$.
+Also, for each feature and each pair of alternatives, we need to introduce an auxiliary variable if we want to obtain linear constraints (cf.~Equation~\ref{eq:afs:product-linear} and Table~\ref{tab:afs:seq-sim-comparison}).
 
 In contrast to the greedy procedure of sequential search, simultaneous search optimizes alternatives globally.
 Thus, the simultaneous procedure should yield the same or higher average feature-set quality for the same number of alternatives.
 Also, the quality can be more evenly distributed over the alternatives, as opposed to the dropping quality over the course of the sequential procedure.
 However, increasing the number of alternatives still has a negative effect on the average feature-set quality.
-Further, opposed to the sequential procedure, there are no intermediate steps where users could interrupt the search.
+Further, as opposed to the sequential procedure, there are no intermediate steps where users could interrupt the search.
 
 \subsection{Objective Functions -- Finding Alternatives}
 \label{sec:afs:approach:objectives}
@@ -1808,19 +1808,19 @@ Thus, practitioners could use our generic search methods for alternatives in dom
 \section{Appendix}
 \label{sec:afs:appendix}
 
-In this section, we provide technical details and discuss approaches not used in our experiments.
+In this section, we provide supplementary materials.
 Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses aggregation operators for the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
-Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses further objective functions for multivariate filter feature selection (cf.~Section~\ref{sec:afs:approach:objectives:white-box}).
+Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses additional objective functions for multivariate filter feature selection (cf.~Section~\ref{sec:afs:approach:objectives:white-box}).
 Section~\ref{sec:afs:appendix:univariate-complete-optimization-problem} provides complete definitions of the alternative-feature-selection problem (cf.~Section~\ref{sec:afs:approach}).
 Section~\ref{sec:afs:appendix:univariate-pre-selection} proposes how to speed up optimization for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
-Section~\ref{sec:afs:appendix:complexity} amends the complexity analysis (cf.~Section\ref{sec:afs:approach:complexity}).
+Section~\ref{sec:afs:appendix:complexity} complements the complexity analysis (cf.~Section~\ref{sec:afs:approach:complexity}).
 Section~\ref{sec:afs:appendix:univariate-search-algorithm} presents a greedy heuristic for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:evaluation} contains additional evaluation results (cf.~Section~\ref{sec:afs:evaluation}).
 
 \subsection{Aggregation Operators for Simultaneous Search}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
 
-In this section, we discuss operators to aggregate feature-set quality of multiple alternatives in the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
+In this section, we discuss operators to aggregate the feature-set quality of multiple alternatives in the objective of simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
 
 \paragraph{Sum-aggregation}
 
@@ -1834,41 +1834,43 @@ The arguably simplest way to aggregate the qualities of multiple feature sets is
 While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality:
 %
 \begin{example}
-Consider univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) with $n=6$~features, feature qualities~$q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
+Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 Sequential search yields the selection $s^{(0)} = (1,1,1,0,0,0)$, $s^{(1)} = (1,0,0,1,1,0)$, and $s^{(2)} = (0,1,0,1,0,1)$, with a summed quality of $24+14+12=50$.
 One simultaneous-search solution consists of the feature sets $s^{(0)} = (1,1,0,1,0,0)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,0,0,1)$, with a summed quality of $20+18+16=54$.
 Another simultaneous-search solution is $s^{(0)} = (1,1,0,0,0,1)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,1,0,0)$, with a summed quality of $18+18+18=54$.
+\label{ex:afs:sum-aggregation}
 \end{example}
 %
 This example allows several insights.
 First, sequential search yields worse quality than simultaneous search here, i.e., 50 vs.~54.
 Second, the feature-set qualities of the sequential solution, i.e., 24, 14, and~12, differ significantly.
 Third, simultaneous search can yield multiple solutions whose feature-set quality is differently balanced.
-Here, the feature-set qualities in the second simultaneous-search solution, i.e., 18, 18, and~18, are more balanced than in the first one, i.e., 20, 18, and~16.
+Here, the feature-set qualities in the second simultaneous-search solution, i.e., 18, 18, and~18, are more balanced than in the first, i.e., 20, 18, and~16.
 However, both solutions are equally optimal for sum-aggregation.
 
 \paragraph{Min-aggregation}
 
-To actively foster balanced feature-set qualities in simultaneous search, we propose \emph{min-aggregation}:
+To actively foster balanced feature-set qualities in simultaneous search, we propose \emph{min-aggregation} in the objective:
 %
 \begin{equation}
 	\max_{s^{(0)}, \dots, s^{(a)}} \min_{i \in \{0, \dots, a\}} Q(s^{(i)},X,y) \\
 	\label{eq:afs:afs-simultaneous-min-objective}
 \end{equation}
 %
-In the terms of social choice theory, this objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
-Note that optimizing the objective with either sum-aggregation or min-aggregation does not necessarily optimize the other one.
-We already showed an example for a solution optimizing sum-aggregation but not min-aggregation.
+In the terminology of social choice theory, this objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
+Note that optimizing the objective with either sum-aggregation or min-aggregation does not necessarily optimize the other.
+We already showed a solution optimizing sum-aggregation but not min-aggregation (cf.~Example~\ref{ex:afs:sum-aggregation}).
 In the following, we demonstrate the other direction:
 %
 \begin{example}
-Consider univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) with $n=6$~features, feature qualities~$q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
+Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 One solution optimizing the objective with min-aggregation is $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $25+22=47$.
 Another solution is $s^{(0)} = (1,1,0,0,0,1)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $22+22=44$.
+\label{ex:afs:min-aggregation}
 \end{example}
 %
 While both solutions have the same minimum quality, only the first solution optimizes the objective with sum-aggregation.
-In particular, min-aggregation allows reducing the quality of sets that are above the minimum of all sets.
+In particular, min-aggregation permits reducing the quality of sets above the minimum of all sets.
 
 From the technical perspective, Equation~\ref{eq:afs:afs-simultaneous-min-objective} has the disadvantage of being non-linear regarding the decision variables $s^{(0)}, \dots, s^{(a)}$.
 However, we can linearize it with one constraint per feature set and an auxiliary variable~$Q_{\text{min}}$:
@@ -1887,16 +1889,16 @@ This situation relieves us from introducing further auxiliary variables that are
 
 \paragraph{Further approaches for balancing quality}
 
-Min-aggregation provides no control or guarantee how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all sets.
-One can alleviate this issue by adapting the objective and/or constraints.
-First, work on number partitioning also use other objectives for balancing~\cite{korf2010objective, lawrinenko2017identical} (cf.~Section~\ref{sec:afs:appendix:complexity:related-work}).
+Min-aggregation provides no control or guarantee of how much the feature-set qualities will actually differ between alternatives since it only incentives high quality for all sets.
+One can alleviate this issue by adapting the objective or constraints.
+First, related work on number partitioning also uses other objectives for balancing~\cite{korf2010objective, lawrinenko2017identical} (cf.~Section~\ref{sec:afs:appendix:complexity:related-work}).
 E.g., one could minimize the difference between maximum and minimum feature-set quality.
 Second, one could use sum-aggregation but constrain the minimum or maximum quality of sets, or the difference between the qualities.
 However, such constraint-based approaches introduce one or several parameters bounding feature-set quality, which are difficult to determine a priori.
-Third, one could consider balancing qualities as another objective besides the maximizing the summed quality.
-One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions, or optimize a weighted combination of the two objectives.
-In both cases, users may need to define an acceptable trade-off between the two objectives.
-It is an open question if always one solution exists that jointly optimizes min- and sum-aggregation.
+Third, one could treat balancing qualities as another objective besides maximizing the summed quality.
+One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions or optimize a weighted combination of the two objectives.
+In both cases, users may need to define an acceptable trade-off between the objectives.
+It is an open question if a solution always exists that jointly optimizes min- and sum-aggregation.
 If yes, then optimizing a weighted combination of the two objectives would also optimize each of them on its own, assuming positive weights.
 
 \subsection{Further Objectives for Multivariate Filter Methods}
