@@ -830,7 +830,7 @@ Also, there are works on finding multiple, diverse feature sets.
 
 \paragraph{Conventional feature selection}
 
-Most feature-selection methods only yield one solution~\cite{borboudakis2021extending}, though there are some exceptions.
+Most feature-selection methods only yield one solution~\cite{borboudakis2021extending}, though some exceptions exist.
 Nevertheless, none of the following approaches searches for optimal alternatives in our sense.
 
 \cite{siddiqi2020genetic}~proposes a genetic algorithm that iteratively updates a population of multiple feature sets.
@@ -839,27 +839,26 @@ However, users cannot control the admissible overlap, i.e., there is no paramete
 In contrast, the genetic algorithm's parameter for the population size corresponds to the number of alternatives.
 
 \cite{emmanouilidis1999selecting}~uses multi-objective genetic algorithms to obtain prediction models of different complexity by finding diverse feature sets.
-The two objectives are prediction performance and feature-set size.
-In contrast, our alternatives should differ in the composition rather than their size.
+However, the two objectives are prediction performance and feature-set size, while diversity only influences the selection step under particular circumstances.
 
 \cite{mueller2021feature}~clusters features and forms alternatives by picking one feature from each cluster.
-However, they do this to reduce the number of features for subsequent model-selection and -evaluation, not as a guided search for alternatives.
+However, they do this to reduce the number of features for subsequent model selection and model evaluation, not as a guided search for alternatives.
 
 \paragraph{Ensemble feature selection}
 
 Ensemble feature selection~\cite{saeys2008robust, seijo2017ensemble} combines feature-selection results, e.g., obtained by different feature-selection methods or on different samples of the data.
-Fostering diverse feature sets might be a sub-goal to improve prediction performance, but is usually only an intermediate step.
+Fostering diverse feature sets might be a sub-goal to improve prediction performance, but it is usually only an intermediate step.
 This focus differs from our goal of finding optimal alternatives.
 
 \cite{woznica2012model}~obtains feature sets or rankings on bootstrap samples of the data.
-Next, an aggregation strategy creates one or multiple, diverse feature sets.
-For the latter, the authors propose using k-medoid clustering and frequent itemset mining.
+Next, an aggregation strategy creates one or multiple diverse feature sets.
+The authors propose using k-medoid clustering and frequent itemset mining for the latter.
 While these approaches allow to control the number of feature sets, there is no parameter for their dissimilarity.
 Also, aggregation builds on bootstrap sampling instead of being allowed to form arbitrary alternatives.
 
 \cite{liu2019subspace}~builds an ensemble prediction model from classifiers trained on different feature sets.
 To this end, a genetic algorithm iteratively evolves a population of feature sets.
-Diversity acts as one of multiple fitness criteria, with the Hamming distances quantifying the dissimilarity of feature sets.
+Diversity is one of multiple fitness criteria, with the Hamming distances quantifying the dissimilarity of feature sets.
 However, since feature diversity is only one of several objectives, users cannot control it directly.
 
 \cite{guru2018alternative}~computes feature relevance separately for each class and then combines the top features.
@@ -869,12 +868,12 @@ Also, the number of alternatives is fixed to the number of classes.
 \paragraph{Statistically equivalent feature sets}
 
 Approaches for statistically equivalent feature sets~\cite{borboudakis2021extending, lagani2017feature} use statistical tests to determine features or feature sets that are equivalent for predictions.
-E.g., a feature may be independent from the target given another feature.
+E.g., a feature may be independent of the target given another feature.
 A search algorithm conducts multiple such tests and outputs equivalent feature sets or a corresponding feature grouping.
 
 Our notion of alternatives differs from equivalent feature sets in several aspects.
-In particular, it is not straightforward to build optimal alternatives from equivalent feature sets.
-Depending on how the statistical test are configured, there can be an arbitrary number of equivalent feature sets, without an explicit quality-based ordering.
+In particular, building optimal alternatives from equivalent feature sets is not straightforward.
+Depending on how the statistical tests are configured, there can be an arbitrary number of equivalent feature sets without explicit quality-based ordering.
 Instead, we always provide a fixed number of alternatives.
 Also, our alternatives need not have equivalent quality but should be optimal under constraints.
 Further, our dissimilarity threshold allows controlling overlap between feature sets instead of eliminating all redundancies.
@@ -892,10 +891,10 @@ Further, most of the approaches are tied to particular constraint types, while o
 \label{sec:afs:related-work:subgroup-discovery}
 
 \cite{leeuwen2012diverse}~presents six strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space, i.e., combinations of conditions on feature values, rather than only selecting features.
-Three strategies yield a fixed number of alternatives and the other three a variable number.
-The strategies become part of beam search, i.e, a heuristic search procedure, while we mostly consider exact optimization.
+Three strategies yield a fixed number of alternatives, and the other three a variable number.
+The strategies become part of beam search, i.e., a heuristic search procedure, while we mainly consider exact optimization.
 Also, the criteria for alternatives differ from ours.
-The strategy \emph{fixed-size description-based selection} prunes subgroups with the same quality as a previously found ones if they differ by at most one feature-value condition.
+The strategy \emph{fixed-size description-based selection} prunes subgroups with the same quality as previously found ones if they differ by at most one feature-value condition.
 In contrast, we require dissimilarity independent from the quality, have a flexible dissimilarity threshold, and support simultaneous besides sequential search for alternatives.
 Another strategy, \emph{variable-size description-based selection}, limits the total number of subgroups a feature may occur in but does not constrain subgroup overlap per se.
 The four remaining strategies in~\cite{leeuwen2012diverse} have no obvious counterpart in our feature-selection scenario.
@@ -907,23 +906,23 @@ Finding alternative solutions has been addressed extensively in the field of clu
 \cite{bailey2014alternative} gives a taxonomy and describes algorithms for alternative clustering.
 Our problem definition in Sections~\ref{sec:afs:approach:problem} and~\ref{sec:afs:approach:constraints} is, on a high level, inspired by the one in~\cite{bailey2014alternative}:
 Find multiple solutions that maximize quality while minimizing similarity.
-\cite{bailey2014alternative} also distinguishes between singular/multiple alternatives, and sequential/simultaneous search.
+\cite{bailey2014alternative} also distinguishes between singular/multiple alternatives and sequential/simultaneous search.
 They mention constraint-based search for alternatives as one of several solution paradigms.
-In particular, feature selection can also help to find alternative clusterings~\cite{tao2012novel}.
+Further, feature selection can help to find alternative clusterings~\cite{tao2012novel}.
 Nevertheless, the problem definition for alternatives in clustering and feature selection is fundamentally different.
-First, the notion of dissimilarity differs, as we want to find differently composed feature sets, while alternative clustering targets at different assignments of data objects to clusters.
+First, the notion of dissimilarity differs, as we want to find differently composed feature sets while alternative clustering targets at different assignments of data objects to clusters.
 Second, our objective function, i.e., feature-set quality, relates to a supervised prediction scenario while clustering is unsupervised.
 
 Two exemplary approaches for alternative clustering are \emph{COALA}~\cite{bae2006coala} and \emph{MAXIMUS}~\cite{bae2010clustering}.
 COALA~\cite{bae2006coala} imposes \emph{cannot-link constraints} on pairs of data objects rather than constraining features:
 Data objects from the same cluster in the original clustering should be assigned to different clusters in the alternative clustering.
-In each step of its iterative clustering procedure, COALA compares the quality of an action observing the constraints to another one violating the constraints.
+In each step of its iterative clustering procedure, COALA compares the quality of an action observing the constraints to another one violating them.
 Based on a threshold on the quality ratio, either action is taken.
 MAXIMUS~\cite{bae2010clustering} employs an integer program to formulate dissimilarity between clusterings.
-In particular, it wants to maximize dissimilarity of the feature-value distributions in clusters between the clusterings.
+In particular, it wants to maximize the dissimilarity of the feature-value distributions in clusters between the clusterings.
 The output of the integer program leads to constraints for a subsequent clustering procedure.
 
-\subsection{Subspace clustering and subspace search}
+\subsection{Subspace Clustering and Subspace Search}
 \label{sec:afs:related-work:subspace}
 
 Finding multiple useful feature sets plays a role in subspace clustering~\cite{hu2018subspace, mueller2009relevant} and subspace search~\cite{fouche2021efficient, nguyen20134s, trittenbach2019dimension}.
@@ -935,13 +934,13 @@ However, subspace clustering and -search approaches differ from alternative feat
 First, the objective differs, i.e., definitions of subspace quality deviate from feature-set quality in our scenario.
 Second, definitions of subspace redundancy may consider dissimilarity between projections of the entire data, i.e., data objects with feature values, into subspaces, while our notion of dissimilarity purely bases on binary feature-selection decisions.
 Third, controlling dissimilarity in subspace approaches is often less user-friendly than with our parameter~$\tau$.
-E.g., dissimilarity might be a regularization term in the objective rather than a hard constraint or there might not be an explicit control parameter at all.
+E.g., dissimilarity might be a regularization term in the objective rather than a hard constraint, or there might not be an explicit control parameter at all.
 
 \subsection{Explainable Artificial Intelligence (XAI)}
 \label{sec:afs:related-work:xai}
 
-In the field of XAI, alternative explanations might provide additional insights into predictions, allow to develop and test different hypotheses, appeal to different kinds of users, and foster trust into the predictions~\cite{kim2021multi, wang2019designing}.
-In contrast, obtaining significantly different explanations for the same prediction might also raise doubts about how meaningful the explanations are~\cite{jain2019attention}.
+In the field of XAI, alternative explanations might provide additional insights into predictions, enable users to develop and test different hypotheses, appeal to different kinds of users, and foster trust in the predictions~\cite{kim2021multi, wang2019designing}.
+In contrast, obtaining significantly different explanations for the same prediction might raise doubts about how meaningful the explanations are~\cite{jain2019attention}.
 Finding diverse explanations had been studied for various explainers, e.g., for counterfactuals~\cite{dandl2020multi, karimi2020model, mohammadi2021scaling, mothilal2020explaining, russell2019efficient, wachter2017counterfactual}, criticisms~\cite{kim2016examples}, and semifactual explanations~\cite{artelt2022even}.
 There are several approaches to foster diversity, e.g., ensembling different kinds of explanations~\cite{silva2019produce}, considering multiple local minima~\cite{wachter2017counterfactual}, using a search algorithm that maintains diversity~\cite{dandl2020multi}, extending the optimization objective~\cite{artelt2022even, kim2016examples, mothilal2020explaining}, or introducing constraints~\cite{karimi2020model, mohammadi2021scaling, russell2019efficient}.
 The last option is similar to the way we enforce alternatives.
@@ -949,7 +948,7 @@ Of the various mentioned approaches, only~\cite{artelt2022even, mohammadi2021sca
 Of these three works, only~\cite{mohammadi2021scaling} offers a user-friendly dissimilarity threshold in~$[0,1]$, while the other two approaches employ a regularization parameter in the objective.
 
 Despite similarities, all the previously mentioned XAI techniques tackle different problems than alternative feature selection.
-In particular, they provide local explanations, i.e., they target at prediction outcomes for individual data objects and build on feature values.
+In particular, they provide local explanations, i.e., target at prediction outcomes for individual data objects and build on feature values.
 In contrast, we are interested in the global prediction quality of feature sets.
 For example, counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual} alter feature \emph{values} \emph{as little as possible} to produce an alternative prediction \emph{outcome}.
 In contrast, alternative feature sets might alter the feature \emph{selection} \emph{significantly} while trying to maintain the original prediction \emph{quality}.
