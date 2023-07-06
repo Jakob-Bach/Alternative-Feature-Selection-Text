@@ -459,45 +459,46 @@ We distinguish between white-box optimization (cf.~Section~\ref{sec:afs:approach
 \label{sec:afs:approach:objectives:white-box}
 
 If the feature-set quality function~$Q(s,X,y)$ is sufficiently simple, one can tackle alternative feature selection with a suitable white-box solver.
-We already showed that our notion of alternative feature sets results in 0-1 integer linear constraints (c.f.~Proposition~\ref{prop:afs:linear-constraints}).
+We already showed that our notion of alternative feature sets results in 0-1 integer linear constraints (cf.~Proposition~\ref{prop:afs:linear-constraints}).
 We now discuss several feature-selection methods with objectives that admit formulating a 0-1 integer linear problem.
-Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~describes feature-selection methods that we did not include in our experiments.
+Appendix~\ref{sec:afs:appendix:multivariate-filter-objectives}~describes feature-selection methods we did not include in our experiments.
 
 \paragraph{Univariate filter feature selection}
 
 For univariate filter feature selection, the objective function is linear by default.
-In particular, these methods decompose the quality of a feature set into the quality of the individual features:
+In particular, these methods decompose the quality of a feature set into the qualities of the individual features:
 %
 \begin{equation}
 	Q_{\text{uni}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j
 	\label{eq:afs:univariate-filter}
 \end{equation}
 %
-Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or absolute value of Pearson correlation, to quantify the relationship between one feature and the prediction target.
-Appendix~\ref{sec:afs:appendix:univariate-complete-optimization-problem} specifies the complete optimization problem including the constraints for alternatives.
-Appendix~\ref{sec:afs:appendix:univariate-pre-selection} describes how to potentially speed up optimization by leveraging monotonicity of the objective.
-Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem without a solver. TODO
+Here, $q(\cdot)$ typically is a bivariate dependency measure, e.g., mutual information~\cite{kraskov2004estimating} or the absolute value of Pearson correlation, to quantify the relationship between one feature and the prediction target.
 
-Instead of an integer problem, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat} for this objective, i.e., a weighted \textsc{Max One} problem~\cite{khanna1997complete}.
-In particular, Equation~\ref{eq:afs:univariate-filter} is a sum of weighted binary variables, and the constraints for alternatives can be turned into SAT formulas as well, using a cardinality encoding~\cite{sinz2005towards} for the sum expressions.
+For this objective, Appendix~\ref{sec:afs:appendix:univariate-complete-optimization-problem} specifies the complete optimization problem, including the constraints for alternatives.
+Appendix~\ref{sec:afs:appendix:univariate-pre-selection} describes how to potentially speed up optimization by leveraging the monotonicity of the objective.
+Appendix~\ref{sec:afs:appendix:univariate-search-algorithm} presents a procedure to tackle the problem heuristically. TODO
+
+Instead of an integer problem, one could formulate a weighted partial maximum satisfiability (\textsc{MaxSAT}) problem~\cite{bacchus2021maximum, li2021maxsat}, i.e., a weighted \textsc{Max One} problem~\cite{khanna1997complete}.
+In particular, Equation~\ref{eq:afs:univariate-filter} is a sum of weighted binary variables, and the constraints for alternatives can be turned into SAT formulas with a cardinality encoding~\cite{sinz2005towards} for the sum expressions.
 
 \paragraph{Post-hoc feature importance}
 
 From the technical perspective, one can also insert values of post-hoc feature-importance scores into Equation~\ref{eq:afs:univariate-filter}.
-For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them for~$q(X_{\cdot{}j},y)$.
+For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them as~$q(X_{\cdot{}j},y)$.
 However, such post-hoc importance scores often evaluate the usefulness of each feature in the presence of other features.
-Thus, importance scores of different features are not independent from each other, violating the implicit assumption behind Equation~\ref{eq:afs:univariate-filter}.
+Thus, the importance scores of different features are not independent of each other, violating the implicit assumption behind Equation~\ref{eq:afs:univariate-filter}.
 For example, a feature might show high post-hoc importance if another feature is present, due to feature interaction, but low importance else.
 Equation~\ref{eq:afs:univariate-filter} cannot express such conditional importance but requires one overall quality value for each feature.
-Re-calculating feature importance for each possible alternative feature set clearly is infeasible.
-In practice, one can still use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all feature being present.
-While such an approach might not represent importances in feature subsets faithfully, it can serve as a heuristic nevertheless.
+Re-calculating feature importance for each possible alternative feature set is infeasible.
+In practice, one can still use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all features being present.
+While such an approach might not represent importance in feature subsets faithfully, it can serve as a heuristic nevertheless.
 
 \paragraph{FCBF}
 
 The Fast Correlation-Based Filter (FCBF)~\cite{yu2003feature} bases on the notion of predominance:
-Each selected feature's correlation with the prediction target must exceed a pre-defined threshold as well as the correlation of each other selected feature with the given one.
-While the original FCBF uses a heuristic search to find predominant features, we propose a formulation as a constrained optimization problem to enable a white-box search for alternatives:
+Each selected feature's correlation with the prediction target must exceed a user-defined threshold as well as the correlation of each other selected feature with the given one.
+While the original FCBF uses a heuristic search to find predominant features, we propose a formulation as a constrained optimization problem to enable a white-box optimization for alternatives:
 %
 \begin{equation}
 	\begin{aligned}
@@ -509,7 +510,7 @@ While the original FCBF uses a heuristic search to find predominant features, we
 \end{equation}
 %
 We drop the original FCBF's threshold parameter on feature-target correlation and maximize the latter instead, as in the univariate-filter case.
-This change could lead to large feature sets that contain many low-quality features.
+This change could produce large feature sets that contain many low-quality features.
 As a countermeasure, one can constrain the feature-set sizes, as we do in our experiments.
 Additionally, one could also filter out the features with low target correlation before optimization.
 Further, we keep FCBF's constraints on feature-feature correlation.
@@ -543,12 +544,12 @@ However, there is a more efficient linearization~\cite{nguyen2009optimizing, ngu
 	\label{eq:afs:mrmr-linear}
 \end{equation}
 %
-Here, the term $A_{j_1}$ is the sum of all redundancy terms related to the feature with index~$j_1$.
+Here, $A_{j_1}$ is the sum of all redundancy terms related to the feature with index~$j_1$.
 Thus, one can use one real-valued auxiliary variable $z_j$ for each feature instead of one new binary variable for each pair of features.
 Since redundancy should be minimized, $z_j$ assumes the value of $A_j$ with equality if the feature with index~$j$ is selected~($s_j=1$) and is zero else ($s_j=0$).
 To that end, $M$ is a large positive value that deactivates the constraint on $z_j$ if $s_j=0$.
 
-Since Equation~\ref{eq:afs:mrmr-linear} assumes the feature-set size~$k \in \mathbb{N}$ to be user-defined before optimization, it requires less auxiliary variables and constraints than the more general formulation in~\cite{nguyen2009optimizing, nguyen2010towards}.
+Since Equation~\ref{eq:afs:mrmr-linear} assumes the feature-set size~$k \in \mathbb{N}$ to be user-defined before optimization, it requires fewer auxiliary variables and constraints than the more general formulation in~\cite{nguyen2009optimizing, nguyen2010towards}.
 Further, following~\cite{nguyen2014effective}, we set the self-redundancy terms~$q(X_{\cdot{}j},X_{\cdot{}j})$, to zero and thereby exclude them from the objective.
 Thus, the redundancy term uses $k \cdot (k-1)$ instead of $k^2$ for averaging.
 
@@ -563,28 +564,28 @@ We see four ways to address this issue:
 
 \paragraph{Enumerating feature sets}
 
-Instead of using a search heuristic, one may just enumerate all feature sets that are alternative enough.
-E.g., once can iterate over all feature sets and sort out those violating the constraints, or use a solver to directly enumerate all valid alternatives.
-Both approaches are usually very inefficient, as there can be a huge number of alternatives.
+Instead of using a search heuristic, one may enumerate all feature sets that are alternative enough.
+E.g., one can iterate over all feature sets and sort out those violating the constraints or use a solver to enumerate all valid alternatives directly.
+Both approaches are usually very inefficient, as there can be a vast number of alternatives.
 
 \paragraph{Sampling feature sets}
 
-Instead of considering all possible alternatives, one can also sample a limited number of them.
+Instead of considering all possible alternatives, one can also sample a limited number.
 E.g., one could sample from all feature sets but remove samples that are not alternative enough.
-However, if the number of valid alternatives is small, this approach might need a lot of samples.
+However, if the number of valid alternatives is small, this approach might need many samples.
 One could also sample with the help of a solver.
-However, uniform sampling from a constrained space is a computationally hard problem, possibly harder than only determining if a valid solution exists or not~\cite{ermon2012uniform}.
+However, uniform sampling from a constrained space is a computationally hard problem, possibly harder than determining if a valid solution exists or not~\cite{ermon2012uniform}.
 
 \paragraph{Multi-objective optimization}
 
-If one phrases alternative feature selection as a multi-objective problem, (cf.~Section~\ref{sec:afs:approach:problem}), there are no hard constraints anymore and one could apply a standard multi-objective black-box search procedure.
+If one phrases alternative feature selection as a multi-objective problem (cf.~Section~\ref{sec:afs:approach:problem}), there are no hard constraints anymore, and one could apply a standard multi-objective black-box search procedure.
 However, we chose to analyze a different problem formulation.
 
 \paragraph{Adapting search}
 
 One can adapt an existing search heuristic to consider the constraints for alternatives.
-One idea is to prevent the search from producing feature sets that violate the constraints, or at least making the latter less likely, e.g., with a penalty in the objective function.
-Another idea is to `repair' feature sets proposed by the search that violate constraints, e.g., replacing them with the most similar feature sets satisfying the constraints.
+One idea is to prevent the search from producing feature sets that violate the constraints or at least make the latter less likely, e.g., with a penalty in the objective function.
+Another idea is to `repair' feature sets in the search that violate constraints, e.g., replacing them with the most similar feature sets satisfying the constraints.
 Such solver-assisted search approaches are common in search procedures for software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}.
 One could also apply solver-based repair to sampled feature sets.
 
@@ -622,26 +623,26 @@ One could also apply solver-based repair to sampled feature sets.
 	\label{al:afs:greedy-wrapper}
 \end{algorithm}
 
-\paragraph{Greedy Wrapper}
+\paragraph{Greedy wrapper}
 
 For wrapper feature selection in our experiments, we propose a method that falls into the category \emph{adapting search}.
-In particular, we adapt a greedy hill-climbing strategy~\cite{kohavi1997wrappers} that observes constraints, as displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
+In particular, we adopt a greedy hill-climbing strategy~\cite{kohavi1997wrappers} that observes constraints, as displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
 First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints (Line~\ref{al:afs:greedy-wrapper:line:init}).
-Thus, it has a valid starting point and can always return a solution, unless there are no valid solutions at all.
+Thus, it has a valid starting point and can always return a solution unless there are no valid solutions at all.
 Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected (Line~\ref{al:afs:greedy-wrapper:line:swap}).
-In case of simultaneous search, we swap the affected two features in each of the alternative feature sets.
+For simultaneous search, we swap the affected two features in each alternative feature set.
 This swap might violate cardinality constraints as well as constraints for alternatives.
 Thus, the algorithm calls the solver again to find a solution~$s'$ containing this swap and satisfying the other constraints.
 If such a solution~$s'$ exists and its quality~$Q(s',X,y)$ improves the current solution, the algorithm continues from the new solution and tries again to swap the first and second feature (Lines~\ref{al:afs:greedy-wrapper:line:improved-start}-\ref{al:afs:greedy-wrapper:line:improved-end}).
 Else, it attempts to swap the next pair of features (Lines~\ref{al:afs:greedy-wrapper:line:next-start}-\ref{al:afs:greedy-wrapper:line:next-end}).
 In particular, we only evaluate one solution per swap before moving on rather than enumerating all valid solutions containing the swap.
 
-The algorithm terminates if either no swap leads to an improvement or a fixed number of iterations~$max\_iters$ is reached (Line~\ref{al:afs:greedy-wrapper:line:stop}).
+The algorithm terminates if no swap leads to an improvement or a fixed number of iterations~$max\_iters$ is reached (Line~\ref{al:afs:greedy-wrapper:line:stop}).
 Due to its heuristic nature, the algorithm might get stuck in local optima rather than yielding the global optimum.
 In particular, $max\_iters$ only is an upper bound on the iteration count since the algorithm can stop earlier.
 We define the iteration count as the number of calls to the solver, i.e., attempts to generate feature sets.
-This also is an upper bound on the number of prediction models trained.
-However, not all solver calls might yield a valid feature set.
+This number also bounds the number of prediction models trained.
+However, we only train a model for valid solutions, and not all solver calls may yield one.
 
 \subsubsection{Embedding Alternatives}
 \label{sec:afs:approach:objectives:embedding}
@@ -1918,14 +1919,14 @@ Using a bivariate dependency measure $q(\cdot)$ to quantify correlation, the obj
 %
 One can square this objective to remove the square root in the denominator~\cite{nguyen2010towards}.
 Nevertheless, the objective remains non-linear in the decision variables~$s$ since it involves a fraction and multiplications between variables.
-However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}, allowing to formulate alternative feature selection as a linear problem.
+However, one can linearize the objective with additional variables and constraints~\cite{nguyen2010improving, nguyen2010towards}, allowing to formulate alternative feature selection for CFS as a linear problem.
 
 \paragraph{Relief}
 
 Relief~\cite{kira1992feature, robnik1997adaptation} builds on the idea that data objects with a similar value of the prediction target should have similar feature values, but data objects that differ in their target should differ in their feature values.
 Relief assigns a score to each feature by sampling data objects and quantifying the difference in feature values and target values compared to their nearest neighbors.
 We deem Relief to be multivariate since the nearest-neighbor computations involve all features instead of considering them independently.
-However, the resulting feature scores can directly be put into the univariate-filter objective (cf.~Equation~\ref{eq:afs:univariate-filter}) to obtain a linear problem.
+However, the resulting feature scores can directly be put into the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}) to obtain a linear problem.
 One can also use Relief scores in CFS to consider feature redundancy~\cite{hall1999correlation, hall2000correlation}, which the default Relief does not.
 
 \subsection{Complete Specifications of the Optimization Problem}
@@ -1957,7 +1958,7 @@ In the sequential case, only one feature set~$F_s$ is variable in the optimizati
 
 In the simultaneous case, all feature sets are variable.
 $a \in \mathbb{N}$ denotes the number of alternatives, which corresponds to the number of feature sets minus one.
-Next, we introduce auxiliary variables according to linearize products between variables (cf.~Equation~\ref{eq:afs:product-linear}).
+Next, we introduce auxiliary variables to linearize products between variables (cf.~Equation~\ref{eq:afs:product-linear}).
 Finally, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) in the objective here.
 %
 \begin{equation}
@@ -1981,22 +1982,23 @@ Finally, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-o
 \subsection{Pre-Selection for the Univariate Objective}
 \label{sec:afs:appendix:univariate-pre-selection}
 
-In this section, we describe how to potentially speed up the optimization for the objective with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}).
-This objective is monotonic in the individual features' qualities~$q(X_{\cdot{}j},y)$ and the feature-selection decisions~$s_j$.
-In particular, the objective cannot decrease if one selects more features or, given a fixed feature-set size~$k$, replaces one feature with another one of higher quality.
+In this section, we describe how to potentially speed up the optimization of the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}) by \emph{pre-selection} if the user-defined feature-set sizes~$k$ and the number of alternatives~$a$ are small.
+
+The univariate objective is monotonic in the features' qualities~$q(X_{\cdot{}j},y)$ and the selection decisions~$s_j$.
+In particular, the objective cannot decrease when selecting more features or replacing a feature with another of higher quality for a fixed feature-set size.
 Sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) for simultaneous search are monotonic as well.
 
 Thus, assuming $(a + 1) \cdot k < n$, it suffices to use the $(a + 1) \cdot k$ highest feature qualities when searching for an optimal solution out of $a + 1$ feature sets.
 Due to monotonicity, the remaining feature qualities cannot improve the objective, so one can drop them before optimization.
 We call this step \emph{pre-selection}.
 While there might also be optimal solutions using the dropped features, their objective value cannot be higher than with pre-selection.
-For example, such solutions can arise in case of multiple identical qualities or for min-aggregation in the objective.
+For example, such solutions can arise in case of multiple identical qualities or for min-aggregation in the objective (cf.~Example~\ref{ex:afs:min-aggregation}).
 Also, the optimal solution might not contain all pre-selected features, i.e., pre-selection over-approximates the set of selected features.
 
 One can conduct pre-selection before using a solver or any other search mechanism, e.g., exhaustive search.
-The latter has polynomial runtime under the assumption of small, constant $a$ and $k$, i.e., $a \cdot k \in O(1)$ (cf.~Section~\ref{sec:afs:approach:complexity:exhaustive}).
-With pre-selection, the pure search cost would even become independent from~$n$, i.e., $O(1)$, under that assumption.
-However, one needs to determine the highest feature qualities first, e.g., by sorting all qualities in~$O(n \cdot \log n)$ or iteratively determining the maximum quality in~$O((a+1) \cdot k \cdot n)$.
+The latter generally has polynomial runtime regarding~$n$ assuming small, constant $a$ and $k$, i.e., $a \cdot k \in O(1)$ (cf.~Section~\ref{sec:afs:approach:complexity:exhaustive}).
+With pre-selection, the pure search cost would even become independent from~$n$, i.e., $O(1)$ under that assumption.
+However, one would need to determine the highest feature qualities first, e.g., by sorting all qualities in~$O(n \cdot \log n)$ or iteratively determining the maximum quality in~$O((a+1) \cdot k \cdot n)$.
 
 \subsection{Computational Complexity}
 \label{sec:afs:appendix:complexity}
