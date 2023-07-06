@@ -595,18 +595,18 @@ One could also apply solver-based repair to sampled feature sets.
 		Feature-set quality function $Q(\cdot)$, \newline
 		Constraints for alternatives $Cons$, \newline
 		Maximum number of iterations $max\_iters$}
-	\KwOut{Feature-selection decision vector $s$}
+	\KwOut{Set of feature-selection decision vectors $S = \{s^{(0)}, \dots, s^{(a)}\}$}
 	\BlankLine
-	$s \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternative} \label{al:afs:greedy-wrapper:line:init}
+	$S \leftarrow \text{Solve}(Cons)$ \tcp*{Initial alternatives} \label{al:afs:greedy-wrapper:line:init}
 	$iters \leftarrow 1$ \tcp*{Number of iterations = solver calls}
-	\lIf(\tcp*[f]{No valid alternative}){$s = \emptyset$}{\Return{$\emptyset$}}
-	$j_1 \leftarrow 1$ \tcp*{Indices of feature to be swapped}
+	\lIf(\tcp*[f]{No valid alternatives exist}){$S = \emptyset$}{\Return{$\emptyset$}}
+	$j_1 \leftarrow 1$ \tcp*{Indices of features to be swapped}
 	$j_2 \leftarrow j_1 + 1$\;
 	\While{$iters < max\_iters$ \textbf{and} $j_1 < n$}{ \label{al:afs:greedy-wrapper:line:stop}
-		$s' \leftarrow \text{Solve}(Cons \cup \{\neg s_{j_1}, \neg s_{j_2}\})$ \tcp*{Try swapping two features} \label{al:afs:greedy-wrapper:line:swap}
+		$S' \leftarrow \text{Solve}(Cons \cup \{\neg s^{(i)}_{j_1}, \neg s^{(i)}_{j_2} \mid i \in \{0, \dots, a\}\})$ \tcp*{Try swap} \label{al:afs:greedy-wrapper:line:swap}
 		$iters \leftarrow iters + 1$\;
-		\If(\tcp*[f]{Swap if improved}){$s' \neq \emptyset$ \textbf{and} $Q(s',X,y) > Q(s,X,y)$}{
-			$s \leftarrow s'$\; \label{al:afs:greedy-wrapper:line:improved-start}
+		\If(\tcp*[f]{Swap if improved}){$S' \neq \emptyset$ \textbf{and} $Q(S',X,y) > Q(S,X,y)$}{
+			$S \leftarrow S'$\; \label{al:afs:greedy-wrapper:line:improved-start}
 			$j_1 \leftarrow 1$ \tcp*{Reset swap-feature indices}
 			$j_2 \leftarrow j_1 + 1$\; \label{al:afs:greedy-wrapper:line:improved-end}
 		}
@@ -618,7 +618,7 @@ One could also apply solver-based repair to sampled feature sets.
 			$j_2 \leftarrow j_1 + 1$\; \label{al:afs:greedy-wrapper:line:next-end}
 		}
 	}
-	\Return{$s$}
+	\Return{$S$}
 	\caption{Constraint-aware greedy wrapper method.}
 	\label{al:afs:greedy-wrapper}
 \end{algorithm}
