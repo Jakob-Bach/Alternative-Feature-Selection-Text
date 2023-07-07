@@ -372,7 +372,7 @@ Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization pr
 		Linearization constraints & $0$ & $0$ & $\frac{3 \cdot a \cdot (a+1) \cdot n}{2}$ \\
 		\bottomrule
 	\end{tabular}
-	\caption{Size of the optimization problems for $a$ alternatives ($a + 1$~feature sets overall) and $n$ features.}
+	\caption{Size of the optimization problem by search method, for $a$~alternatives ($a + 1$~feature sets overall) and $n$ features.}
 	\label{tab:afs:seq-sim-comparison}
 \end{table}
 
@@ -1208,7 +1208,7 @@ Additionally, Appendix~\ref{sec:afs:appendix:evaluation} contains results for fu
 		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
 	\end{subfigure}
 	\caption{
-		Feature-set quality over the number of alternatives, by evaluation metric and search method for alternatives.
+		Feature-set quality over the number of alternatives~$a$, by search method for alternatives and evaluation metric.
 		Results with \emph{MI} as feature-selection method and $k=5$.
 		Y-axes truncated to improve readability.
 	}
@@ -1352,7 +1352,7 @@ While we grant simultaneous searches proportionally more time for multiple alter
 		\toprule
 		Selection & \multicolumn{3}{c}{Optimization time} \\
 		\cmidrule(r){2-4}
-		& seq. & sim. (min) & sim. (sum) \\
+		& Seq. & Sim. (min) & Sim. (sum) \\
 		\midrule
 		FCBF & 0.22~s & 11.91~s & 13.09~s \\
 		Greedy Wrapper & 54.23~s & 61.10~s & 63.45~s \\
@@ -1384,7 +1384,7 @@ While we grant simultaneous searches proportionally more time for multiple alter
 		\bottomrule
 	\end{tabular}
 	\caption{
-		Mean optimization time by feature-selection method and number of alternatives.
+		Mean optimization time by number of alternatives and feature-selection method.
 		Results from simultaneous search with sum-aggregation and $k=5$.
 	}
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
@@ -1438,7 +1438,7 @@ Besides factors related to the datasets and experimental design, the heuristics 
 		\label{fig:afs:impact-num-alternatives-quality-min-max-fillna}
 	\end{subfigure}
 	\caption{
-		Feature-set quality, normalized per experimental setting, over the number of alternatives, by evaluation metric.
+		Feature-set quality, normalized per experimental setting, over the number of alternatives, by evaluation metric and normalization method.
 		Results from sequential search with \emph{MI} as feature-selection method and $k=5$.
 	}
 	\label{fig:afs:impact-num-alternatives-quality}
@@ -1518,7 +1518,7 @@ This trend also depends on the dissimilarity threshold~$\tau$, which we analyze 
 		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean feature-set quality, max-normalized per experimental setting, over the number of alternatives, by evaluation metric and feature-selection method.
+		Mean of feature-set quality, max-normalized per experimental setting, over the number of alternatives, by feature-selection method and evaluation metric.
 		Results from sequential search with $k=5$.
 	}
 	\label{fig:afs:impact-num-alternatives-fs-method-quality}
@@ -1539,7 +1539,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max.pdf}
 		\caption{
 			Training-set objective value, max-normalized.
 			Infeasible feature sets excluded.
@@ -1549,7 +1549,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-fillna.pdf}
 		\caption{
 			Training-set objective value, max-normalized.
 			Infeasible feature sets assigned a quality of~0.
@@ -1559,7 +1559,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max.pdf}
 		\caption{
 			Test-set objective value, max-norma\-lized.
 			Infeasible feature sets excluded.
@@ -1569,7 +1569,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max-fillna.pdf}
 		\caption{
 			Test-set objective value, max-norma\-lized.
 			Infeasible feature sets assigned a quality of~0.
@@ -1579,9 +1579,9 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
 		\caption{
-			Test set prediction performance, min-max-normalized.
+			Test-set prediction performance, min-max-normalized.
 			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}
@@ -1589,15 +1589,15 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
 		\caption{
-			Test set prediction performance, min-max-normalized.
+			Test-set prediction performance, min-max-normalized.
 			Infeasible feature sets assigned a quality of~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean of feature-set quality, normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric.
+		Mean of feature-set quality, normalized per experimental setting, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric and normalization method.
 		Results from sequential search with \emph{MI} as feature-selection method and $k=10$.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-quality}
@@ -1630,7 +1630,7 @@ This result underlines our previous observations that the objective value is onl
 		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-10}
 	\end{subfigure}
 	\caption{
-		Fraction of optimization runs yielding a valid feature set over the number of alternatives and dissimilarity threshold~$\tau$.
+		Fraction of optimization runs yielding a valid feature set over the number of alternatives and dissimilarity threshold~$\tau$, by feature-set size~$k$.
 		Results from sequential search with \emph{MI} as feature-selection method.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-optimization-status}
@@ -1688,7 +1688,7 @@ This counterintuitive phenomenon can occur because some datasets run out of vali
 		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean feature-set quality, max-normalized per experimental setting, over the dissimilarity threshold~$\tau$, by evaluation metric and feature-selection method.
+		Mean of feature-set quality, max-normalized per experimental setting, over the dissimilarity threshold~$\tau$, by feature-selection method and evaluation metric.
 		Results from sequential search with $k=10$.
 	}
 	\label{fig:afs:impact-tau-fs-method-quality}
@@ -2323,7 +2323,7 @@ datasets (cf.~Section~\ref{sec:afs:appendix:evaluation:datasets}), evaluation me
 		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\caption{
-		Feature-set quality over feature-set size~$k$ relative to dataset dimensionality~$n$.
+		Feature-set quality over feature-set size~$k$ relative to dataset dimensionality~$n$, by feature-set size~$k$ and evaluation metric.
 		Results from the original feature sets of sequential search with \emph{MI} as feature-selection method.
 	}
 	\label{fig:afs:impact-dataset-k-quality}
