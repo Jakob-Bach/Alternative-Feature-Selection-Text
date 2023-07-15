@@ -353,7 +353,7 @@ In particular, these $|F'|$~unique values of $\tau$ suffice to produce all possi
 \label{sec:afs:approach:constraints:multiple}
 
 If users desire multiple alternative feature sets rather than only one, we can determine these alternatives sequentially or simultaneously.
-The number of alternatives~$a$ is a parameter to be set by the user.
+The number of alternatives~$a \in \mathbb{N}_0$ is a parameter to be set by the user.
 The overall number of feature sets is $a + 1$ since we deem one feature set the `original' one.
 Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization problems for these two search methods.
 
@@ -696,11 +696,11 @@ Like conventional feature selection, sequential search for alternatives (cf.~Def
 However, not all size-$k$ feature sets are valid anymore.
 In particular, the constraints for alternatives put an extra cost on each solution candidate.
 Constraint checking involves iterating over all existing feature sets and features to compute the dissimilarity between sets (cf.~Equation~\ref{eq:afs:afs-sequential-complete}).
-This procedure entails a cost of~$O(a \cdot n)$ for one alternative and~$O(a^2 \cdot n)$ for the whole sequential procedure with~$a$ alternatives.
+This procedure entails a cost of~$O(a \cdot n)$ for one alternative and~$O(a^2 \cdot n)$ for the whole sequential procedure with $a$~alternatives.
 Combining this cost with Proposition~\ref{prop:afs:complexity-exhaustive-conventional}, we obtain the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive sequential search]
-	Exhaustive sequential search for $a \in \mathbb{N}$ alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k+1})$ without the cost of evaluating the objective function.
+	Exhaustive sequential search for $a \in \mathbb{N}$~alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k+1})$ without the cost of evaluating the objective function.
 	\label{prop:afs:complexity-exhaustive-sequential}
 \end{proposition}
 %
@@ -713,7 +713,7 @@ Thus, an exhaustive search over size-$k$ feature sets iterates over~$O(n^{k \cdo
 Including the cost of constraint checking, we arrive at the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive simultaneous search]
-	Exhaustive simultaneous search for $a + 1$~alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective function.
+	Exhaustive simultaneous search for $a \in \mathbb{N}$~alternative feature sets of size~$k$ from $n$~features has a time complexity of~$O(a^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective function.
 	\label{prop:afs:complexity-exhaustive-simultaneuos}
 \end{proposition}
 %
@@ -1063,7 +1063,7 @@ Further, within our own approaches, we can still put the feature-set quality int
 
 We employ \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) search for alternatives.
 For the latter, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
-We evaluate $a \in \{1, \dots, 10\}$ alternatives for sequential search and $a \in \{1, \dots, 5\}$ for simultaneous search due to the higher runtime of the latter.
+We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search and $a \in \{1, \dots, 5\}$ for simultaneous search due to the higher runtime of the latter.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the feature-set overlap in the Dice dissimilarity (cf.~Equations~\ref{eq:afs:dice} and~\ref{eq:afs:dice-rearranged-equal-size}).
 Thus, for $k=5$, we consider $\tau \in \{0.2, 0.4, 0.6, 0.8, 1\}$, corresponding to an overlap of four to zero features.
 For $k=10$ we consider $\tau \in \{0.1, 0.2, \dots, 1\}$.
