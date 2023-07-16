@@ -1813,7 +1813,7 @@ Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses addition
 Section~\ref{sec:afs:appendix:univariate-complete-optimization-problem} provides complete definitions of the alternative-feature-selection problem (cf.~Section~\ref{sec:afs:approach}).
 Section~\ref{sec:afs:appendix:univariate-pre-selection} proposes how to speed up optimization for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:complexity} complements the complexity analysis (cf.~Section~\ref{sec:afs:approach:complexity}).
-Section~\ref{sec:afs:appendix:univariate-search-algorithm} presents a greedy heuristic for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
+Section~\ref{sec:afs:appendix:univariate-search} proposes search heuristics for univariate feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:evaluation} contains additional evaluation results (cf.~Section~\ref{sec:afs:evaluation}).
 
 \subsection{Aggregation Operators for Simultaneous Search}
@@ -2227,19 +2227,19 @@ Thus, we can assess the quality of each feature independently.
 	\BlankLine
 	$indices \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities} \label{al:afs:greedy-replacement:line:sorting}
 	$s \leftarrow \{0\}^n$ \tcp*{Initial selection for all alternatives} \label{al:afs:greedy-replacement:line:common-features-start}
-	$feature\textunderscore{}position \leftarrow 1$ \tcp*{Index of index of current feature}
-	\While{$feature\textunderscore{}position \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
-		$j \leftarrow indices[feature\textunderscore{}position]$ \tcp*{Index feature by quality}
+	$feature\_position \leftarrow 1$ \tcp*{Index of index of current feature}
+	\While{$feature\_position \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
+		$j \leftarrow indices[feature\_position]$ \tcp*{Index feature by quality}
 		$s_j \leftarrow 1$ \;
-		$feature\textunderscore{}position \leftarrow feature\textunderscore{}position + 1$\;
+		$feature\_position \leftarrow feature\_position + 1$\;
 	} \label{al:afs:greedy-replacement:line:common-features-end}
 	$i \leftarrow 0$\ \tcp*{Number of current alternative} \label{al:afs:greedy-replacement:line:disjoint-features-start}
 	\While{$i \leq a$ \textbf{and} $i \leq \frac{n - k}{\lceil \tau \cdot k \rceil}$}{ \label{al:afs:greedy-replacement:line:stop}
 		$s^{(i)} \leftarrow s$ \tcp*{Select best $\lfloor (1 - \tau) \cdot k \rfloor$ features}
 		\For(\tcp*[f]{Select remaining $\lceil \tau \cdot k \rceil$ features}){$\_ \leftarrow 1$ \KwTo $\lceil \tau \cdot k \rceil$}{
-			$j \leftarrow indices[feature\textunderscore{}position]$\;
+			$j \leftarrow indices[feature\_position]$\;
 			$s^{(i)}_j \leftarrow 1$\;
-			$feature\textunderscore{}position \leftarrow feature\textunderscore{}position + 1$\;
+			$feature\_position \leftarrow feature\_position + 1$\;
 		}
 		$i \leftarrow i + 1$\;
 	} \label{al:afs:greedy-replacement:line:disjoint-features-end}
@@ -2254,7 +2254,7 @@ For a fixed feature-set size~$k$, a dissimilarity threshold~$\tau$, and using th
 In other words, the same subset of $\lfloor (1 - \tau) \cdot k \rfloor$~features can be contained in all alternatives without violating the dissimilarity threshold.
 Thus, our algorithms indeed selects the $\lfloor (1 - \tau) \cdot k \rfloor$~features with highest quality in each alternative~$s^{(\cdot)}$ (Lines~\ref{al:afs:greedy-replacement:line:common-features-start}--\ref{al:afs:greedy-replacement:line:common-features-end}).
 We fill the remaining spots in the sets by iterating over the alternatives and remaining features (Lines~\ref{al:afs:greedy-replacement:line:disjoint-features-start}--\ref{al:afs:greedy-replacement:line:disjoint-features-end}).
-In each alternative, we select the $\lceil \tau \cdot k \rceil$~highest-quality features that are not part of any prior alternative.
+For each alternative, we select the $\lceil \tau \cdot k \rceil$~highest-quality features that are not part of any prior alternative.
 We continue this procedure till we reach the desired number of alternatives~$a$ or till there are not enough unused features to form further alternatives (Line~\ref{al:afs:greedy-replacement:line:stop}).
 %
 \begin{example}
@@ -2329,7 +2329,7 @@ Given the limitation of \emph{Greedy Replacement Search} and the low optimizatio
 \label{sec:afs:appendix:univariate-search:greedy-balancing}
 
 \emph{Greed Balancing Search} modifies \emph{Greedy Replacement Search} such that the feature-set qualities become more balanced.
-The resulting search method is simultaneous rather than sequential.
+The resulting search heuristic is simultaneous rather than sequential.
 
 \paragraph{Algorithm}
 
@@ -2339,7 +2339,7 @@ The resulting search method is simultaneous rather than sequential.
 		Feature-set size~$k$, \newline
 		Number of alternatives~$a$, \newline
 		Dissimilarity threshold~$\tau$}
-	\KwOut{List of feature-selection decision vectors~$s^{(\cdot)}$}
+	\KwOut{List of feature-selection decision vectors~$s^{(0)}, \dots, s^{(a)}$}
 	\BlankLine
 	\If{$\lceil \tau \cdot k \rceil \cdot a + k > n$}{ \label{al:afs:greedy-balancing:line:stop-early}
 		\Return{$\emptyset$}
@@ -2348,18 +2348,18 @@ The resulting search method is simultaneous rather than sequential.
 	\For(\tcp*[f]{Initial selection for all alternatives}){$i \leftarrow 0$ \KwTo $a$}{
 		$s^{(i)} \leftarrow \{0\}^n$ \;
 	}
-	$feature\textunderscore{}position \leftarrow 1$ \tcp*{Index of index of current feature}
-	\While(\tcp*[f]{Select best features}){$feature\textunderscore{}position \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
-		$j \leftarrow indices[feature\textunderscore{}position]$ \tcp*{Index feature by quality}
+	$feature\_position \leftarrow 1$ \tcp*{Index of index of current feature}
+	\While(\tcp*[f]{Select best features}){$feature\_position \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
+		$j \leftarrow indices[feature\_position]$ \tcp*{Index feature by quality}
 		\For(\tcp*[f]{Same features in all alternatives}){$i \leftarrow 0$ \KwTo $a$}{
 			$s^{(i)}_j \leftarrow 1$ \;
 		}
-		$feature\textunderscore{}position \leftarrow feature\textunderscore{}position + 1$\;
+		$feature\_position \leftarrow feature\_position + 1$\;
 	} \label{al:afs:greedy-balancing:line:common-features-end}
 	\For{$i \leftarrow 0$ \KwTo $a$}{ \label{al:afs:greedy-balancing:line:disjoint-features-start}
 		$Q^{(i)} \leftarrow 0$\ \tcp*{Relative quality of each alternative}
 	}
-	\While(\tcp*[f]{Fill all positions}){$feature\textunderscore{}position \leq \lceil \tau \cdot k \rceil \cdot a + k$}{ \label{al:afs:greedy-balancing:line:stop}
+	\While(\tcp*[f]{Fill all positions}){$feature\_position \leq \lceil \tau \cdot k \rceil \cdot a + k$}{ \label{al:afs:greedy-balancing:line:stop}
 		$Q_\text{min} \leftarrow \infty$ \tcp*{Find alternative with lowest quality}
 		$i_\text{min} \leftarrow -1$ \;
 		\For{$i \leftarrow 0$ \KwTo $a$}{
@@ -2368,16 +2368,17 @@ The resulting search method is simultaneous rather than sequential.
 				$i_\text{min} \leftarrow i$ \;
 			}
 		}
-		$j \leftarrow indices[feature\textunderscore{}position]$ \tcp*{Index feature by quality}
+		$j \leftarrow indices[feature\_position]$ \tcp*{Index feature by quality}
 		$s^{(i_\text{min})}_j \leftarrow 1$ \tcp*{Add to lowest-quality, non-full alternative}
 		$Q^{(i_\text{min})} \leftarrow Q^{(i_\text{min})} + q_j$ \tcp*{Update quality of that alternative}
-		$feature\textunderscore{}position \leftarrow feature\textunderscore{}position + 1$\;
+		$feature\_position \leftarrow feature\_position + 1$\;
 	} \label{al:afs:greedy-balancing:line:disjoint-features-end}
 	\Return{$s^{(0)}, \dots, s^{(a)}$}
 	\caption{\emph{Greedy Balancing Search} for alternative feature sets.}
 	\label{al:afs:greedy-balancing}
 \end{algorithm}
 
+Algorithm~\ref{al:afs:greedy-balancing} outlines \emph{Greedy Balancing Search}.
 First, we check whether the algorithm should terminate early, in case the number of features~$n$ is not high enough for alternatives satisfying the desired user parameters~$k$, $a$, and~$\tau$ (Line~\ref{al:afs:greedy-balancing:line:stop-early}).
 Then, we select the first $\lfloor (1 - \tau) \cdot k \rfloor$~features in each alternative in the same way as \emph{Greedy Replacement Search} (cf.~Algorithm~\ref{al:afs:greedy-replacement}:
 We pick the features with the highest quality~$q_j$ (Lines~\ref{al:afs:greedy-balancing:line:common-features-start}--\ref{al:afs:greedy-balancing:line:common-features-end}).
@@ -2399,6 +2400,7 @@ As $Q^{(0)} > Q^{(1)}$ still holds, the feature with quality~2 becomes part of $
 Because $s^{(1)}$ has reached size~$k$, the feature with quality~1 is added to $s^{(0)}$, even if the latter still has higher quality.
 Now both alternatives have reached their desired size and $n = 6 = \lceil 0.5 \cdot 4 \rceil \cdot 1 + 2 = \lceil \tau \cdot k \rceil \cdot a + k$ (Line~\ref{al:afs:greedy-balancing:line:stop}).
 Thus, the algorithm terminates.
+The solution consists of $s^{(0)} = (1,1,1,0,0,1)$ and $s^{(1)} = (1,1,0,1,1,0)$.
 \label{ex:afs:greedy-balancing:algorithm}
 \end{example}
 
@@ -2437,11 +2439,115 @@ However, if running out of features is not an issue, \emph{Greedy Balancing Sear
 \subsubsection{Greedy Depth Search}
 \label{sec:afs:appendix:univariate-search:greedy-depth}
 
+\emph{Greedy Depth Search} is a sequential search heuristic that generalizes \emph{Greedy Replacement Search}.
+In particular, the former allows to progress beyond $\frac{n - k}{\lceil \tau \cdot k \rceil}$ alternatives.
+
 \paragraph{Algorithm}
+
+\begin{algorithm}[tp]
+	\DontPrintSemicolon
+	\KwIn{Univariate feature qualities~$q_j$ with $j \in \{1, \dots, n\}$, \newline
+		Feature-set size~$k$, \newline
+		Number of alternatives~$a$, \newline
+		Dissimilarity threshold~$\tau$}
+	\KwOut{List of feature-selection decision vectors~$s^{(\cdot)}$}
+	\BlankLine
+	$indices \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities} \label{al:afs:greedy-depth:line:sorting}
+	$feature\_positions \leftarrow \{0\}^k$ \tcp*{Indices of indices of features} \label{al:afs:greedy-depth:line:position-init-start}
+	\For(\tcp*[f]{Start with $k$ best features}){$p \leftarrow 1$ \KwTo $k$}{
+		$feature\_positions[p] \leftarrow p$ \tcp*{Ordered by qualities as well} \label{al:afs:greedy-depth:line:position-init-end}
+	}
+	$i \leftarrow 0$\ \tcp*{Number of current alternative}
+	$has\_next\_solution \leftarrow$ \textbf{true} \;
+	\While{$i \leq a$ \textbf{and} $has\_next\_solution$}{ \label{al:afs:greedy-depth:line:main-loop-start} \label{al:afs:greedy-depth:line:stop}
+		$s^{(i)} \leftarrow \{0\}^n$ \; \label{al:afs:greedy-depth:line:selection-start}
+		\For(\tcp*[f]{Select $k$ features, indexed by quality}){$p \leftarrow 1$ \KwTo $k$}{
+			$j \leftarrow indices[feature\_positions[p]]$ \;
+			$s^{(i)}_j \leftarrow 1$\;
+		} \label{al:afs:greedy-depth:line:selection-end}
+		\If{is\_valid\_alternative($s^{(i)}$, $\{s^{(0)}, \dots, s^{(i-1)}\}$)}{ \label{al:afs:greedy-depth:line:check-valid}
+			$i \leftarrow i + 1$ \tcp*{Else, $s^{(i)}$ overwritten in next iteration}
+		}
+		$p \leftarrow k$ \tcp*{Update feature positions, starting with last} \label{al:afs:greedy-depth:line:position-update-start}
+		\While{$p \geq 1$}{
+			$position \leftarrow feature\_positions[p]$ \;
+			\If(\tcp*[f]{Position can be increased}){$position < n + p - k$}{ \label{al:afs:greedy-depth:line:check-position-update}
+				\For(\tcp*[f]{Also update later positions}){$\Delta_p \leftarrow 0$ \KwTo $k - p$}{ \label{al:afs:greedy-depth:line:quality-decrease-start}
+					$feature\_positions[p + \Delta_p] \leftarrow position + \Delta_p + 1$ \; \label{al:afs:greedy-depth:line:quality-decrease-end}
+				}
+				$p \leftarrow -1$ \tcp*{Position update finished}
+			}
+			\Else(\tcp*[f]{Position cannot be increased}){
+				$p \leftarrow p - 1$ \tcp*[f]{Also update at least one prior position} \label{al:afs:greedy-depth:line:continue-prior-position}
+			}
+		}
+		\If(\tcp*[f]{Updating positions further would violate $n$}){$p = 0$}{
+			$has\_next\_solution \leftarrow$ \textbf{false} \; \label{al:afs:greedy-depth:line:main-loop-end} \label{al:afs:greedy-depth:line:position-update-end}
+		}
+	}
+	\Return{$s^{(0)}, \dots, s^{(i)}$}
+	\caption{\emph{Greedy Depth Search} for alternative feature sets.}
+	\label{al:afs:greedy-depth}
+\end{algorithm}
+
+Algorithm~\ref{al:afs:greedy-depth} outlines \emph{Greedy Depth Search}.
+As in the other two heuristics, we start by sorting the features decreasingly according to their individual qualities~$q_j$ (Line~\ref{al:afs:greedy-replacement:line:sorting}).
+However, instead of keeping the same $\lfloor (1 - \tau) \cdot k \rfloor$~features in each alternative and only replacing the remaining ones, we now allow all positions in the current alternative to change features.
+Thus, we maintain an array of the feature positions in the current alternative, i.e., indices regarding the sorted qualities (Lines~\ref{al:afs:greedy-depth:line:position-init-start}--\ref{al:afs:greedy-depth:line:position-init-end}).
+
+In the main loop of the algorithm, we find alternatives sequentially
+(Lines~\ref{al:afs:greedy-depth:line:main-loop-start}--\ref{al:afs:greedy-depth:line:main-loop-end}).
+For each alternative, we select the features according to the position array (Lines~\ref{al:afs:greedy-depth:line:selection-start}--\ref{al:afs:greedy-depth:line:selection-end}).
+We check the resulting feature set against the constraints for alternatives (Line~\ref{al:afs:greedy-depth:line:check-valid}) and only retain it if it is valid.
+This check was unnecessary in the previous two heuristics, which only form valid alternatives by design.
+
+Next, we update the positions of the selected features in the current alternative. (Lines~\ref{al:afs:greedy-depth:line:position-update-start}--\ref{al:afs:greedy-depth:line:position-update-end}).
+At first, we try to decrease the quality of the lowest-quality feature in the current alternative by advancing one position regarding the sorted qualities.
+This step may not be possible, as the alternative may already contain the feature with the overall lowest quality, i.e., position~$n$ in the array of sorted qualities (Line~\ref{al:afs:greedy-depth:line:check-position-update}).
+In this case, we try to decrease the quality of the second-lowest-quality feature in the current alternative by one position.
+If this action is impossible as well, we advance further over the features in the alternative by increasing quality (Line~\ref{al:afs:greedy-depth:line:continue-prior-position}).
+Once we find a feature whose quality we can decrease, we also decrease the quality of all lower-quality features accordingly, so the feature positions to form alternatives remain sorted by decreasing quality (Lines~\ref{al:afs:greedy-depth:line:quality-decrease-start}--\ref{al:afs:greedy-depth:line:quality-decrease-end}).
+
+We repeat the overall main loop till we reach the desired number of alternatives~$a$ or till we cannot update any feature position without exceeding the number of features~$n$, i.e., we cannot form a further alternative (Line~\ref{al:afs:greedy-depth:line:stop}).
+%
+\begin{example}
+Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of two features between sets here.
+Note that the features are already ordered by quality here, i.e., $indices = (1,2,3,4,5,6)$ (Line~\ref{al:afs:greedy-depth:line:sorting}).
+Thus, the algorithm initializes $feature\_positions = (1,2,3,4)$ (Line~\ref{al:afs:greedy-depth:line:position-init-start}--\ref{al:afs:greedy-depth:line:position-init-end}).
+$s^{(0)}$ contains these $k$ best features, i.e., $s^{(0)} = (1,1,1,1,0,0)$.
+Given that there are no other alternatives yet, this feature set is valid (Line~\ref{al:afs:greedy-depth:line:check-valid})) and the algorithm moves on to $i=1$.
+
+For forming $s^{(1)}$, the position-updating step (Lines~\ref{al:afs:greedy-depth:line:position-update-start}--\ref{al:afs:greedy-depth:line:position-update-end}) first tries to only replace the lowest-quality feature in the alternative, i.e., $feature\_positions = (1,2,3,5)$ and $feature\_positions = (1,2,3,6)$.
+However, neither of these feature sets yield a valid alternative.
+Thus, the algorithm attempts to replace the feature with the second-lowest quality as well, starting with $feature\_positions = (1,2,4,5)$ and $feature\_positions = (1,2,4,6)$.
+However, the overlap with $s^{(0)}$ is still too large.
+The next value in line is $feature\_positions = (1,2,5,6)$, which yields the valid alternative $s^{(1)} = (1,1,0,0,1,1)$.
+
+\emph{Greedy Replacement Search} would terminate here since the options for only replacing the two lowest-quality features in the alternative are exhausted.
+In contrast, \emph{Greedy Depth Search} now attempts to replace the third-lowest-quality feature, starting with $feature\_positions = (1,3,4,5)$.
+This feature set is not a valid alternative and neither are the subsequent sets with $feature\_positions = (1,3,4,6)$, $feature\_positions = (1,3,5,6)$, etc.
+Eventually, the algorithm also replaces the highest-quality feature, starting with $feature\_positions = (2,3,4,4)$.
+Eventually, the algorithm reaches $feature\_positions = (3,4,5,6)$, which yields the valid alternative $s^{(2)} = (0,0,1,1,1,1)$.
+After obtaining this solution, there is no valid update of the feature positions left (Line~\ref{al:afs:greedy-depth:line:position-update-end}).
+Thus, the algorithm terminates.
+\label{ex:afs:greedy-depth:algorithm}
+\end{example}
 
 \paragraph{Quality}
 
+\emph{Greedy Depth Search} initially yield the same solutions as \emph{Greedy Replacement Search} and then continues to provide solutions where \emph{Greedy Replacement Search} stops.
+Thus, \emph{Greedy Depth Search} also yields a constant-factor approximation of the optimal solution in case $k + a \cdot \lceil \tau \cdot k \rceil \leq n$ (cf.~Proposition~\ref{prop:afs:approximation-greedy-replacement}).
+For further alternatives, the situation becomes more involved, because the alternatives do not contain all best $\lfloor (1 - \tau) \cdot k \rfloor$~features anymore.
+Also, already for the first few alternatives, the runtime behavior differs from the other two heuristics.
+In particular, \emph{Greedy Replacement Search} has the same runtime cost between subsequent alternatives since it directly creates valid alternative.
+In contrast, \emph{Greedy Depth Search} iterates over all possible feature sets and the runtime between alternatives may vary.
+In the worst case, \emph{Greedy Depth Search} finishes after $O(n^k)$ feature sets when it has exhausted further potential alternatives.
+However, due to the sequential nature of the heuristic, users can interrupt it at any time and retain the alternatives found so far.
+
 \paragraph{Limitations}
+
+Like \emph{Greedy Balancing Search} and \emph{Greedy Replacement Search}, \emph{Greedy Depth Search} assumes a very simple notion of feature-set quality and may be worse than exact search.
+It may yield more alternative than the former two heuristics but has a more variable runtime behavior, as discussed before.
 
 \subsection{Evaluation}
 \label{sec:afs:appendix:evaluation}
