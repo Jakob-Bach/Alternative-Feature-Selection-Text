@@ -704,7 +704,7 @@ Combining this cost with Proposition~\ref{prop:afs:complexity-exhaustive-convent
 	\label{prop:afs:complexity-exhaustive-sequential}
 \end{proposition}
 %
-Thus, the runtime resides in the parameterized complexity class~$\mathcal{XP}$ with the parameter~$k$ and remains polynomial under the assumption $k \ll n,~k \in O(1)$.
+Thus, the runtime resides in the parameterized complexity class~$\mathcal{XP}$ with the parameter~$k$ and remains polynomial if $k \in O(1)$ and $a \in O(n^c),~c \in O(1)$.
 
 \paragraph{Simultaneous search}
 
@@ -719,8 +719,12 @@ Including the cost of constraint checking, we arrive at the following propositio
 %
 The scalability with~$n$ is worse than for sequential search since the number of alternatives appears in the exponent now, except for a special case discussed in Appendix~\ref{sec:afs:appendix:complexity:exhaustive-simultaneous-special-case}.
 Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} also assumes that the constraints do not use linearization variables (cf.~Equations~\ref{eq:afs:product-linear} and~\ref{eq:afs:afs-simultaneous-complete}), which would enlarge the search space even further.
-The complexity remains polynomial in~$n$ if $a$ and~$k$ are small and independent from~$n$.
-The problem is in the parameterized complexity class $\mathcal{XP}$ again, now with the parameter~$a \cdot k$.
+Finally, the complexity remains polynomial in~$n$ if $a$ and~$k$ are small and independent from~$n$, i.e., $a \cdot k \in O(1)$:
+%
+\begin{proposition}[Parameterized complexity of simultaneous search]
+	Simultaneous search for $a \in \mathbb{N}$~alternative feature sets of size~$k$ from $n$~features resides in the parameterized complexity class $\mathcal{XP}$ for the parameter~$a \cdot k$.
+	\label{prop:afs:complexity-simultaneuos-xp}
+\end{proposition}
 
 \subsubsection{Univariate Feature Qualities}
 \label{sec:afs:approach:complexity:univariate}
@@ -763,7 +767,7 @@ Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-u
 %
 \begin{proposition}[Complexity of simultaneous search with min-aggregation]
 	Simultaneous search for alternative feature sets with min-aggregation is $\mathcal{NP}$-hard.
-	\label{prop:afs:complexity-sim}
+	\label{prop:afs:complexity-simultaneous-np}
 \end{proposition}
 %
 While Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} allowed arbitrary sets sizes, there are also existing partitioning problems for constrained~$k$, e.g., called \textsc{Balanced Number Partitioning} or \textsc{K-Partitioning}.
@@ -812,8 +816,8 @@ Hence, it is not a contradiction that optimizing with min-aggregation is conside
 \subsubsection{Summary}
 \label{sec:afs:approach:complexity:summary}
 
-We showed that simultaneous search for alternative feature sets is $\mathcal{NP}$-hard in general (cf.~Proposition~\ref{prop:afs:complexity-sim}).
-We also placed it in the parameterized complexity class $\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos}), having~$a$ and~$k$ as the parameters that drive the hardness of the problem. 
+We showed that simultaneous search for alternative feature sets is $\mathcal{NP}$-hard in general (cf.~Proposition~\ref{prop:afs:complexity-simultaneous-np}).
+We also placed it in the parameterized complexity class $\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-simultaneuos-xp}), having~$a$ and~$k$ as the parameters that drive the hardness of the problem.
 For univariate feature qualities and min-aggregation, we obtained more specific $\mathcal{NP}$-hardness results for (1) complete partitioning, i.e., $\tau = 1$ and $(a+1) \cdot k = n$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), (2) incomplete partitioning, i.e., $(a+1) \cdot k < n$ (cf.~Proposition~\ref{prop:afs:complexity-incomplete-partitioning-min-constrained-k}) and (3) feature set overlap, i.e., $\tau < 1$ (cf.~Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}).
 In contrast, we also inferred polynomial runtime for univariate feature qualities, sum-aggregation, and $\tau = 1$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
 
@@ -2190,7 +2194,7 @@ First, one could establish a complexity result like $\mathcal{NP}$-hardness or m
 In the former case, there might be pseudo-polynomial approaches or (F)PTAS.
 As a first step in that direction, we show membership in complexity class~$\mathcal{APX}$ under certain conditions (cf.~Section~\ref{sec:afs:appendix:univariate-search}), i.e., there are polynomial-time algorithms yielding constant-factor approximations.
 Further, there might be efficient exact or approximate algorithms for problem instances satisfying additional assumptions.
-Finally, while we placed alternative feature selection in class~$\mathcal{XP}$, one might prove membership or hardness for more specific parameterized complexity classes.
+Finally, while we placed alternative feature selection in class~$\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-simultaneuos-xp}), one might prove membership or hardness for more specific parameterized classes.
 
 \paragraph{Related problem formulations}
 
