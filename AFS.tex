@@ -1836,7 +1836,7 @@ The arguably simplest way to aggregate the qualities of multiple feature sets is
 %
 While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality:
 %
-\begin{example}
+\begin{example}[Sum-aggregation]
 Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 Sequential search yields the selection $s^{(0)} = (1,1,1,0,0,0)$, $s^{(1)} = (1,0,0,1,1,0)$, and $s^{(2)} = (0,1,0,1,0,1)$, with a summed quality of $24+14+12=50$.
 One simultaneous-search solution consists of the feature sets $s^{(0)} = (1,1,0,1,0,0)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,0,0,1)$, with a summed quality of $20+18+16=54$.
@@ -1865,7 +1865,7 @@ Note that optimizing the objective with either sum-aggregation or min-aggregatio
 We already showed a solution optimizing sum-aggregation but not min-aggregation (cf.~Example~\ref{ex:afs:sum-aggregation}).
 In the following, we demonstrate the other direction:
 %
-\begin{example}
+\begin{example}[Min-aggregation]
 Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 One solution optimizing the objective with min-aggregation is $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $25+22=47$.
 Another solution is $s^{(0)} = (1,1,0,0,0,1)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $22+22=44$.
@@ -2261,7 +2261,7 @@ We fill the remaining spots in the sets by iterating over the alternatives and r
 For each alternative, we select the $\lceil \tau \cdot k \rceil$~highest-quality features that are not used in any prior alternative, thereby satisfying the dissimilarity threshold.
 We continue this procedure until we reach the desired number of alternatives~$a$ or until there are not enough unused features to form further alternatives (Line~\ref{al:afs:greedy-replacement:line:stop}).
 %
-\begin{example}
+\begin{example}[Algorithm of \emph{Greedy Replacement Search}]
 With $n=10$ features, feature-set size~$k=5$, and $\tau=0.4$, each feature set must differ by $\lceil \tau \cdot k \rceil = 2$ features from the other feature sets.
 The original feature set~$s^{(0)}$ consists of the top $k=5$ features regarding quality~$q_j$.
 The first alternative~$s^{(1)}$ consists of the top $\lfloor (1 - \tau) \cdot k \rfloor = 3$ features plus the sixth- and seventh-best feature.
@@ -2317,11 +2317,11 @@ Given the polynomial runtime of this heuristic, we obtain membership in the comp
 For~$\tau = 1$, \emph{Greedy Replacement Search} even yields the same objective values as sequential search and simultaneous search with sum-aggregation since it becomes identical to a procedure we outlined in our complexity analysis earlier (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
 In contrast, the following example shows that the heuristic can be worse than exact sequential search for as few as $a=2$ alternatives:
 %
-\begin{example}
+\begin{example}[Quality of \emph{Greedy Replacement Search} vs. exact search]
 Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=2$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 Sequential search and simultaneous search, for min- and sum-aggregation, yield the selection $s^{(0)} = (1,1,0,0,0,0)$, $s^{(1)} = (1,0,1,0,0,0)$, and $s^{(2)} = (0,1,1,0,0,0)$, with a summed quality of $17+16+15=48$.
 \emph{Greedy Replacement Search} yields the selection $s^{(0)} = (1,1,0,0,0,0)$, $s^{(1)} = (1,0,1,0,0,0)$, and $s^{(2)} = (1,0,0,1,0,0)$, with a summed quality of $17+16+12=45$.
-\label{ex:afs:greedy-replacement:worse-than-sum-agg}
+\label{ex:afs:greedy-replacement:worse-than-exact}
 \end{example}
 %
 While the first two feature sets are identical between exact and heuristic search, the quality of $s^{(2)}$ is lower for the heuristic (12 vs. 15).
@@ -2329,7 +2329,7 @@ In particular, by always selecting the top $\lfloor (1 - \tau) \cdot k \rfloor$~
 
 For min-aggregation in the objective, $a=1$ alternative already suffices such that the heuristic may be worse than exact search:
 %
-\begin{example}
+\begin{example}[Quality of \emph{Greedy Replacement Search} vs. min-aggregation]
 Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 Simultaneous search with min-aggregation yields the selection $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a quality of $\min \{19,19\} = 19$.
 \emph{Greedy Replacement Search} and sequential search yield the selection $s^{(0)} = (1,1,1,0,0,0)$ and $s^{(1)} = (1,0,0,1,1,0)$, with a quality of $\min \{24,14\} = 14$.
@@ -2342,7 +2342,7 @@ We alleviate this issue with the heuristic~\emph{Greedy Balancing Search} (cf.~S
 
 \paragraph{Limitations}
 
-Proposition~\ref{prop:afs:approximation-greedy-replacement} and Examples~\ref{ex:afs:greedy-replacement:worse-than-sum-agg},~\ref{ex:afs:greedy-replacement:worse-than-min-agg} already showed the potential quality loss of the heuristic compared to an exact search for alternatives.
+Proposition~\ref{prop:afs:approximation-greedy-replacement} and Examples~\ref{ex:afs:greedy-replacement:worse-than-exact},~\ref{ex:afs:greedy-replacement:worse-than-min-agg} already showed the potential quality loss of the heuristic compared to an exact search for alternatives.
 Further, \emph{Greedy Replacement Search} only works as long as some features have not been part of any feature set yet, i.e., $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
 Thus, to obtain a high number of alternatives~$a$, the following conditions are beneficial for the heuristic:
 The number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
@@ -2419,7 +2419,7 @@ In particular, we continue iterating over features by decreasing quality.
 We assign each feature to the alternative that currently has the lowest summed quality~$Q^{(i)}$ and whose size~$k$ has not been reached yet.
 We continue this procedure until all alternatives have reached size~$k$ (Line~\ref{al:afs:greedy-balancing:line:stop}).
 %
-\begin{example}
+\begin{example}[Algorithm of \emph{Greedy Balancing Search}]
 Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of two features between sets here.
 The features with qualities~$9$ and $8$ become part of both feature sets, $s^{(0)}$ and $s^{(1)}$ (Lines~\ref{al:afs:greedy-balancing:line:common-features-start}--\ref{al:afs:greedy-balancing:line:common-features-end}).
 At this point, both alternatives have the same relative quality $Q^{(0)} = Q^{(1)} = 0$, i.e., $Q^{(i)}$ in the algorithm ignores the quality of the shared features.
@@ -2453,7 +2453,7 @@ Hence, the quality guarantee of \emph{Greedy Replacement Search} (cf.~Propositio
 \end{proposition}
 %
 For the objective with min-aggregation, \emph{Greedy Balancing Search} can even be better than exact sequential search, as Example~\ref{ex:afs:greedy-replacement:worse-than-min-agg} shows, where the heuristic would yield the same solution as simultaneous search with min-aggregation.
-However, the heuristic can also be worse than sequential and simultaneous search, as Example~\ref{ex:afs:greedy-replacement:worse-than-sum-agg} shows, where \emph{Greedy Balancing Search} would yield the same solution as \emph{Greedy Replacement Search}.
+However, the heuristic can also be worse than sequential and simultaneous search, as Example~\ref{ex:afs:greedy-replacement:worse-than-exact} shows, where \emph{Greedy Balancing Search} would yield the same solution as \emph{Greedy Replacement Search}.
 
 \paragraph{Limitations}
 
@@ -2537,11 +2537,11 @@ Once we find a feature position whose quality we can decrease, we also decrease 
 
 We repeat the main loop until we reach the desired number of alternatives~$a$ or until we cannot update any feature position without exceeding the number of features~$n$, i.e., we cannot form another alternative (Line~\ref{al:afs:greedy-depth:line:stop}).
 %
-\begin{example}
+\begin{example}[Algorithm of \emph{Greedy Depth Search}]
 Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of two features between sets here.
 Note that the features are already ordered by quality here, i.e., $indices = (1,2,3,4,5,6)$ (Line~\ref{al:afs:greedy-depth:line:sorting}).
 Next, the algorithm initializes $feature\_positions = (1,2,3,4)$ (Line~\ref{al:afs:greedy-depth:line:position-init-start}--\ref{al:afs:greedy-depth:line:position-init-end}).
-$s^{(0)}$ contains these top $k$ features, i.e., $s^{(0)} = (1,1,1,1,0,0)$.
+$s^{(0)}$ contains these $k$~features, i.e., $s^{(0)} = (1,1,1,1,0,0)$.
 Given that there are no other alternatives yet, this feature set is valid (Line~\ref{al:afs:greedy-depth:line:check-valid})) and the algorithm moves on to $i=1$.
 
 For forming $s^{(1)}$, the position-updating step (Lines~\ref{al:afs:greedy-depth:line:position-update-start}--\ref{al:afs:greedy-depth:line:position-update-end}) first tries to only replace the lowest-quality feature in the alternative, i.e., $feature\_positions = (1,2,3,5)$ and $feature\_positions = (1,2,3,6)$.
@@ -2583,7 +2583,7 @@ The quality analysis becomes more involved for further alternatives, because the
 Thus, we leave this analysis open for future work.
 In fact, the quality of alternatives may not even be monotonically decreasing anymore, as the following example shows:
 %
-\begin{example}
+\begin{example}[Non-monotonic quality of \emph{Greedy Depth Search}]
 	Consider $n=4$~features with univariate feature qualities $q = (9,8,7,1)$, feature-set size~$k=2$, number of alternatives~$a=3$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 	\emph{Greedy Depth Search} yields the the selection $s^{(0)} = (1,1,0,0)$, $s^{(1)} = (1,0,1,0)$, $s^{(2)} = (1,0,0,1)$, and $s^{(1)} = (0,1,1,0)$, with the corresponding feature-set qualities~17, 16, 10, and 15.
 	\label{ex:afs:greedy-depth:non-monotonic}
