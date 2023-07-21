@@ -1780,7 +1780,7 @@ We compared two search methods for alternatives and varied the number of alterna
 \paragraph{Feature selection (objective function)}
 
 One could search for alternatives with other feature-selection methods than the five we analyzed.
-In particular, we implemented only one of several ways to find alternatives with black-box optimization for wrapper feature selection (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
+In particular, we implemented only one procedure to find alternatives for wrapper feature selection (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
 Embedded feature selection, which we did not evaluate, would also need adapted search procedures for alternatives (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
 
 \paragraph{Alternatives (constraints)}
@@ -1805,6 +1805,10 @@ Finally, one could employ a heuristic rather than an exact search method (cf.~Ap
 Our evaluation used datasets from various domains (cf.~Section~\ref{sec:afs:experimental-design:datasets}).
 While we could uncover several general trends, the existence and quality of alternatives naturally depend on the dataset.
 Thus, practitioners could use our generic search methods for alternatives in domain-specific case studies.
+
+~\\
+\noindent \textsc{Acknowledgments}\quad
+This work was supported by the Ministry of Science, Research and the Arts Baden-Württemberg, project \emph{Algorithm Engineering for the Scalability Challenge (AESC)}.
 
 \appendix
 
