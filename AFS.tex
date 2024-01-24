@@ -17,6 +17,7 @@
 \usepackage{amsthm} % theorems, definitions etc.
 \usepackage{booktabs} % nicely formatted tables (with top, mid, and bottom rule)
 \usepackage{graphicx} % plots
+\usepackage{multirow} % cells spanning multiple rows in tables
 \usepackage{orcidlink} % ORCID icon
 \usepackage{subcaption} % figures with multiple sub-figures and sub-captions
 \usepackage{hyperref} % links and URLs
@@ -63,6 +64,12 @@ These methods optimize a criterion of feature-set quality, e.g., prediction perf
 However, besides the optimal feature set, there might be other, differently composed feature sets with similar quality.
 Such alternative feature sets are interesting for users, e.g., to obtain several diverse explanations.
 Alternative explanations can provide additional insights into predictions, enable users to develop and test different hypotheses, appeal to different kinds of users, and foster trust in the predictions~\cite{kim2021multi, wang2019designing}.
+
+For example, in a dataset describing physical experiments, feature selection may help to discover relationships between physical quantities.
+In particular, highly predictive feature sets indicate which input quantities are strongly related to the output quantity.
+Domain experts may use these feature sets to formulate hypotheses on physical laws.
+However, if multiple alternative sets of similar quality exist, further analyses and experiments may be necessary to reveal the true underlying physical mechanism.
+Only knowing one predictive feature set and using it as the only explanation is misleading in such a situation.
 
 \paragraph{Problem statement}
 
@@ -362,7 +369,7 @@ Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization pr
 	\renewcommand*{\arraystretch}{1.3}
 	\begin{tabular}{lccc}
 		\toprule
-		& \multicolumn{2}{c}{Sequential search} & Simultaneous search \\
+		& \multicolumn{2}{c}{Sequential search} & \multirow{2}{*}{Simultaneous search} \\
 		\cmidrule(r){2-3}
 		& Alternative $i$ & Summed & \\
 		\midrule
@@ -484,15 +491,12 @@ In particular, Equation~\ref{eq:afs:univariate-filter} is a sum of weighted bina
 
 \paragraph{Post-hoc feature importance}
 
-From the technical perspective, one can also insert values of post-hoc feature-importance scores into Equation~\ref{eq:afs:univariate-filter}.
-For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them as~$q(X_{\cdot{}j},y)$.
-However, such post-hoc importance scores often evaluate the usefulness of each feature in the presence of other features.
-Thus, the importance scores of different features are not independent of each other, violating the implicit assumption behind Equation~\ref{eq:afs:univariate-filter}.
-For example, a feature might only show high post-hoc importance if another feature is present, due to feature interaction, but low importance else.
-Equation~\ref{eq:afs:univariate-filter} cannot express such conditional importance but requires one overall quality value for each feature.
-Re-calculating feature importance for each possible alternative feature set is infeasible.
-In practice, one can still use Equation~\ref{eq:afs:univariate-filter} with importance scores only computed on the full dataset~$X$, i.e., with all features being present.
-While such an approach might not represent importance in feature subsets faithfully, it can serve as a heuristic nevertheless.
+Technically, one can also insert values of post-hoc feature-importance scores into Equation~\ref{eq:afs:univariate-filter}.
+For example, one can pre-compute permutation importance~\cite{breiman2001random} or SAGE scores~\cite{covert2020understanding} for each feature and use them as univariate feature qualities~$q(X_{\cdot{}j},y)$.
+However, such post-hoc importance scores typically evaluate the quality of each feature in the presence of other features. 
+For example, a feature may only be important in subsets where another feature is present, due to feature interaction, but unimportant otherwise, and a post-hoc importance method like SHAP~\cite{lundberg2017unified} may reflect both these aspects.
+In contrast, Equation~\ref{eq:afs:univariate-filter} implicitly assumes feature independence and cannot adapt importance scores depending on whether other features are selected.
+Thus, treating pre-computed post-hoc importance scores as univariate feature qualities in the optimization objective can serve as a heuristic but may not faithfully represent the actual feature qualities in a particular selected set.
 
 \paragraph{FCBF}
 
@@ -835,7 +839,8 @@ In contrast, we also inferred polynomial runtime for univariate feature qualitie
 \section{Related Work}
 \label{sec:afs:related-work}
 
-In this section, we review related work from the fields of feature selection (cf.~Section~\ref{sec:afs:related-work:feature-selection}), subgroup discovery (cf.~Section~\ref{sec:afs:related-work:subgroup-discovery}), clustering (cf.~Section~\ref{sec:afs:related-work:clustering}), subspace clustering and subspace search (cf.~Section~\ref{sec:afs:related-work:subspace}), and explainable artificial intelligence (cf.~Section~\ref{sec:afs:related-work:xai}).
+In this section, we review related work from the fields of feature selection (cf.~Section~\ref{sec:afs:related-work:feature-selection}), subgroup discovery (cf.~Section~\ref{sec:afs:related-work:subgroup-discovery}), clustering (cf.~Section~\ref{sec:afs:related-work:clustering}), subspace clustering and subspace search (cf.~Section~\ref{sec:afs:related-work:subspace}), explainable artificial intelligence (cf.~Section~\ref{sec:afs:related-work:xai}),
+and Rashomon sets (cf.~Section~\ref{sec:afs-related-work:rashomon-sets}).
 To the best of our knowledge, searching for optimal alternative feature sets in the sense of this paper is novel.
 However, there is literature on optimal alternatives outside the field of feature selection.
 Also, there are works on finding multiple, diverse feature sets.
@@ -968,6 +973,17 @@ In contrast, we are interested in the global prediction quality of feature sets.
 For example, counterfactual explanations~\cite{guidotti2022counterfactual, stepin2021survey, verma2020counterfactual} alter feature \emph{values} \emph{as little as possible} to produce an alternative prediction \emph{outcome}.
 In contrast, alternative feature sets might alter the feature \emph{selection} \emph{significantly} while trying to maintain the original prediction \emph{quality}.
 
+\subsection{Rashomon Sets}
+\label{sec:afs-related-work:rashomon-sets}
+
+A Rashomon set is a set of prediction models that reach a certain, e.g., close-to-optimal, prediction performance~\cite{fisher2019all}.
+Despite similar performance, these models may still assign different feature importance scores, leading to different explanations~\cite{laberge2023partial}.
+Thus, Rashomon sets may yield partial information about alternative feature sets.
+However, approaches for Rashomon sets do not explicitly search for alternative feature sets as a whole, i.e., feature sets satisfying a dissimilarity threshold relative to other sets.
+Instead, these approaches focus on the range of each feature's importance over prediction models.
+Further, our notion of alternatives is not bound to model-based feature importance but encompasses a broader range of feature-selection methods.
+Finally, we use importance scores from one instead of multiple models to find importance-based alternatives.
+
 \section{Experimental Design}
 \label{sec:afs:experimental-design}
 
@@ -1033,8 +1049,9 @@ We are interested in which performance the models achieve if they are limited to
 
 We search for alternatives under different notions of feature-set quality as the objective function.
 We choose five well-known feature-selection methods that are easy to parameterize and cover the different categories from Section~\ref{sec:afs:fundamentals:quality} except \emph{embedded}, as explained in Section~\ref{sec:afs:approach:objectives:embedding}.
-One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four are white-box.
+However, we use feature importance from an embedded method, i.e., decision trees, as post-hoc importance scores.
 
+One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four are white-box.
 With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
 We enforce the desired $k$ with a simple constraint in optimization, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
 
@@ -1056,8 +1073,7 @@ $Q(s,X,y)$ corresponds to the prediction performance in terms of MCC on the 20\%
 
 \paragraph{Post-hoc feature importance}
 
-As a post-hoc importance measure, we use model-based feature importance provided by \emph{scikit-learn}.
-Again, we use a decision tree as the model.
+As a post-hoc importance measure called \emph{Model Gain}, we use importance scores from \emph{scikit-learn's} decision trees.
 There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain.
 These importances are normalized to sum up to~1 by default.
 We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores.
@@ -1098,46 +1114,47 @@ We exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
 \begin{table}[p]
 	\centering
-	\begin{tabular}{lrr}
+	\begin{tabular}{lrrr}
 		\toprule
-		Dataset & $m$ & $n$ \\
+		Dataset & $m$ & $n$ & Mean corr. \\
 		\midrule
-		backache & 180 & 32 \\
-		chess & 3196 & 36 \\
-		churn & 5000 & 20 \\
-		clean1 & 476 & 168 \\
-		clean2 & 6598 & 168 \\
-		coil2000 & 9822 & 85 \\
-		credit\_a & 690 & 15 \\
-		credit\_g & 1000 & 20 \\
-		dis & 3772 & 29 \\
-		G\_Epistasis\_2\_Way\_20atts\_0.1H\_EDM\_1\_1 & 1600 & 20 \\
-		G\_Epistasis\_2\_Way\_20atts\_0.4H\_EDM\_1\_1 & 1600 & 20 \\
-		G\_Epistasis\_3\_Way\_20atts\_0.2H\_EDM\_1\_1 & 1600 & 20 \\
-		G\_Heterogeneity\_20atts\_1600\_Het\_0.4\_0.2\_50\_EDM\_2\_001 & 1600 & 20 \\
-		G\_Heterogeneity\_20atts\_1600\_Het\_0.4\_0.2\_75\_EDM\_2\_001 & 1600 & 20 \\
-		hepatitis & 155 & 19 \\
-		Hill\_Valley\_with\_noise & 1212 & 100 \\
-		horse\_colic & 368 & 22 \\
-		house\_votes\_84 & 435 & 16 \\
-		hypothyroid & 3163 & 25 \\
-		ionosphere & 351 & 34 \\
-		molecular\_biology\_promoters & 106 & 57 \\
-		mushroom & 8124 & 22 \\
-		ring & 7400 & 20 \\
-		sonar & 208 & 60 \\
-		spambase & 4601 & 57 \\
-		spect & 267 & 22 \\
-		spectf & 349 & 44 \\
-		tokyo1 & 959 & 44 \\
-		twonorm & 7400 & 20 \\
-		wdbc & 569 & 30 \\
+		backache & 180 & 32 & 0.10 \\
+		chess & 3196 & 36 & 0.08 \\
+		churn & 5000 & 20 & 0.04 \\
+		clean1 & 476 & 168 & 0.25 \\
+		clean2 & 6598 & 168 & 0.25 \\
+		coil2000 & 9822 & 85 & 0.07 \\
+		credit\_a & 690 & 15 & 0.12 \\
+		credit\_g & 1000 & 20 & 0.07 \\
+		dis & 3772 & 29 & 0.08 \\
+		GE\_2\_Way\_20atts\_0.1H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
+		GE\_2\_Way\_20atts\_0.4H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
+		GE\_3\_Way\_20atts\_0.2H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
+		GH\_20atts\_1600\_Het\_0.4\_0.2\_50\_EDM\_2\_001 & 1600 & 20 & 0.02 \\
+		GH\_20atts\_1600\_Het\_0.4\_0.2\_75\_EDM\_2\_001 & 1600 & 20 & 0.02 \\
+		hepatitis & 155 & 19 & 0.15 \\
+		Hill\_Valley\_with\_noise & 1212 & 100 & 1.00 \\
+		horse\_colic & 368 & 22 & 0.16 \\
+		house\_votes\_84 & 435 & 16 & 0.30 \\
+		hypothyroid & 3163 & 25 & 0.15 \\
+		ionosphere & 351 & 34 & 0.25 \\
+		molecular\_biology\_promoters & 106 & 57 & 0.08 \\
+		mushroom & 8124 & 22 & 0.18 \\
+		ring & 7400 & 20 & 0.02 \\
+		sonar & 208 & 60 & 0.21 \\
+		spambase & 4601 & 57 & 0.14 \\
+		spect & 267 & 22 & 0.20 \\
+		spectf & 349 & 44 & 0.19 \\
+		tokyo1 & 959 & 44 & 0.44 \\
+		twonorm & 7400 & 20 & 0.17 \\
+		wdbc & 569 & 30 & 0.42 \\
 		\bottomrule
 	\end{tabular}
 	\caption{
 		Datasets from PMLB used in our experiments.
 		$m$~denotes the number of data objects and $n$~the number of features.
-		Dataset names starting with `G\_' actually start with `GAMETES\_'; we truncated them to reduce the table's width.
+		\emph{Mean corr.} is the average of absolute values of all pairwise Spearman's rank correlations between features.
+		In dataset names, we replaced \emph{GAMETES\_Epistasis} with  \emph{GE\_} and \emph{GAMETES\_Heterogeneity} with \emph{GH\_} to reduce the table's width.
 	}
 	\label{tab:afs:datasets}
 \end{table}
@@ -1153,7 +1170,9 @@ For 84\% of the feature sets in our evaluation, the solver finished before the t
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
 
-We evaluate alternative feature selection on the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
+\paragraph{Selection criteria}
+
+We use a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
 To harmonize evaluation, we only consider binary-classification datasets, though alternative feature selection also works for regression and multi-class problems.
 We exclude datasets with less than 100 data objects since they might entail a high uncertainty when assessing feature-set quality.
 Otherwise, the number of data objects should not systematically impact the feature-set quality and is unimportant for our evaluation.
@@ -1162,9 +1181,20 @@ Next, we exclude one dataset with 1000 features, which would dominate the overal
 Finally, we manually exclude datasets that seem duplicated or modified versions of other datasets from the benchmark.
 
 Consequently, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features.
-The datasets contain no missing values.
+The datasets do not contain any missing values.
 Categorical features have an ordinal encoding by default.
 Table~\ref{tab:afs:datasets} lists these datasets.
+
+\paragraph{Feature correlation}
+
+Table~\ref{tab:afs:datasets} also displays the datasets' average feature correlation.
+In particular, we compute Spearman's rank correlation between each pair of features and take the absolute values to evaluate the strength of dependencies rather than their sign.
+For the datasets in our study, the average feature correlations are often weak, mostly below 0.3.
+Generally, correlated features indicate that alternative feature sets may exist.
+However, there are two caveats.
+First, rank correlation only captures certain types of dependencies, while our feature-selection criteria and prediction models are more general.
+Second, for optimal alternatives, the dependency between highly predictive features is crucial, while the dependency between unimportant features matters less.
+However, the table only shows the mean over all feature pairs.
 
 \subsection{Implementation and Execution}
 \label{sec:afs:experimental-design:implementation}
@@ -1299,7 +1329,7 @@ While simultaneous search can yield better feature sets in some scenarios, seque
 	\centering
 	\begin{tabular}{llrrr}
 		\toprule
-		Selection & Search & \multicolumn{3}{c}{Optimization status} \\
+		\multirow{2}{*}{Feature selection} & \multirow{2}{*}{Search} & \multicolumn{3}{c}{Optimization status} \\
 		\cmidrule(r){3-5}
 		& & Infeasible & Feasible & Optimal \\
 		\midrule
@@ -1329,7 +1359,7 @@ While simultaneous search can yield better feature sets in some scenarios, seque
 	\centering
 	\begin{tabular}{rrrr}
 		\toprule
-		$a$ & \multicolumn{3}{c}{Optimization status} \\
+		\multirow{2}{*}{$a$} & \multicolumn{3}{c}{Optimization status} \\
 		\cmidrule(r){2-4}
 		& Infeasible & Feasible & Optimal \\
 		\midrule
@@ -1372,7 +1402,7 @@ While we grant simultaneous searches proportionally more time for multiple alter
 	\centering
 	\begin{tabular}{lrrr}
 		\toprule
-		Selection & \multicolumn{3}{c}{Optimization time} \\
+		\multirow{2}{*}{Feature selection} & \multicolumn{3}{c}{Optimization time} \\
 		\cmidrule(r){2-4}
 		& Seq. & Sim. (min) & Sim. (sum) \\
 		\midrule
@@ -1394,7 +1424,7 @@ While we grant simultaneous searches proportionally more time for multiple alter
 	\centering
 	\begin{tabular}{lrrrrr}
 		\toprule
-		$a$ & \multicolumn{5}{c}{Optimization time} \\
+		\multirow{2}{*}{$a$} & \multicolumn{5}{c}{Optimization time} \\
 		\cmidrule(r){2-6}
 		& FCBF & Wrapper & MI & Model Gain & mRMR \\
 		\midrule
@@ -1632,7 +1662,11 @@ We use results with $k=10$ instead of $k=5$ here to show more distinct values of
 For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
 In contrast, the objective value decreases significantly for a high dissimilarity threshold, e.g., $\tau=1$.
 This trend is expected since a higher~$\tau$ constrains the feature selection more.
-As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, this phenomenon also holds for the test-set objective value, though the dependency on~$\tau$ is lower there.
+Further, datasets with more features~$n$ tend to experience a smaller decrease in quality over~$a$ and~$\tau$.
+As higher-dimensional datasets offer more options for alternatives, this observation makes sense.
+However, this effect is not guaranteed since datasets with many features could also contain many useless features instead of interesting alternatives.
+
+As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, the decreasing quality over $\tau$ also shows for the test-set objective value, though the trend is weaker there.
 The effect of~$\tau$ on prediction performance exhibits an even less clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
 This result underlines our previous observations that the objective value is only partially indicative of prediction performance.
 
@@ -1820,9 +1854,9 @@ Finally, one could employ a heuristic rather than an exact search method (cf.~Ap
 
 \paragraph{Datasets}
 
-Our evaluation used datasets from various domains (cf.~Section~\ref{sec:afs:experimental-design:datasets}).
+In the current article, we conducted a broad quantitative evaluation of alternative feature selection on datasets from various domains. (cf.~Section~\ref{sec:afs:experimental-design:datasets}).
 While we could uncover several general trends, the existence and quality of alternatives naturally depend on the dataset.
-Thus, practitioners could use our generic search methods for alternatives in domain-specific case studies and interpret the resulting alternatives qualitatively.
+Thus, practitioners may employ alternative feature selection in domain-specific case studies and evaluate the alternative feature sets qualitatively, thereby assessing their usefulness for interpretability.
 
 ~\\
 \noindent \textsc{Acknowledgments}\quad
