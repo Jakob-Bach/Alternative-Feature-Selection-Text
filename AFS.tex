@@ -56,7 +56,8 @@ We observe that alternative feature sets may indeed have high prediction quality
 
 Feature-selection methods are ubiquitous for a variety of reasons.
 By reducing dataset dimensionality, they lower the computational cost and memory requirements of prediction models.
-Next, prediction models may generalize better after removing irrelevant and spurious predictors.
+Next, prediction models may generalize better without irrelevant and spurious predictors.
+While some model types can implicitly select relevant features, others cannot.
 Finally, prediction models may become simpler~\cite{li2017feature}, improving interpretability.
 
 Most conventional feature-selection methods only return one feature set~\cite{borboudakis2021extending}.
@@ -119,7 +120,7 @@ We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-
 \paragraph{Experimental results}
 
 We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and parameters for searching alternatives.
-As expectable, feature-set quality tends to decrease with the number of alternatives and the dissimilarity threshold for alternatives.
+As expectable, feature-set quality tends to decrease with an increasing number of alternatives and an increasing dissimilarity threshold for alternatives.
 Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
 Also, even no valid alternative may exist if the parameter values are too strict.
 Computationally, a sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
@@ -145,13 +146,14 @@ In this section, we introduce basic notation (cf.~Section~\ref{sec:afs:fundament
 
 $X \in \mathbb{R}^{m \times n}$ stands for a dataset in the form of a matrix.
 Each row is a data object, and each column is a feature.
-$F = \{f_1, \dots, f_n\}$ is the corresponding set of feature names.
+$\tilde{F} = \{f_1, \dots, f_n\}$ is the corresponding set of feature names.
 We assume that categorical features have already been made numeric, e.g., via one-hot encoding.
 $X_{\cdot{}j} \in \mathbb{R}^m$ denotes the vector representation of the $j$-th feature.
 $y \in Y^m$ represents the prediction target with domain $Y$, e.g., $Y=\{0,1\}$ for binary classification or $Y=\mathbb{R}$ for regression.
 
 In feature selection, one makes a binary decision $s_j \in \{0,1\}$ for each feature, i.e., either selects it or not.
-The vector $s \in \{0,1\}^n$ combines all these selection decisions and yields the selected feature set $F_s = \{f_j \mid s_j=1\} \subseteq F$.
+The vector $s \in \{0,1\}^n$ combines all these selection decisions and yields the selected feature set $F_s = \{f_j \mid s_j=1\} \subseteq \tilde{F}$.
+To simplify notation, we drop the subscript~$s$ in definitions where we do not explicitly refer to the value of~$s$ but only the set~$F$.
 The function $Q(s,X,y)$ returns the quality of such a feature set.
 Without loss of generality, we assume that this function should be maximized.
 
@@ -160,6 +162,10 @@ Without loss of generality, we assume that this function should be maximized.
 
 There are different ways to evaluate feature-set quality $Q(s,X,y)$.
 We only give a short overview here; see~\cite{chandrashekar2014survey, li2017feature, njoku2023wrapper} for comprehensive studies and surveys of feature selection.
+Also, note that we assume a supervised feature-selection scenario, i.e., feature-set quality depending on a prediction target~$y$.
+In principle, our definitions of alternatives also apply to an unsupervised scenario.
+Since the prediction target only appears in the function~$Q(s,X,y)$, one could replace~$Q(s,X,y)$ with $Q(s,X)$, i.e., an unsupervised notion of quality.
+
 A conventional categorization of feature-selection methods distinguishes between filter, wrapper, and embedded methods~\cite{guyon2003introduction}.
 
 \paragraph{Filter methods}
@@ -1010,9 +1016,13 @@ We evaluate feature-set quality with two metrics.
 First, we report the \emph{objective value}~$Q(s,X,y)$ of the feature-selection methods, which guided the search for alternatives.
 Second, we train prediction models with the found feature sets.
 We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC)~\cite{matthews1975comparison}.
-This coefficient is insensitive to class imbalance, reaches its maximum of~1 for perfect predictions, and is~0 for random guessing.
-We conduct stratified five-fold cross-validation to analyze how well feature selection and prediction models generalize.
-The search for alternatives and model training are limited to the training data.
+This coefficient is insensitive to class imbalance, reaches its maximum of~1 for perfect predictions, and is~0 for random guessing as well as constant predictions.
+
+To analyze how well feature selection and prediction models generalize, we conduct a stratified five-fold cross-validation.
+The search for alternatives and model training only have access to the training data.
+However, we also use the test data to evaluate the quality of each feature set found with the training data.
+For the test-set objective value, we initialize the objective function with feature qualities computed on the test set but insert the feature selection from the training set.
+For the test-set prediction performance, we predict on the test set but use a prediction model trained with these features on the training set.
 
 \paragraph{Runtime}
 
@@ -1038,6 +1048,7 @@ We compare several approaches for making predictions (cf.~Section~\ref{sec:afs:e
 As prediction models, we use decision trees~\cite{breiman1984classification} and random forests with 100 trees \cite{breiman2001random}.
 Both these models admit learning complex, non-linear dependencies from the data.
 We leave the hyperparameters of the models at their defaults, except for using information gain instead of Gini impurity as the split criterion, to be consistent with our parametrization of filter feature-selection methods.
+Preliminary experiments with a k-nearest neighbors classifier yielded similar insights paired with a lower average prediction performance.
 
 Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
 Thus, they might not use all features from the alternative feature sets.
@@ -1106,6 +1117,9 @@ In particular, the quality of the `original' feature set, i.e., obtained by runn
 
 We analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) search for alternatives.
 For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
+In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these search methods.
+
+We vary the parameters of the search systematically:
 We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search and $a \in \{1, \dots, 5\}$ for simultaneous search due to the higher runtime of the latter.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the feature-set overlap in the Dice dissimilarity (cf.~Equations~\ref{eq:afs:dice} and~\ref{eq:afs:dice-rearranged-equal-size}).
 Thus, for $k=5$, we consider $\tau \in \{0.2, 0.4, 0.6, 0.8, 1.0\}$, corresponding to an overlap of four to zero features.
@@ -1917,6 +1931,9 @@ To actively foster balanced feature-set qualities in simultaneous search, we pro
 \end{equation}
 %
 In the terminology of social choice theory, this objective uses an egalitarian rule instead of a utilitarian one~\cite{myerson1981utilitarianism}.
+In particular, \emph{min-aggregation} maximizes the quality of the worst selected alternative.
+Thereby, it incentivizes all alternatives to have high quality and implicitly balances their quality.
+
 Note that optimizing the objective with either sum-aggregation or min-aggregation does not necessarily optimize the other.
 We already showed a solution optimizing sum-aggregation but not min-aggregation (cf.~Example~\ref{ex:afs:sum-aggregation}).
 In the following, we demonstrate the other direction:
@@ -2756,6 +2773,8 @@ Further, the correlation between optimization objective~$Q$ and prediction MCC i
 I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
 Among the five feature-selection methods, \emph{Greedy Wrapper} has the highest correlation between training-set objective value and test-set MCC, with a value of 0.48.
 Since this feature-selection method uses prediction performance in its objective, a comparatively high correlation is expected.
+The correlation still is far from perfect since the search procedure of \emph{Greedy Wrapper} evaluates feature sets with a validation split of the training set.
+MCC on this holdout set may not perfectly correspond to MCC on the test set, which is not used in the search.
 On the other end of the spectrum, \emph{mRMR} exhibits a correlation of -0.05 between training-set objective value and test-set MCC.
 This filter method penalizes the correlation between features in its objective.
 However, redundant features may not hurt prediction performance in decision trees, even if they do not improve it.
@@ -2808,7 +2827,7 @@ However, the number of possible feature sets is much higher, e.g., already $2^{1
 Over all experimental settings, 89\% of feature sets for \emph{FCBF} were infeasible, i.e., no solution satisfied the constraints.
 In contrast, this figure only is 18\% for \emph{MI}.
 Even the original feature set in sequential search is infeasible in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
-In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (c.f.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint, i.e., enforcing a feature-set size~$k$, may make the problem infeasible, especially if~$k$ gets larger.
+In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint, i.e., enforcing a feature-set size~$k$, may make the problem infeasible, especially if~$k$ gets larger.
 
 \paragraph{Influence of feature-set size~$k$}
 
