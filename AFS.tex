@@ -1607,7 +1607,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 		\centering
 		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max.pdf}
 		\caption{
-			Training-set objective value, max-normalized.
+			Training-set objective value.
 			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-train-objective-max}
@@ -1617,7 +1617,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 		\centering
 		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-fillna.pdf}
 		\caption{
-			Training-set objective value, max-normalized.
+			Training-set objective value.
 			Infeasible feature sets assigned a quality of~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna}
@@ -1627,7 +1627,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 		\centering
 		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max.pdf}
 		\caption{
-			Test-set objective value, max-norma\-lized.
+			Test-set objective value.
 			Infeasible feature sets excluded.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-test-objective-max}
@@ -1637,7 +1637,7 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 		\centering
 		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-test-objective-max-fillna.pdf}
 		\caption{
-			Test-set objective value, max-norma\-lized.
+			Test-set objective value.
 			Infeasible feature sets assigned a quality of~0.
 		}
 		\label{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}
@@ -1645,25 +1645,25 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-max.pdf}
 		\caption{
-			Test-set prediction performance, min-max-normalized.
+			Test-set prediction performance.
 			Infeasible feature sets excluded.
 		}
-		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}
+		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna.pdf}
 		\caption{
-			Test-set prediction performance, min-max-normalized.
+			Test-set prediction performance.
 			Infeasible feature sets assigned a quality of~0.
 		}
-		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna}
+		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean of feature-set quality, normalized per search run for alternatives, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric and normalization method.
+		Mean of feature-set quality, max-normalized per search run for alternatives, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric and normalization method.
 		Results from sequential search with \emph{MI} as the feature-selection method and $k=10$.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-quality}
@@ -1681,7 +1681,7 @@ As higher-dimensional datasets offer more options for alternatives, this observa
 However, this effect is not guaranteed since datasets with many features could also contain many useless features instead of interesting alternatives.
 
 As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, the decreasing quality over $\tau$ also shows for the test-set objective value, though the trend is weaker there.
-The effect of~$\tau$ on prediction performance exhibits an even less clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}.
+The effect of~$\tau$ on prediction performance exhibits an even less clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}.
 This result underlines our previous observations that the objective value is only partially indicative of prediction performance.
 
 \begin{figure}[t]
@@ -1711,8 +1711,8 @@ This result underlines our previous observations that the objective value is onl
 Similar to our analysis for the number of alternatives (cf.~Section~\ref{sec:afs:evaluation:num-alternatives}), one needs to consider that setting~$\tau$ too high can make the optimization problem infeasible.
 In particular, a higher dissimilarity threshold increases the likelihood that no feature set is alternative enough.
 Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes the fraction of valid feature sets over the number of alternatives and dissimilarity threshold~$\tau$.
-Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max-fillna} account for infeasible feature sets by setting their feature-set quality to zero.
-Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-min-max}, the decrease in feature-set quality is noticeably stronger.
+Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna} account for infeasible feature sets by setting their feature-set quality to zero.
+Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}, the decrease in feature-set quality is noticeably stronger.
 In contrast, if only considering valid feature sets, the mean quality can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$ or in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} for \emph{MI} and \emph{Model Gain}.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality may be determined for different sets of datasets at each number of alternatives.
 
