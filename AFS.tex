@@ -41,9 +41,11 @@ Conventional feature-selection methods typically yield one feature set only, whi
 For example, users might be interested in finding alternative feature sets with similar prediction quality, offering different explanations of the data.
 In this article, we introduce alternative feature selection and formalize it as an optimization problem.
 In particular, we define alternatives via constraints and enable users to control the number and dissimilarity of alternatives.
-Next, we analyze the complexity of this optimization problem and show $\mathcal{NP}$-hardness.
-Further, we discuss how to integrate conventional feature-selection methods as objectives.
-%TODO heuristics
+We consider sequential as well as simultaneous search for alternatives.
+Next, we discuss how to integrate conventional feature-selection methods as objectives.
+In particular, we propose solver-based methods search to tackle the optimization problem.
+Further, we analyze the complexity of this optimization problem and proof $\mathcal{NP}$-hardness.
+Additionally, we show that a constant-factor approximation exists under certain conditions and propose corresponding heuristic search methods.
 Finally, we evaluate alternative feature selection in comprehensive experiments with 30 binary-classification datasets.
 We observe that alternative feature sets may indeed have high prediction quality, and we analyze factors influencing this outcome.
 \end{abstract}
@@ -99,23 +101,26 @@ These approaches are not directly applicable or easily adaptable to feature sele
 
 \paragraph{Contributions}
 
-Our contribution is fourfold.
+Our contribution is five-fold.
 
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we define alternatives via constraints on feature sets.
 This approach is orthogonal to the feature-selection method itself so that users can choose the latter according to their needs.
 This approach also allows integrating other constraints on feature sets, e.g., to capture domain knowledge \cite{bach2022empirical, groves2015toward}.
 Finally, this approach lets users control the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold.
+For cases where users desire multiple alternatives, we consider sequential as well as simultaneous search.
 
-Second, we analyze the computational complexity of this optimization problem.
-We show $\mathcal{NP}$-hardness, even for a simple notion of feature-set quality.
-
-Third, we discuss how to solve this optimization problem.
+Second, we discuss how to solve this optimization problem.
 To that end, we describe how to integrate different categories of conventional feature-selection methods in the objective function of the optimization problem.
+In particular, we propose solver-based search methods for white-box and black-box optimization.
 
-%TODO heuristics
+Third, we analyze the computational complexity of the optimization problem.
+We show $\mathcal{NP}$-hardness, even for a simple notion of feature-set quality, i.e., univariate feature qualities, as used in filter feature selection.
 
-Fourth, we evaluate alternative feature selection with comprehensive experiments.
+Fourth, we propose heuristic search methods for univariate feature qualities.
+We show that, under certain conditions, the optimization problem resides in complexity class $\mathcal{APX}$, i.e., a constant-factor approximation exists.
+
+Fifth, we evaluate alternative feature selection with comprehensive experiments.
 In particular, we use 30 binary-classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
 We focus our evaluation on the feature-set quality of the alternatives relative to our user parameters.
 We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and experimental data\footnote{\url{https://doi.org/10.35097/1623}} online.
@@ -210,7 +215,7 @@ Second, we formalize the notion of alternatives via constraints (cf.~Section~\re
 Third, we discuss different objective functions corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
 In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
 Fourth, we analyze the computational complexity of the optimization problem (cf.~Section~\ref{sec:afs:approach:complexity}).
-%TODO heuristics
+Fifth, we propose and analyze heuristic search methods for the optimization problem (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
 
 \subsection{Optimization Problem}
 \label{sec:afs:approach:problem}
@@ -1000,7 +1005,7 @@ Finally, the heuristic assumes the same size~$k$ for all feature sets.
 \subsubsection{Greedy Balancing Search}
 \label{sec:afs:approach:univariate-heuristics:greedy-balancing}
 
-\emph{Greed Balancing Search} modifies \emph{Greedy Replacement Search} to obtain more balanced feature-set qualities with a simultaneous search procedure.
+\emph{Greed Balancing Search} modifies \emph{Greedy Replacement Search} to obtain more balanced feature-set qualities with a simultaneous search method.
 
 \begin{algorithm}[tp]
 	\DontPrintSemicolon
@@ -1398,8 +1403,7 @@ We conduct experiments with 30 binary-classification datasets.
 As evaluation metrics, we consider feature-set quality and runtime.
 We compare five feature-selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets and analyze prediction performance.
-To find alternatives, we consider simultaneous as well as sequential search.
-%TODO heuristics
+To find alternatives, we consider simultaneous as well as sequential search, both with solver-based and heuristic search methods.
 We systematically vary the number of alternatives~$a$ and the dissimilarity threshold~$\tau$.
 
 \subsection{Evaluation Metrics}
@@ -1488,37 +1492,55 @@ The interpretation is different, though, since the scores originate from trees t
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
 
-\paragraph{Optimization}
+\paragraph{Overview}
 
-We address the optimization problem of alternative feature selection with a solver.
-%TODO heuristics - define solver-based sequential/simultaneous search (see below)
-Thus, when we speak of \emph{sequential search} and \emph{simultaneous search} in the evaluation, we refer to the following solver-based optimization procedures rather than the optimization problems in general:
+In our evaluation, we categorize search methods for alternatives in two dimensions that are orthogonal to each other:
+Solver-based vs. heuristic and sequential vs. simultaneous.
+Also, we analyze the impact of the user parameters~$a$ and~$\tau$ on the search for alternatives.
+
+\paragraph{Solver-based search methods}
+
+In Sections~\ref{sec:afs:evaluation:solver-search-methods}, \ref{sec:afs:evaluation:num-alternatives}, and~\ref{sec:afs:evaluation:tau}, we use solver-based search methods to find alternative feature sets.
 For the four white-box feature-selection methods, we use the solver to exactly solve the underlying optimization problems.
 Thus, given sufficient solving time, these alternatives are globally optimal.
-With \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic and might not cover the entire search space.
+For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based) and might not cover the entire search space.
 There, the solver only assists in finding valid solutions but does not optimize.
 
-\paragraph{Competitors}
+For each feature selection method, we analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) solver-base search for alternatives.
+For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
+In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these solver-based search methods.
 
-As we discuss in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate with different notions of alternatives, and may only work for particular feature-selection methods.
-All these points prevent a meaningful comparison of these approaches to ours.
-E.g., a feature set considered alternative in related work might violate our constraints for alternatives.
-Further, within our search approaches, we can still put the feature-set quality into perspective by comparing alternatives to each other.
-In particular, the quality of the `original' feature set, i.e., obtained by running the feature-selection methods without constraints for alternatives, serves as a natural reference point.
+\paragraph{Heuristic search methods}
+
+In Section~\ref{sec:afs:evaluation:heuristic-search-methods}, we additionally compare solver-free heuristic search methods (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
+In particular, we employ \emph{Greedy Replacement} (cf.~Algorithm~\ref{al:afs:greedy-replacement}), which is a sequential search method, and \emph{Greedy Balancing} (cf.~Algorithm~\ref{al:afs:greedy-balancing}), which is a simultaneous search method.
+In figures and tables, we use the abbreviations \emph{rep.} and \emph{bal.} to denote these heuristic search methods.
+Since these heuristics assume univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), we only combine them with the univariate feature-selection methods \emph{MI} and \emph{Model Gain}.
 
 \paragraph{Search parametrization}
 
-We analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) search for alternatives.
-For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
-In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these solver-based search methods.
-%TODO heuristics - define solver-based sequential/simultaneous search (see above)
-
 We vary the parameters of the search systematically:
-We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search and $a \in \{1, \dots, 5\}$ for simultaneous search due to the higher runtime of the latter.
+We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search methods and $a \in \{1, \dots, 5\}$ for simultaneous search methods due to the potentially higher runtime of the latter.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the feature-set overlap in the Dice dissimilarity (cf.~Equations~\ref{eq:afs:dice} and~\ref{eq:afs:dice-rearranged-equal-size}).
 Thus, for $k=5$, we consider $\tau \in \{0.2, 0.4, 0.6, 0.8, 1.0\}$, corresponding to an overlap of four to zero features.
 For $k=10$, we consider $\tau \in \{0.1, 0.2, \dots, 1.0\}$.
 We exclude $\tau = 0$, which would allow returning duplicate feature sets.
+
+\paragraph{Timeout}
+
+In solver-based search, we employ a timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, which even occurs for optimization problems of the same size.
+In particular, we grant each solver call 60~s multiplied by the number of feature sets sought.
+Thus, solver-based sequential search conducts multiple solver calls with 60~s timeout each, while solver-based simultaneous search conducts one solver call with proportionally more time, e.g., 300~s for five feature sets (i.e., four alternatives).
+The summed timeout for a fixed number of alternatives is the same for both solver-based search methods.
+For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
+
+\paragraph{Competitors for search methods}
+
+As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate with different notions of alternatives, and may only work for particular feature-selection methods.
+All these points prevent a meaningful comparison of these approaches to ours.
+E.g., a feature set considered alternative in related work might violate our constraints for alternatives.
+Further, within our search methods, we can still put the feature-set quality into perspective by comparing alternatives to each other.
+In particular, the quality of the `original' feature set, i.e., obtained by running the feature-selection methods without constraints for alternatives, serves as a natural reference point.
 
 \begin{table}[p]
 	\centering
@@ -1567,14 +1589,6 @@ We exclude $\tau = 0$, which would allow returning duplicate feature sets.
 	\label{tab:afs:datasets}
 \end{table}
 
-\paragraph{Timeout}
-
-In solver-based search, we employ a timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, which even occurs for optimization problems of the same size.
-In particular, we grant each solver call 60~s multiplied by the number of feature sets sought.
-Thus, solver-based sequential search conducts multiple solver calls with 60~s timeout each, while solver-based simultaneous search conducts one solver call with proportionally more time, e.g., 300~s for five feature sets (i.e., four alternatives).
-The summed timeout for a fixed number of alternatives is the same for both solver-based search methods.
-For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
-
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
 
@@ -1617,7 +1631,7 @@ The parallelized pipeline run took 255~hours, i.e., about 10.6~days.
 \label{sec:afs:evaluation}
 
 In this section, we evaluate our experiments.
-In particular, we discuss the parametrization for searching alternatives: the search problem (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}), number of alternatives~$a$ (cf.~Section~\ref{sec:afs:evaluation:num-alternatives}), and dissimilarity threshold~$\tau$ (cf.~Section~\ref{sec:afs:evaluation:tau}).
+In particular, we discuss the parametrization for searching alternatives with solver-based search methods: the search method (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}), number of alternatives~$a$ (cf.~Section~\ref{sec:afs:evaluation:num-alternatives}), and dissimilarity threshold~$\tau$ (cf.~Section~\ref{sec:afs:evaluation:tau}).
 Further, we compare search heuristics for univariate feature qualities to solver-based optimization (cf.~Section~\ref{sec:afs:evaluation:heuristic-search-methods}).
 Section~\ref{sec:afs:evaluation:summary} summarizes key findings.
 Additionally, Appendix~\ref{sec:afs:appendix:evaluation} contains results for further dimensions of our experimental design.
@@ -2239,11 +2253,11 @@ Such alternative feature sets may provide alternative explanations for predictio
 
 In this article, we defined alternative feature selection as an optimization problem.
 We formalized alternatives via constraints that are independent of the feature-selection method, can be combined with other constraints on feature sets, and allow users to control diversity according to their needs with two parameters, i.e., the number of alternatives~$a$ and a dissimilarity threshold~$\tau$.
-We analyzed the complexity of this optimization problem and proved $\mathcal{NP}$-hardness, even for simple notions of feature-set quality.
-Further, we discussed how to integrate different categories of conventional feature-selection methods.
-%TODO heuristics
+Further, we discussed how to integrate different categories of conventional feature-selection methods as objectives.
+We also analyzed the complexity of this optimization problem and proved $\mathcal{NP}$-hardness, even for simple notions of feature-set quality.
+Additionally, we showed that the problem gives way to a constant-factor approximation under certain conditions, and we proposed corresponding heuristic search methods.
 Finally, we evaluated alternative feature selection with 30 classification datasets and five feature-selection methods.
-We compared three search problems for alternatives and varied the number of alternatives as well as the threshold for alternatives.
+We compared sequential and simultaneous search for alternatives, both with solver-based and heuristic search methods, and varied the number of alternatives as well as the threshold for alternatives.
 
 \subsection{Future Work}
 \label{sec:afs:conclusion:future-work}
@@ -2252,7 +2266,7 @@ We compared three search problems for alternatives and varied the number of alte
 
 One could search for alternatives with other feature-selection methods than the five we analyzed.
 In particular, we implemented only one procedure to find alternatives for wrapper feature selection (cf.~Section~\ref{sec:afs:approach:objectives:black-box}).
-Embedded feature selection, which we did not evaluate, would also need adapted search procedures for alternatives (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
+Embedded feature selection, which we did not evaluate, would also need adapted search methods for alternatives (cf.~Section~\ref{sec:afs:approach:objectives:embedding}).
 
 \paragraph{Alternatives (constraints)}
 
