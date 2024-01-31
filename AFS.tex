@@ -105,10 +105,10 @@ Our contribution is five-fold.
 
 First, we formalize alternative feature selection as an optimization problem.
 In particular, we define alternatives via constraints on feature sets.
-This approach is orthogonal to the feature-selection method itself so that users can choose the latter according to their needs.
+This approach is orthogonal to the feature-selection method so that users can choose the latter according to their needs.
 This approach also allows integrating other constraints on feature sets, e.g., to capture domain knowledge \cite{bach2022empirical, groves2015toward}.
 Finally, this approach lets users control the search for alternatives with two parameters, i.e., the number of alternatives and a dissimilarity threshold.
-For cases where users desire multiple alternatives, we consider sequential as well as simultaneous search.
+For multiple alternatives, we consider sequential as well as simultaneous search.
 
 Second, we discuss how to solve this optimization problem.
 To that end, we describe how to integrate different categories of conventional feature-selection methods in the objective function of the optimization problem.
@@ -133,9 +133,9 @@ As expectable, feature-set quality tends to decrease with an increasing number o
 Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
 Also, even no valid alternative may exist if the parameter values are too strict.
 Computationally, a solver-based sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
+Additionally, our heuristic search methods for univariate feature qualities achieved a high quality with negligible runtime.
 Finally, we observe that the prediction performance of feature sets may only weakly correlate with the quality assigned by feature-selection methods.
 In particular, seemingly bad alternatives regarding the latter might still be good regarding the former.
-%TODO heuristics
 
 \paragraph{Outline}
 
@@ -1608,7 +1608,8 @@ The test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-obje
 As Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, the variation in prediction performance caused by other dimensions of the experimental design, e.g., dataset, dissimilarity threshold~$\tau$, etc., exceeds the variation due to the choice of the solver-based search method.
 
 Finally, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in feature-set quality between solver-based sequential and simultaneous search compared on each search setting separately, i.e., each combination of dataset, dissimilarity threshold~$\tau$, etc.
-The figure again shows little variation in quality between the solver-based search methods except for \emph{Greedy Wrapper} feature selection.
+Positive values in this figure denote a higher quality of simultaneous-search solutions, while negative values denote a higher quality of sequential-search solutions.
+The figure matches previous results by showing little variation in quality between the solver-based search methods except for \emph{Greedy Wrapper} feature selection.
 In particular, the quality difference is usually close to zero, apart from a few outliers.
 Additionally, the figure highlights that outliers can occur in both directions:
 While solver-based simultaneous search can yield better feature sets in some scenarios, solver-based sequential search can be better in others.
@@ -1779,7 +1780,7 @@ Besides factors related to the datasets and experimental design, search heuristi
 	\end{subfigure}
 	\caption{
 		Feature-set quality, normalized per search run for alternatives, over the number of alternatives, by evaluation metric and normalization method.
-		Results from solver-based sequential search with \emph{MI} as feature-selection method and $k=5$.
+		Results from solver-based sequential search with \emph{MI} as the feature-selection method and $k=5$.
 	}
 	\label{fig:afs:impact-num-alternatives-quality}
 \end{figure}
@@ -2053,7 +2054,154 @@ Only considering infeasible feature sets results in decreased prediction perform
 \subsection{Heuristic Search Methods for Alternatives}
 \label{sec:afs:evaluation:heuristic-search-methods}
 
-%TODO heuristics
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-heuristics-stddev-train-objective.pdf}
+		\caption{Standard deviation of training-set objective value within search runs.}
+		\label{fig:afs:impact-search-heuristics-stddev-train-objective}
+	\end{subfigure}
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-heuristics-stddev-test-objective.pdf}
+		\caption{Standard deviation of test-set objective value within search runs.}
+		\label{fig:afs:impact-search-heuristics-stddev-test-objective}
+	\end{subfigure}
+	\caption{
+		Feature-set quality over the number of alternatives~$a$, by search method for alternatives (including heuristics) and evaluation metric.
+		Results with \emph{MI} as the feature-selection method and $k=5$.
+		Y-axes are truncated to improve readability.
+	}
+	\label{fig:afs:impact-search-heuristics-stddev}
+\end{figure}
+
+\paragraph{Variance in feature-set quality}
+
+Figure~\ref{fig:afs:impact-search-heuristics-stddev} shows how feature-set qualities varies over alternatives within individual search runs for alternatives.
+The figure uses \emph{MI} as the feature-selection method but results for \emph{Model Gain} are similar.
+Also, this figure is similar to Figure~\ref{fig:afs:impact-search-stddev-train-objective} from our analysis of solver-based search methods but includes heuristic search methods.
+
+For the training-set objective value (cf.~Figure~\ref{fig:afs:impact-search-heuristics-stddev-train-objective}), we observe that the heuristic \emph{Greedy Balancing} yields a small variance of quality within search runs, very similar to the solver-based simultaneous search with min-aggregation.
+While the variance within search runs produced by the heuristic is slightly higher than for the solver-based search, this difference is barely visible in the figure.
+In contrast, the heuristic \emph{Greedy Replacement} rather mimics solver-based sequential search, having a substantial variance over alternatives within search runs.
+Also, the variance of \emph{Greedy Replacement} noticeably grows with the number of alternatives~$a$ and the dissimilarity threshold~$\tau$.
+For \emph{Greedy Balancing}, the increase in variance over~$a$ also exists but is considerably smaller.
+
+For the test-set objective value (cf.~Figure~\ref{fig:afs:impact-search-heuristics-stddev-train-objective}) and the test-set prediction performance, the variance within search runs differs less between the different search methods for alternatives.
+As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:solver-search-methods}, this phenomenon may be caused by overfitting, i.e., the training-set quality does not perfectly correspond to the test-set quality, thereby introducing additional variance.
+
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-num-alternatives.pdf}
+		\caption{Between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the number of alternatives~$a$.}
+		\label{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-num-alternatives.pdf}
+		\caption{
+			Between solver-based sequential search and \emph{Greedy Replacement}, over the number of alternatives~$a$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-tau.pdf}
+		\caption{Between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over dissimilarity threshold~$\tau$.}
+		\label{fig:afs:impact-search-heuristics-metric-diff-sim-tau}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-tau.pdf}
+		\caption{
+			Between solver-based sequential search and \emph{Greedy Replacement}, over dissimilarity threshold~$\tau$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-seq-tau}
+	\end{subfigure}
+	\caption{
+		Difference in training-set objective value between solver-based and heuristic search methods for alternatives, over user parameters~$a$ and~$\tau$, by feature-selection method and search methods.
+		Results with $k=5$.
+	}
+	\label{fig:afs:impact-search-heuristics-metric-diff}
+\end{figure}
+
+\paragraph{Average value of feature-set quality}
+
+Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} compares the average training-set objective value of alternatives within search runs for each search setting separately, like Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} does.
+Positive values in Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} mean that solver-based search is better, negative values favor heuristic search.
+The latter can only happen if solver-based search runs into timeouts and therefore may yield suboptimal solutions, which is the case for solver-based simultaneous search (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}).
+
+Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives} compare solver-based and heuristic search over the number of alternatives~$a$.
+For $a=1$, solver-based and heuristic search yield the same training-set objective value except when timeouts occur.
+The more alternatives are desired, the more advantageous a solver-based search is in terms of training-set objective value.
+As in prior analyses, the picture is less clear on the test set.
+In particular, the quality advantage of solver-based search is smaller for the test-objective value than for the training-set objective value and vanishes for the test-set prediction performance.
+
+Further, the difference in training-set objective value between \emph{Greedy Balancing} and solver-based simultaneous search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}) grows faster with~$a$ than between \emph{Greedy Replacement} and solver-based sequential search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}).
+This phenomenon may be explained by the fact simultaneous search generally can develop an advantage over sequential search with a higher number of alternatives.
+While \emph{Greedy Balancing} is a simultaneous search heuristic in the sense that it balances the quality of the alternatives, it selects the same feature as \emph{Greedy Replacement}, i.e., a sequential search heuristic, and only distributes them differently into feature sets.
+
+Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-tau} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-tau} compare solver-based and heuristic search over the dissimilarity threshold~$\tau$.
+Unlike for~$a$, the difference in training-set objective value between solver-based and heuristic search does not increase over the whole range of~$\tau$ but shows an increase followed by a decrease.
+In particular, $\tau=1$ allows the two heuristic search methods to reach the same training-set objective value as the solver-based methods.
+This observation corresponds to our theoretical result that optimizing the summed quality of alternatives with~$\tau=1$ admits polynomial-time algorithms (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
+
+Regarding the feature-selection methods, \emph{MI} exhibits a larger difference in training-set objective value between solver-based and heuristic search than \emph{Model Gain}, which is also visible in Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}.
+In particular, the univariate feature qualities computed by \emph{Model Gain} in our experiments may have a distribution where heuristic search is closer to the optimum than for \emph{MI}-based feature qualities.
+
+\begin{table}[t]
+	\centering
+	\begin{tabular}{llrrrr}
+		\toprule
+		\multirow{2}{*}{Feature selection} & \multirow{2}{*}{Search} & \multicolumn{4}{c}{Optimization status} \\
+		\cmidrule(r){3-6}
+		& & Infeasible & Not solved & Feasible & Optimal \\
+		\midrule
+		MI & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		MI & rep. & 0.00\% & 3.60\% & 96.40\% & 0.00\% \\
+		MI & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		MI & sim. (min) & 4.67\% & 0.00\% & 9.15\% & 86.19\% \\
+		MI & sim. (sum) & 4.67\% & 0.00\% & 2.88\% & 92.45\% \\
+		Model Gain & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		Model Gain & rep. & 0.00\% & 3.60\% & 96.40\% & 0.00\% \\
+		Model Gain & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.17\% & 90.16\% \\
+		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.84\% & 93.49\% \\
+		\bottomrule
+	\end{tabular}
+	\caption{
+		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by feature-selection method and search method for alternatives.
+		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
+		Each row adds up to 100\%.
+	}
+	\label{tab:afs:impact-search-heuristics-fs-method-optimization-status}
+\end{table}
+
+\paragraph{Optimization status}
+
+Table~\ref{tab:afs:impact-search-heuristics-fs-method-optimization-status} displays the frequency of optimization statuses for the different search methods.
+We only use \emph{not solved} and \emph{infeasible} as statuses for the two heuristic search methods, as they are neither guaranteed to find the optimum nor to prove infeasibility if they terminate early.
+The status \emph{feasible} for solver-based simultaneous search indicates timeouts, which explain why \emph{Greedy Balancing} may be better in some cases (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}).
+
+The table shows that \emph{Greedy Replacement} more often did not find a valid alternative (3.6\%) than solver-based sequential search (1.97\%).
+A similar phenomenon occurred for \emph{Greedy Replacement} (9.2\%) compared to solver-based simultaneous search (4.67\%).
+One can expect such a result, since the termination criterion of both heuristic search methods causes them to terminate early as soon as each feature is part of at least one alternative.
+The latter criterion does not prevent further solutions to exist, but one would need a new strategy to enumerate further valid alternatives.
+Finally, the fraction of \emph{not solved} outcomes is higher for \emph{Greedy Balancing} than for \emph{Greedy Replacement} since the latter only yields all alternatives or none, consistent to solver-based simultaneous search, while the former may also yield less alternatives than requested if it is forced to terminate early.
+However, one could also easily adapt \emph{Greedy Balancing} to yield as many alternatives as feasible in cases it would have to terminate early.
+
+\paragraph{Optimization time}
+
+The optimization time of the heuristic search methods is negligible.
+In particular, \emph{Greedy Replacement} and \emph{Greedy Balancing} never took longer than 1~ms per search run for alternatives.
+As discussed in Section~\ref{sec:afs:evaluation:solver-search-methods}, solver-based sequential search required less than 1~s on average for \emph{MI} and \emph{Model Gain} as feature-selection methods (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-time}), while solver-based simultaneous search sometimes did not even finish within the 1-min timeout per alternative (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}).
+These results highlight the runtime advantage of the heuristics, particularly of \emph{Greedy Balancing} to search alternatives simultaneously.
 
 \subsection{Summary}
 \label{sec:afs:evaluation:summary}
@@ -2101,7 +2249,10 @@ In any case, a higher~$\tau$ naturally caused more infeasible solutions, which u
 
 \paragraph{Heuristic search methods for alternatives (cf.~Section~\ref{sec:afs:evaluation:heuristic-search-methods})}
 
-%TODO heuristics
+The heuristic search methods \emph{Greedy Replacement} and \emph{Greedy Balancing} for univariate feature qualities achieved a good feature-set quality relative to solver-based search, particularly for a low number of alternatives and on the test set.
+Apart from noticeable differences in training-set objective value for a high number of alternatives, users should be aware that the heuristics may stop in situations where solver-based search can still find further alternatives.
+As a positive point, both the heuristics' runtime was negligible.
+Also, \emph{Greedy Balancing} achieved a low variance of training-set objective value between alternatives found simultaneously, similar to solver-based simultaneous search with min-aggregation.
 
 \section{Conclusions and Future Work}
 \label{sec:afs:conclusion}
