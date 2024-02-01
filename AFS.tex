@@ -1622,16 +1622,16 @@ While solver-based simultaneous search can yield better feature sets in some sce
 		\cmidrule(r){3-5}
 		& & Infeasible & Feasible & Optimal \\
 		\midrule
-		FCBF & seq. & 66.39\% & 0.00\% & 33.61\% \\
+		FCBF & seq. & 74.51\% & 0.00\% & 25.49\% \\
 		FCBF & sim. (min) & 73.07\% & 1.73\% & 25.20\% \\
 		FCBF & sim. (sum) & 73.07\% & 2.19\% & 24.75\% \\
-		MI & seq. & 1.97\% & 0.00\% & 98.03\% \\
-		MI & sim. (min) & 4.67\% & 9.60\% & 85.73\% \\
-		MI & sim. (sum) & 4.67\% & 3.17\% & 92.16\% \\
-		Model Gain & seq. & 1.97\% & 0.00\% & 98.03\% \\
-		Model Gain & sim. (min) & 4.67\% & 5.55\% & 89.79\% \\
-		Model Gain & sim. (sum) & 4.67\% & 1.92\% & 93.41\% \\
-		mRMR & seq. & 1.95\% & 8.67\% & 89.38\% \\
+		MI & seq. & 4.93\% & 0.00\% & 95.07\% \\
+		MI & sim. (min) & 4.67\% & 9.15\% & 86.19\% \\
+		MI & sim. (sum) & 4.67\% & 2.88\% & 92.45\% \\
+		Model Gain & seq. & 4.93\% & 0.00\% & 95.07\% \\
+		Model Gain & sim. (min) & 4.67\% & 5.17\% & 90.16\% \\
+		Model Gain & sim. (sum) & 4.67\% & 1.84\% & 93.49\% \\
+		mRMR & seq. & 4.88\% & 9.63\% & 85.49\% \\
 		mRMR & sim. (min) & 4.67\% & 49.04\% & 46.29\% \\
 		mRMR & sim. (sum) & 4.67\% & 67.39\% & 27.95\% \\
 		\bottomrule
@@ -1656,7 +1656,7 @@ While solver-based simultaneous search can yield better feature sets in some sce
 		2 & 17.50\% & 13.43\% & 69.07\% \\
 		3 & 20.00\% & 20.40\% & 59.60\% \\
 		4 & 27.00\% & 21.47\% & 51.53\% \\
-		5 & 28.23\% & 30.47\% & 41.30\% \\
+		5 & 28.23\% & 30.00\% & 41.77\% \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -1673,9 +1673,9 @@ One reason why solver-based simultaneous search fails to consistently beat solve
 For \emph{Greedy Wrapper}, the search is heuristic per se and does not cover the entire search space.
 For all feature-selection methods, the solver can time out.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} shows that solver-based simultaneous search has a higher likelihood of timeouts than solver-based sequential search, likely due to the larger size of the optimization problem (cf.~Table~\ref{tab:afs:seq-sim-comparison}).
-In particular, for up to five alternatives and $k=5$, all solver-based sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility, while \emph{mRMR} had about 9\% timeouts.
+In particular, for up to five alternatives and $k=5$, all solver-based sequential searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain} finished within the timeout, i.e., yielded the optimal feature set or ascertained infeasibility, while \emph{mRMR} had about 10\% timeouts.
 In contrast, for solver-based simultaneous search with sum-aggregation, all feature-selection methods experience timeouts:
-Roughly 2-3\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution but could not prove optimality.
+1-3\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution but could not prove optimality.
 Such timeout-affected simultaneous solutions can be worse than optimal sequential solutions.
 The optimization status \emph{not solved}, i.e., not finding a feasible solution without proving infeasibility, did not occur in the displayed results.
 The feature-selection method \emph{mRMR} is especially prone to suboptimal solutions, likely because it has a more complex objective than~\emph{MI} and \emph{Model Gain}.
@@ -1697,8 +1697,8 @@ While we grant solver-based simultaneous searches proportionally more time for m
 		\midrule
 		FCBF & 0.22~s & 11.91~s & 13.09~s \\
 		Greedy Wrapper & 54.23~s & 61.10~s & 63.45~s \\
-		MI & 0.03~s & 48.25~s & 25.39~s \\
-		Model Gain & 0.03~s & 30.91~s & 19.98~s \\
+		MI & 0.02~s & 46.36~s & 24.19~s \\
+		Model Gain & 0.02~s & 29.46~s & 18.79~s \\
 		mRMR & 34.12~s & 157.87~s & 189.76~s \\
 		\bottomrule
 	\end{tabular}
@@ -1717,11 +1717,11 @@ While we grant solver-based simultaneous searches proportionally more time for m
 		\cmidrule(r){2-6}
 		& FCBF & Wrapper & MI & Model Gain & mRMR \\
 		\midrule
-		1 & 0.52~s & 25.94~s & 0.03~s & 0.02~s & 44.99~s \\
-		2 & 0.95~s & 39.44~s & 0.09~s & 0.08~s & 118.80~s \\
-		3 & 3.26~s & 56.52~s & 0.31~s & 0.27~s & 208.90~s \\
-		4 & 14.02~s & 86.13~s & 3.84~s & 3.59~s & 258.40~s \\
-		5 & 46.71~s & 109.20~s & 122.69~s & 95.94~s & 317.69~s \\
+		1 & 0.52~s & 25.94~s & 0.02~s & 0.02~s & 44.99~s \\
+		2 & 0.95~s & 39.44~s & 0.07~s & 0.06~s & 118.80~s \\
+		3 & 3.26~s & 56.52~s & 0.25~s & 0.22~s & 208.90~s \\
+		4 & 14.02~s & 86.13~s & 3.39~s & 3.19~s & 258.40~s \\
+		5 & 46.71~s & 109.20~s & 117.21~s & 90.49~s & 317.69~s \\
 		\bottomrule
 	\end{tabular}
 	\caption{
@@ -2164,13 +2164,13 @@ In particular, the univariate feature qualities computed by \emph{Model Gain} in
 		& & Infeasible & Not solved & Feasible & Optimal \\
 		\midrule
 		MI & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		MI & rep. & 0.00\% & 3.60\% & 96.40\% & 0.00\% \\
-		MI & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		MI & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		MI & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
 		MI & sim. (min) & 4.67\% & 0.00\% & 9.15\% & 86.19\% \\
 		MI & sim. (sum) & 4.67\% & 0.00\% & 2.88\% & 92.45\% \\
 		Model Gain & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		Model Gain & rep. & 0.00\% & 3.60\% & 96.40\% & 0.00\% \\
-		Model Gain & seq. & 1.97\% & 0.00\% & 0.00\% & 98.03\% \\
+		Model Gain & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		Model Gain & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
 		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.17\% & 90.16\% \\
 		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.84\% & 93.49\% \\
 		\bottomrule
@@ -2189,12 +2189,10 @@ Table~\ref{tab:afs:impact-search-heuristics-fs-method-optimization-status} displ
 We only use \emph{not solved} and \emph{infeasible} as statuses for the two heuristic search methods, as they are neither guaranteed to find the optimum nor to prove infeasibility if they terminate early.
 The status \emph{feasible} for solver-based simultaneous search indicates timeouts, which explain why \emph{Greedy Balancing} may be better in some cases (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}).
 
-The table shows that \emph{Greedy Replacement} more often did not find a valid alternative (3.6\%) than solver-based sequential search (1.97\%).
+The table shows that \emph{Greedy Replacement} more often did not find a valid alternative (9.2\%) than solver-based sequential search (4.93\%).
 A similar phenomenon occurred for \emph{Greedy Replacement} (9.2\%) compared to solver-based simultaneous search (4.67\%).
 One can expect such a result, since the termination criterion of both heuristic search methods causes them to terminate early as soon as each feature is part of at least one alternative.
 The latter criterion does not prevent further solutions to exist, but one would need a new strategy to enumerate further valid alternatives.
-Finally, the fraction of \emph{not solved} outcomes is higher for \emph{Greedy Balancing} than for \emph{Greedy Replacement} since the latter only yields all alternatives or none, consistent to solver-based simultaneous search, while the former may also yield less alternatives than requested if it is forced to terminate early.
-However, one could also easily adapt \emph{Greedy Balancing} to yield as many alternatives as feasible in cases it would have to terminate early.
 
 \paragraph{Optimization time}
 
@@ -2919,7 +2917,7 @@ This variation justifies our normalization of feature-set quality when analyzing
 	\end{subfigure}
 	\caption{
 		Feature-set quality by evaluation metric.
-		Results from all search runs.
+		Results from all solver-based search runs.
 	}
 	\label{fig:afs:evaluation-metrics}
 \end{figure}
@@ -2928,12 +2926,12 @@ This variation justifies our normalization of feature-set quality when analyzing
 
 As one can expect, random forests have a higher average prediction performance than decision trees.
 Further, both model types exhibit overfitting, i.e., there is a gap between training-set and test-set performance.
-In particular, over all experimental settings, both model types have a mean training-set MCC around 0.85-0.86 (median: 1.0).
+In particular, over all feature sets from solver-based search runs, both model types have a mean training-set MCC around 0.85-0.86 (median: 1.0).
 In contrast, decision trees have a mean MCC of 0.47 (median: 0.53) on the test set, while random forests have a slightly higher mean MCC of 0.52 (median: 0.61).
 I.e., prediction performance is significantly worse on the test set than on the training set.
 The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of the trees or prune them after training.
 
-As another comparison, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of the difference between training and test feature-set quality, again over all experimental settings.
+As another comparison, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of the difference between training and test feature-set quality, again over all feature sets from solver-based search runs.
 Once more, we observe that training feature-set quality is usually higher, i.e., the difference shown in the figure is greater than zero.
 However, this phenomenon does not invalidate our analysis of how feature-set quality develops over alternatives.
 The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than prediction performance.
@@ -2941,14 +2939,14 @@ Thus, Section~\ref{sec:afs:evaluation} considers the training and test set for t
 
 \paragraph{Correlation between evaluation metrics}
 
-Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics over all experimental settings:
+Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics over all feature sets from solver-based search runs:
 First, we compute the correlation between metrics for each combination of dataset, cross-validation fold, and feature-selection method.
 Second, we average the correlation values over these three experimental dimensions.
 This two-step procedure accounts for the different objectives of feature-selection methods and the normalization of quality per dataset and cross-validation fold in some objectives (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}).
 The plot shows that the performance of decision trees and random forests is highly correlated.
 Thus, we only report MCC of decision trees in Section~\ref{sec:afs:evaluation}, which are the simpler model type and always consider all features during training rather than randomly sampling them.
 
-Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlation between training and test feature-set quality is only moderate for the optimization objective~$Q$ and weak for prediction performance in terms of MCC.
+Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlation between training and test feature-set quality over all solver-based search runs is only moderate for the optimization objective~$Q$ and weak for prediction performance in terms of MCC.
 This result might be caused by overfitting, whose strength may depend on the experimental settings.
 Further, the correlation between optimization objective~$Q$ and prediction MCC is only weak to moderate as well.
 I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
@@ -3005,7 +3003,7 @@ In particular, \emph{Greedy Wrapper} performed 629 iterations on average (median
 However, the number of possible feature sets is much higher, e.g., already $2^{15}=32768$ for the lowest-dimensional datasets in our evaluation (cf.~Table~\ref{tab:afs:datasets}).
 
 \emph{FCBF}'s results may be taken with a grain of salt:
-Over all experimental settings, 89\% of feature sets for \emph{FCBF} were infeasible, i.e., no solution satisfied the constraints.
+Over all solver-based search runs, 89\% of the feature sets for \emph{FCBF} were infeasible, i.e., no solution satisfied the constraints.
 In contrast, this figure only is 18\% for \emph{MI}.
 Even the original feature set in solver-based sequential search is infeasible in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
 In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint, i.e., enforcing a feature-set size~$k$, may make the problem infeasible, especially if~$k$ gets larger.
