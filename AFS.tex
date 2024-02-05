@@ -2275,7 +2275,7 @@ Further, we discussed how to integrate different categories of conventional feat
 We also analyzed the complexity of this optimization problem and proved $\mathcal{NP}$-hardness, even for simple notions of feature-set quality.
 Additionally, we showed that the problem gives way to a constant-factor approximation under certain conditions, and we proposed corresponding heuristic search methods.
 Finally, we evaluated alternative feature selection with 30 classification datasets and five feature-selection methods.
-We compared sequential and simultaneous search for alternatives, both with solver-based and heuristic search methods, and varied the number of alternatives as well as the threshold for alternatives.
+We compared sequential and simultaneous search for alternatives, both with solver-based and heuristic search methods, and varied the number of alternatives as well as the dissimilarity threshold for alternatives.
 
 \subsection{Future Work}
 \label{sec:afs:conclusion:future-work}
@@ -2296,7 +2296,7 @@ E.g., one could use soft instead of hard constraints.
 
 \paragraph{Runtime}
 
-Our experiments (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}) and theoretical analyses (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that solver-based simultaneous search scales poorly with the number of alternatives.
+Our experiments (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}) and theoretical analyses (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that exact simultaneous search scales poorly with the number of alternatives.
 One could conceive a more efficient problem formulation.
 Further, one could limit the solver runtime and take the intermediate results once the timeout is reached.
 We already used a fixed timeout in our experiments, but studying the exact influence of timeouts on feature-set quality is an open topic.
@@ -2306,8 +2306,8 @@ Finally, one could develop further simultaneous heuristics (cf.~Section~\ref{sec
 \paragraph{Datasets}
 
 In the current article, we conducted a broad quantitative evaluation of alternative feature selection on datasets from various domains. (cf.~Section~\ref{sec:afs:experimental-design:datasets}).
-While we could uncover several general trends, the existence and quality of alternatives naturally depend on the dataset.
-Thus, practitioners may employ alternative feature selection in domain-specific case studies and evaluate the alternative feature sets qualitatively, thereby assessing their usefulness for interpretability.
+While we uncovered several general trends, the existence and quality of alternatives naturally depend on the dataset.
+Thus, practitioners may employ alternative feature selection in domain-specific case studies and evaluate the alternative feature sets qualitatively, thereby assessing their usefulness for interpreting predictions.
 
 ~\\
 \noindent \textsc{Acknowledgments}\quad
@@ -2706,9 +2706,9 @@ For analyzing other scenarios of alternative feature selection, several question
 First, one could establish a complexity result like $\mathcal{NP}$-hardness or membership in~$\mathcal{P}$.
 In the former case, there might be pseudo-polynomial approaches or (F)PTAS.
 As a first step in that direction, we showed membership in complexity class~$\mathcal{APX}$ under certain conditions (cf.~Proposition~\ref{prop:afs:approximation-apx}), i.e., there are polynomial-time algorithms yielding constant-factor approximations.
-One might attempt to tighten the quality bounds we derived.
+One may attempt to tighten the quality bound we derived.
 Further, there might be efficient exact or approximate algorithms for certain types of problem instances, e.g., satisfying additional assumptions regarding feature-set quality or the parameters~$k$, $a$, and $\tau$.
-Finally, while we placed alternative feature selection in class~$\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-simultaneuos-xp}), one might prove membership or hardness for more specific parameterized complexity classes.
+Finally, while we placed alternative feature selection in the parameterized complexity class~$\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-simultaneuos-xp}), one might prove membership or hardness for more specific parameterized complexity classes.
 
 \paragraph{Related problem formulations}
 
