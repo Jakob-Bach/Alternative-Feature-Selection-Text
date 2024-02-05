@@ -43,7 +43,7 @@ In this article, we introduce alternative feature selection and formalize it as 
 In particular, we define alternatives via constraints and enable users to control the number and dissimilarity of alternatives.
 We consider sequential as well as simultaneous search for alternatives.
 Next, we discuss how to integrate conventional feature-selection methods as objectives.
-In particular, we propose solver-based search methods to tackle the optimization problem.
+In particular, we describe solver-based search methods to tackle the optimization problem.
 Further, we analyze the complexity of this optimization problem and prove $\mathcal{NP}$-hardness.
 Additionally, we show that a constant-factor approximation exists under certain conditions and propose corresponding heuristic search methods.
 Finally, we evaluate alternative feature selection in comprehensive experiments with 30 binary-classification datasets.
@@ -81,12 +81,12 @@ This article addresses the problem of alternative feature selection, which we in
 Find multiple, sufficiently different feature sets that optimize feature-set quality.
 We provide formal definitions in Section~\ref{sec:afs:approach:constraints}.
 This problem entails an interesting trade-off:
-Depending on how different the alternatives should be, one might have to compromise on quality.
-In particular, a stronger dissimilarity requirement might require selecting more low-quality features in the alternatives.
+Depending on how many alternatives are desired and how different the alternatives should be, one may have to compromise on quality.
+In particular, a higher number of alternatives or a stronger dissimilarity requirement may necessitate selecting more low-quality features in the alternatives.
 
 Two points are essential for alternative feature selection, which we both address in this article.
 First, one needs to formalize and quantify what an alternative feature set is.
-In particular, users should be able to control the dissimilarity of alternatives and hence the aforementioned quality trade-off.
+In particular, users should be able to control the number and dissimilarity of alternatives and hence the quality trade-off.
 Second, one needs an approach to find alternative feature sets efficiently.
 Ideally, the approach should be general, i.e., cover a broad range of conventional feature-selection methods, given the variety of the latter~\cite{chandrashekar2014survey, li2017feature}.
 
@@ -112,28 +112,29 @@ For multiple alternatives, we consider sequential as well as simultaneous search
 
 Second, we discuss how to solve this optimization problem.
 To that end, we describe how to integrate different categories of conventional feature-selection methods in the objective function of the optimization problem.
-In particular, we propose solver-based search methods for white-box and black-box optimization.
+In particular, we outline solver-based search methods for white-box and black-box optimization.
 
 Third, we analyze the computational complexity of the optimization problem.
 We show $\mathcal{NP}$-hardness, even for a simple notion of feature-set quality, i.e., univariate feature qualities, as used in filter feature selection.
 
 Fourth, we propose heuristic search methods for univariate feature qualities.
-We show that, under certain conditions, the optimization problem resides in complexity class $\mathcal{APX}$, i.e., a constant-factor approximation exists.
+We show that, under certain conditions, the optimization problem resides in the complexity class $\mathcal{APX}$, i.e., a constant-factor approximation exists.
 
 Fifth, we evaluate alternative feature selection with comprehensive experiments.
 In particular, we use 30 binary-classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
-We focus our evaluation on the feature-set quality of the alternatives relative to our user parameters.
+We focus our evaluation on the feature-set quality of the alternatives relative to our search methods for alternatives and user parameters.
+Additionally, we evaluate runtime.
 We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and experimental data\footnote{\url{https://doi.org/10.35097/1623}} online.
 %TODO new link to experimental data
 
 \paragraph{Experimental results}
 
-We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, and parameters for searching alternatives.
-As expectable, feature-set quality tends to decrease with an increasing number of alternatives and an increasing dissimilarity threshold for alternatives.
+We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, search method, and user parameters for searching alternatives.
+As expected, feature-set quality tends to decrease with an increasing number of alternatives and an increasing dissimilarity threshold for alternatives.
 Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
-Also, even no valid alternative may exist if the parameter values are too strict.
-Computationally, a solver-based sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
-Additionally, our heuristic search methods for univariate feature qualities achieved a high quality with negligible runtime.
+Also, no valid alternative may exist if the parameter values are too strict.
+Runtime-wise, a solver-based sequential search for multiple alternatives was significantly faster than a simultaneous one while yielding a similar quality.
+Additionally, our heuristic search methods for univariate feature qualities achieved a high quality within negligible runtime.
 Finally, we observe that the prediction performance of feature sets may only weakly correlate with the quality assigned by feature-selection methods.
 In particular, seemingly bad alternatives regarding the latter might still be good regarding the former.
 
