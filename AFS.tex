@@ -210,13 +210,12 @@ In particular, assessing feature importance plays a crucial role in the field of
 \section{Alternative Feature Selection}
 \label{sec:afs:approach}
 
-In this section, we present the problem and approaches for alternative feature selection.
+In this section, we present the problem of and approaches for alternative feature selection.
 First, we define the overall structure of the optimization problem, i.e., objective and constraints (cf.~Section~\ref{sec:afs:approach:problem}).
 Second, we formalize the notion of alternatives via constraints (cf.~Section~\ref{sec:afs:approach:constraints}).
-Third, we discuss different objective functions corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality}.
-In particular, we describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
+Third, we discuss objective functions corresponding to different feature-set quality measures from Section~\ref{sec:afs:fundamentals:quality} and describe how to solve the resulting optimization problem (cf.~Section~\ref{sec:afs:approach:objectives}).
 Fourth, we analyze the computational complexity of the optimization problem (cf.~Section~\ref{sec:afs:approach:complexity}).
-Fifth, we propose and analyze heuristic search methods for the optimization problem (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
+Fifth, we propose and analyze heuristic search methods for the optimization problem with univariate feature qualities (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
 
 \subsection{Optimization Problem}
 \label{sec:afs:approach:problem}
@@ -915,7 +914,7 @@ We continue this procedure until we reach the desired number of alternatives~$a$
 	The original feature set~$s^{(0)}$ consists of the top $k=5$ features regarding quality~$q_j$.
 	The first alternative~$s^{(1)}$ consists of the top $\lfloor (1 - \tau) \cdot k \rfloor = 3$ features plus the sixth- and seventh-best feature.
 	The second alternative~$s^{(2)}$ consists of the top three features plus the eighth- and ninth-best one.
-	The algorithm has to stop at $i=2$ since there are not enough unused features to form further alternatives in the same manner.
+	The algorithm cannot continue beyond $i=2$ since there are not enough unused features to form further alternatives in the same manner.
 	\label{ex:afs:greedy-replacement:algorithm}
 \end{example}
 %
@@ -929,7 +928,7 @@ In particular, after selecting a feature in an alternative, $feature\_position$ 
 The maximum value of this variable depends on~$a$ and~$k$ (Line~\ref{al:afs:greedy-replacement:line:stop}) but cannot exceed the total number of features~$n$.
 For each $feature\_position$, the algorithm accesses the arrays $indices$ and $s^{(i)}$ (Lines~\ref{al:afs:greedy-replacement:line:one-disjoint-feature-start}--\ref{al:afs:greedy-replacement:line:one-disjoint-feature-end}).
 Further, each alternative $s^{(i)}$ gets initialized as the selection~$s$ of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features (Line~\ref{al:afs:greedy-replacement:line:copy-common-selection}), which the algorithm only needs to determine once before the main loop (Lines~\ref{al:afs:greedy-replacement:line:common-features-start}--\ref{al:afs:greedy-replacement:line:common-features-end}).
-Each of these array operations runs in $O(n)$ or faster.
+Each array operation runs in $O(n)$ or faster.
 Combining the cost per $feature\_position$ with the number of $feature\_position$s, the overall time complexity is~$O(n^2)$, i.e., polynomial in~$n$.
 
 \paragraph{Quality}
@@ -944,13 +943,13 @@ While not optimizing exactly, \emph{Greedy Replacement Search} still offers an a
 
 %
 \begin{proof}
-	In the univariate objective, the quality of a feature set is the sum of the qualities of the contained features.
+	For univariate feature qualities, the quality of a feature set is the sum of the qualities of the contained features.
 	\emph{Greedy Replacement Search} includes the $\lfloor (1 - \tau) \cdot k \rfloor$ highest-quality features in each alternative of size~$k$, while the remaining $\lceil \tau \cdot k \rceil$ features may have an arbitrary quality.
-	In comparison, the single, i.e., unconstrained, optimal feature set of size~$k$ contains the top $k$ features, which are the union of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features and the next-best $\lceil \tau \cdot k \rceil$ features.
-	Due to quality sorting, each of the next-best $\lceil \tau \cdot k \rceil$ features has at most the quality of each of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features.
-	Hence, assuming non-negative qualities, each alternative yielded by \emph{Greedy Replacement Search} has at least a quality of $\lfloor (1 - \tau) \cdot k \rfloor / k$ relative to the single optimal feature set of size~$k$.
-	Next, the single optimal feature set of size~$k$ upper-bounds the quality of any individual feature set of size~$k$ found by any search method.
-	Thus, the bound also applies to the minimum and sum of qualities over feature sets.
+	In comparison, the optimal original, i.e., unconstrained, feature set of size~$k$ contains the top $k$ features, which are the union of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features and the next-best $\lceil \tau \cdot k \rceil$ features.
+	Due to quality sorting, each of the next-best $\lceil \tau \cdot k \rceil$ features has at most the quality of each of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features, i.e., contributes the same or less to the summed quality of the feature set.
+	Hence, assuming non-negative qualities, each alternative yielded by \emph{Greedy Replacement Search} has at least a quality of $\lfloor (1 - \tau) \cdot k \rfloor / k$ relative to the optimal original feature set of size~$k$ since the $\lfloor (1 - \tau) \cdot k \rfloor$ highest-quality features are part of both feature sets.
+	Next, the optimal original feature set of size~$k$ upper-bounds the quality of any alternative feature set of size~$k$ found by any search method.
+	Thus, the quality bound of the heuristic solution relative to the exact solution also applies to the minimum and sum of qualities over multiple alternatives.
 \end{proof}
 %
 In particular, \emph{Greedy Replacement Search} yields a constant-factor approximation for the three optimization problems (cf.~Equation~\ref{eq:afs:afs-sequential} and~\ref{eq:afs:afs-simultaneous}) mentioned in Proposition~\ref{prop:afs:approximation-greedy-replacement}.
@@ -964,7 +963,7 @@ As the heuristic has polynomial runtime, alternative feature selection lies in t
 \end{proposition}
 %
 For~$\tau = 1$, \emph{Greedy Replacement Search} even yields the same objective values as exact sequential search and exact simultaneous search with sum-aggregation since it becomes identical to a procedure we outlined in our complexity analysis earlier (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
-In contrast, the following example shows that the heuristic can be worse than exact sequential search for as few as $a=2$ alternatives:
+In contrast, for arbitrary~$\tau$, the following example shows that the heuristic can be worse than exact sequential search for as few as $a=2$ alternatives:
 %
 \begin{example}[Quality of \emph{Greedy Replacement Search} vs. exact search]
 	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=2$, number of alternatives~$a=2$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
@@ -973,16 +972,16 @@ In contrast, the following example shows that the heuristic can be worse than ex
 	\label{ex:afs:greedy-replacement:worse-than-exact}
 \end{example}
 %
-While the first two feature sets are identical between exact and heuristic search, the quality of $s^{(2)}$ is lower for the heuristic (12 vs. 15).
-In particular, by always selecting the top $\lfloor (1 - \tau) \cdot k \rfloor$~features, the heuristic misses out on feature sets only involving the next-best features.
+While the first two feature sets are identical between exact and heuristic search, the quality of $s^{(2)}$ is lower for the heuristic (12 vs.~15).
+In particular, by always selecting all the top $\lfloor (1 - \tau) \cdot k \rfloor$~features, the heuristic misses out on feature sets only involving some or none of them.
 
-For min-aggregation in the objective, $a=1$ alternative already suffices such that the heuristic may be worse than exact search:
+For min-aggregation in simultaneous search, $a=1$ alternative already suffices for the heuristic being potentially worse than exact search:
 %
 \begin{example}[Quality of \emph{Greedy Replacement Search} vs. min-aggregation]
 	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 	Exact simultaneous search with min-aggregation yields the selection $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a quality of $\min \{19,19\} = 19$.
 	\emph{Greedy Replacement Search} and exact sequential search yield the selection $s^{(0)} = (1,1,1,0,0,0)$ and $s^{(1)} = (1,0,0,1,1,0)$, with a quality of $\min \{24,14\} = 14$.
-	Exact simultaneous search with sum-aggregation may yield either of these two solutions or the selection $s^{(0)} = (1,1,0,1,0,0)$ and $s^{(1)} = (1,0,1,0,1,0)$ with the same summed quality.
+	Exact simultaneous search with sum-aggregation may yield either of these two solutions or the selection $s^{(0)} = (1,1,0,1,0,0)$ and $s^{(1)} = (1,0,1,0,1,0)$, all with the same sum-aggregated quality of~38 but different min-aggregated quality.
 	\label{ex:afs:greedy-replacement:worse-than-min-agg}
 \end{example}
 %
@@ -991,22 +990,22 @@ We alleviate this issue with the heuristic~\emph{Greedy Balancing Search} (cf.~S
 
 \paragraph{Limitations}
 
-Proposition~\ref{prop:afs:approximation-greedy-replacement} and Examples~\ref{ex:afs:greedy-replacement:worse-than-exact},~\ref{ex:afs:greedy-replacement:worse-than-min-agg} already showed the potential quality loss of the heuristic compared to an exact search for alternatives.
-Further, \emph{Greedy Replacement Search} only works as long as some features have not been part of any feature set yet, i.e., $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
+Proposition~\ref{prop:afs:approximation-greedy-replacement} and Examples~\ref{ex:afs:greedy-replacement:worse-than-exact},~\ref{ex:afs:greedy-replacement:worse-than-min-agg} already showed the potential quality loss of \emph{Greedy Replacement Search} compared to an exact search for alternatives.
+Further, the heuristic only works as long as some features have not been part of any feature set yet, i.e., $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
 Once the heuristic runs out of unused features, one would need to switch the search method.
-Thus, to obtain a high number of alternatives~$a$, the following conditions are beneficial for the heuristic:
-The number of features~$n$ should be high, the feature-set size~$k$ show be low, and the dissimilarity threshold~$\tau$ should be low.
+Thus, to obtain a high number of alternatives~$a$ with the heuristic, the following conditions are beneficial:
+The number of features~$n$ should be high, the feature-set size~$k$ should be low, and the dissimilarity threshold~$\tau$ should be low.
 These conditions align well with typical feature-selection scenarios where~$k \ll n$.
 
-Another drawback is that \emph{Greedy Replacement Search} assumes a very simple structure of the optimization problem.
-If the objective function becomes more complex than a sum of univariate qualities, quality-based feature ordering may be impossible or suboptimal.
+Another drawback is that \emph{Greedy Replacement Search} assumes a very simple notion of feature-set quality.
+If the latter becomes more complex than a sum of univariate qualities, quality-based feature ordering (Line~\ref{al:afs:greedy-replacement:line:sorting}) may be impossible or suboptimal.
 Further, \emph{Greedy Replacement Search} cannot accommodate additional constraints on feature sets, e.g., based on domain knowledge.
 Finally, the heuristic assumes the same size~$k$ for all feature sets.
 
 \subsubsection{Greedy Balancing Search}
 \label{sec:afs:approach:univariate-heuristics:greedy-balancing}
 
-\emph{Greed Balancing Search} modifies \emph{Greedy Replacement Search} to obtain more balanced feature-set qualities with a simultaneous search method.
+\emph{Greed Balancing Search} modifies \emph{Greedy Replacement Search} to obtain more balanced feature-set qualities by employing a simultaneous search method.
 
 \begin{algorithm}[tp]
 	\DontPrintSemicolon
@@ -1068,12 +1067,13 @@ We continue this procedure until all alternatives have reached size~$k$ (Line~\r
 \begin{example}[Algorithm of \emph{Greedy Balancing Search}]
 	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of two features between sets here.
 	The features with qualities~$9$ and $8$ become part of both feature sets, $s^{(0)}$ and $s^{(1)}$ (Lines~\ref{al:afs:greedy-balancing:line:common-features-start}--\ref{al:afs:greedy-balancing:line:common-features-end}).
-	At this point, both alternatives have the same relative quality $Q^{(0)} = Q^{(1)} = 0$, i.e., $Q^{(i)}$ in the algorithm ignores the quality of the shared features.
+	At this point, both alternatives have the same relative quality $Q^{(0)} = Q^{(1)} = 0$.
+	Note that $Q^{(i)}$ in the algorithm ignores the quality of the shared features.
 	Now the LPT heuristic becomes active (Lines~\ref{al:afs:greedy-balancing:line:disjoint-features-start}--\ref{al:afs:greedy-balancing:line:disjoint-features-end}).
 	The feature with quality~$7$ is added to $s^{(0)}$, which causes $Q^{(0)} > Q^{(1)}$ (i.e., $7 > 0$).
 	Thus, the feature with quality~3 is added to $s^{(1)}$.
 	As $Q^{(0)} > Q^{(1)}$ (i.e., $7 > 3$) still holds, the feature with quality~2 becomes part of $s^{(1)}$ as well.
-	Because $s^{(1)}$ has reached size~$k = 4$, the feature with quality~1 is added to $s^{(0)}$, even if the latter still has a higher quality (i.e., $7 > 5$).
+	Because $s^{(1)}$ has reached size~$k = 4$, the feature with quality~1 is added to $s^{(0)}$, even if the latter still has a higher relative quality (i.e., $7 > 5$).
 	Now both alternatives have reached their desired size and $n = 6 = \lceil 0.5 \cdot 4 \rceil \cdot 1 + 4 = \lceil \tau \cdot k \rceil \cdot a + k$ (Line~\ref{al:afs:greedy-balancing:line:stop}).
 	Thus, the algorithm terminates.
 	The solution consists of $s^{(0)} = (1,1,1,0,0,1)$ and $s^{(1)} = (1,1,0,1,1,0)$.
@@ -1098,7 +1098,7 @@ Hence, the quality guarantee of \emph{Greedy Replacement Search} (cf.~Propositio
 	\label{prop:afs:approximation-greedy-balancing}
 \end{proposition}
 %
-For min-aggregation in the objective, \emph{Greedy Balancing Search} can even be better than exact sequential search, as Example~\ref{ex:afs:greedy-replacement:worse-than-min-agg} shows, where the heuristic yields the same solution as exact simultaneous search with min-aggregation.
+For min-aggregation in the objective, \emph{Greedy Balancing Search} can even be better than exact sequential search, as Example~\ref{ex:afs:greedy-replacement:worse-than-min-agg} shows, where the heuristic would yield the same solution as exact simultaneous search with min-aggregation.
 However, the heuristic can also be worse than exact sequential search and exact simultaneous search, as Example~\ref{ex:afs:greedy-replacement:worse-than-exact} shows, where \emph{Greedy Balancing Search} would yield the same solution as \emph{Greedy Replacement Search}.
 
 \paragraph{Limitations}
@@ -1106,6 +1106,7 @@ However, the heuristic can also be worse than exact sequential search and exact 
 \emph{Greedy Balancing Search} shares several limitations with \emph{Greedy Replacement Search}, e.g., it may be worse than exact search, assumes univariate feature qualities, and does not work if the number of features~$n$ is too low relative to~$k$, $a$, and $\tau$.
 In the latter case, \emph{Greedy Balancing Search} yields no solution due to its simultaneous nature, while \emph{Greedy Replacement Search} yields at least some alternatives.
 However, if running out of features is not an issue, \emph{Greedy Balancing Search} has the advantage of more balanced feature-set qualities.
+Also, one could easily adapt \emph{Greedy Balancing Search} to yield the highest feasible number of alternatives in case~$a$ alternatives are infeasible.
 
 \section{Related Work}
 \label{sec:afs:related-work}
@@ -2671,7 +2672,7 @@ For a complete partitioning, we must use each of the $n$~features exactly once.
 How we distribute the features among sets does not change the objective value, which is the sum of all $n$~qualities in any case.
 We only need to ensure that each feature set satisfies cardinality constraints if the latter exist.
 Thus, `searching' for alternatives amounts to iterating over the features once to assign them to the feature sets.
-Hence, the time complexity is $O(n)$.
+Hence, the time complexity is $O(n)$ assuming each assignment takes~$O(1)$, e.g., using arrays to store feature-set membership.
 
 For an incomplete partitioning, we use the monotonicity of the univariate objective with sum-aggregation (cf.~Section~\ref{sec:afs:appendix:univariate-pre-selection}):
 This objective cannot decrease when selecting features of higher quality.
