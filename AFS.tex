@@ -1098,7 +1098,7 @@ Hence, the quality guarantee of \emph{Greedy Replacement Search} (cf.~Propositio
 	\label{prop:afs:approximation-greedy-balancing}
 \end{proposition}
 %
-For min-aggregation in the objective, \emph{Greedy Balancing Search} can even be better than exact sequential search, as Example~\ref{ex:afs:greedy-replacement:worse-than-min-agg} shows, where the heuristic would yield the same solution as exact simultaneous search with min-aggregation.
+For min-aggregation in the objective, \emph{Greedy Balancing Search} can even be better than exact sequential search, as Example~\ref{ex:afs:greedy-replacement:worse-than-min-agg} shows, where the heuristic search would yield the same solution as exact simultaneous search with min-aggregation.
 However, the heuristic can also be worse than exact sequential search and exact simultaneous search, as Example~\ref{ex:afs:greedy-replacement:worse-than-exact} shows, where \emph{Greedy Balancing Search} would yield the same solution as \emph{Greedy Replacement Search}.
 
 \paragraph{Limitations}
@@ -2100,7 +2100,9 @@ As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-num-alternatives.pdf}
-		\caption{Between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the number of alternatives~$a$.}
+		\caption{
+			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the number of alternatives~$a$.
+		}
 		\label{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}
 	\end{subfigure}
 	\hfill
@@ -2108,7 +2110,7 @@ As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:
 		\centering
 		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-num-alternatives.pdf}
 		\caption{
-			Between solver-based sequential search and \emph{Greedy Replacement}, over the number of alternatives~$a$.
+			Difference between solver-based sequential search and \emph{Greedy Replacement}, over the number of alternatives~$a$.
 		}
 		\label{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}
 	\end{subfigure}
@@ -2116,7 +2118,9 @@ As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
 		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-tau.pdf}
-		\caption{Between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over dissimilarity threshold~$\tau$.}
+		\caption{
+			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the dissimilarity threshold~$\tau$.
+		}
 		\label{fig:afs:impact-search-heuristics-metric-diff-sim-tau}
 	\end{subfigure}
 	\hfill
@@ -2124,7 +2128,7 @@ As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:
 		\centering
 		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-tau.pdf}
 		\caption{
-			Between solver-based sequential search and \emph{Greedy Replacement}, over dissimilarity threshold~$\tau$.
+			Difference between solver-based sequential search and \emph{Greedy Replacement}, over the dissimilarity threshold~$\tau$.
 		}
 		\label{fig:afs:impact-search-heuristics-metric-diff-seq-tau}
 	\end{subfigure}
@@ -2164,7 +2168,7 @@ In particular, the univariate feature qualities computed by \emph{Model Gain} in
 	\centering
 	\begin{tabular}{llrrrr}
 		\toprule
-		\multirow{2}{*}{Feature selection} & \multirow{2}{*}{Search} & \multicolumn{4}{c}{Optimization status} \\
+		\multirow{2}{*}{Selection} & \multirow{2}{*}{Search} & \multicolumn{4}{c}{Optimization status} \\
 		\cmidrule(r){3-6}
 		& & Infeasible & Not solved & Feasible & Optimal \\
 		\midrule
