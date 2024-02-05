@@ -129,7 +129,7 @@ We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-
 
 \paragraph{Experimental results}
 
-We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, notion of feature-set quality, search method, and user parameters for searching alternatives.
+We observe that several factors influence the quality of alternatives, i.e., the dataset, feature-selection method, metric for feature-set quality, search method, and user parameters for searching alternatives.
 As expected, feature-set quality tends to decrease with an increasing number of alternatives and an increasing dissimilarity threshold for alternatives.
 Thus, these parameters allow users to control the trade-off between dissimilarity and quality of alternatives.
 Also, no valid alternative may exist if the parameter values are too strict.
@@ -1295,13 +1295,15 @@ For the test-set prediction performance, we predict on the test set but use a pr
 We consider two metrics related to runtime.
 
 First, we analyze the \emph{optimization time}.
-For white-box feature-selection methods, we measure the total runtime of solver calls.
+For white-box feature-selection methods in solver-based search for alternatives, we measure the summed runtime of solver calls.
 We exclude the time for computing feature qualities and feature dependencies for the objective since one can compute these values once per dataset and then re-use them in each solver call.
-For \emph{Greedy Wrapper}, we measure the runtime of the entire black-box optimization procedure involving multiple solver calls and model trainings.
+For \emph{Greedy Wrapper} as the feature-selection method and for the heuristic search methods for alternatives, we measure the runtime of the corresponding search algorithms.
+For \emph{Greedy Wrapper}, this search procedure involves multiple solver calls and trainings of the prediction model.
 
-Second, we examine the \emph{optimization status}, which can take four values.
+Second, we examine the \emph{optimization status}, which can take four values for the solver-based search.
 If the solver finished before reaching a timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., no solution exists.
-If the solver reached its timeout, it either found a \emph{feasible} solution whose optimality it could not prove or found no valid solution though one might exist, so the problem is \emph{not solved}.
+If the solver reached its timeout, it either found a \emph{feasible} solution whose optimality it could not prove or found no valid solution, though one might exist, so the problem is \emph{not solved}.
+For the heuristic search methods, we only use \emph{not solved} and \emph{feasible} as statuses, as these search methods are neither guaranteed to find the optimum nor do they prove infeasibility if they terminate early.
 
 \subsection{Methods}
 \label{sec:afs:experimental-design:approaches}
@@ -1316,26 +1318,26 @@ Both these models admit learning complex, non-linear dependencies from the data.
 We leave the hyperparameters of the models at their defaults, except for using information gain instead of Gini impurity as the split criterion, to be consistent with our parametrization of filter feature-selection methods.
 Preliminary experiments with a k-nearest neighbors classifier yielded similar insights paired with a lower average prediction performance.
 
-Note that tree models also carry out feature selection themselves, i.e., they are embedded approaches.
-Thus, they might not use all features from the alternative feature sets.
+Note that tree models also carry out feature selection themselves, i.e., they are embedded feature-selection approaches.
+Thus, they may not use all features from the alternative feature sets.
 However, this is not a problem for our study.
 We are interested in which performance the models achieve if they are limited to certain feature sets, not if and how they use each feature from these sets.
 
 \subsubsection{Feature Selection (Objective Functions)}
 \label{sec:afs:experimental-design:approaches:feature-selection}
 
-We search for alternatives under different notions of feature-set quality as the objective function.
+We search for alternatives under different notions of feature-set quality in the objective function.
 We choose five well-known feature-selection methods that are easy to parameterize and cover the different categories from Section~\ref{sec:afs:fundamentals:quality} except \emph{embedded}, as explained in Section~\ref{sec:afs:approach:objectives:embedding}.
-However, we use feature importance from an embedded method, i.e., decision trees, as post-hoc importance scores.
+However, we use feature importance from an embedded method, i.e., decision trees, as univariate post-hoc importance scores.
 
-One method (\emph{Greedy Wrapper}) requires black-box optimization, while the other four are white-box.
+Four feature-selection methods allow a white-box formulation of the optimization problem, while \emph{Greedy Wrapper} tackles black-box optimization.
 With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
-We enforce the desired $k$ with a simple constraint in optimization, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
+We enforce the desired~$k$ with simple equality constraints in optimization, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
 
 \paragraph{Filter feature selection}
 
 We evaluate three filter methods, all using mutual information~\cite{kraskov2004estimating} as the dependency measure~$q(\cdot)$.
-This measure allows to capture arbitrary dependencies rather than, e.g., just linear correlations.
+This measure can capture arbitrary dependencies rather than, e.g., just linear correlations.
 \emph{MI} denotes a univariate filter (cf.~Equation~\ref{eq:afs:univariate-filter}), while \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) and \emph{mRMR} (cf.~Equation~\ref{eq:afs:mrmr-linear}) are multivariate.
 Since mutual information has no fixed upper bound, we normalize its value per dataset and cross-validation fold to improve the comparability of feature-set quality.
 For \emph{FCBF} and \emph{MI}, we normalize the individual features' qualities such that selecting all features yields a quality of~1 and selecting no feature yields a quality of~0.
@@ -1354,7 +1356,7 @@ As a post-hoc importance measure called \emph{Model Gain}, we use importance sco
 There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain.
 These importances are normalized to sum up to~1 by default.
 We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores.
-The interpretation is different, though, since the scores originate from trees trained with all features rather than assessing features in isolation.
+The interpretation is different, though, since the importance scores originate from trees trained with all features rather than assessing features in isolation.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
@@ -1368,18 +1370,18 @@ Also, we analyze the impact of the user parameters~$a$ and~$\tau$ on the search 
 \paragraph{Solver-based search methods}
 
 In Sections~\ref{sec:afs:evaluation:solver-search-methods}, \ref{sec:afs:evaluation:num-alternatives}, and~\ref{sec:afs:evaluation:tau}, we use solver-based search methods to find alternative feature sets.
-For the four white-box feature-selection methods, we use the solver to exactly solve the underlying optimization problems.
+For the four white-box feature-selection methods, we use an integer-programming solver to solve the underlying optimization problems exactly.
 Thus, given sufficient solving time, these alternatives are globally optimal.
-For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based) and might not cover the entire search space.
+For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based, so we place it in this category rather than the former) and might not cover the entire search space.
 There, the solver only assists in finding valid solutions but does not optimize.
 
-For each feature selection method, we analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) solver-base search for alternatives.
+For each feature selection method, we analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) solver-based search for alternatives.
 For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
 In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these solver-based search methods.
 
 \paragraph{Heuristic search methods}
 
-In Section~\ref{sec:afs:evaluation:heuristic-search-methods}, we additionally compare solver-free heuristic search methods (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
+In Section~\ref{sec:afs:evaluation:heuristic-search-methods}, we additionally compare heuristic search methods that do not use a solver (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
 In particular, we employ \emph{Greedy Replacement} (cf.~Algorithm~\ref{al:afs:greedy-replacement}), which is a sequential search method, and \emph{Greedy Balancing} (cf.~Algorithm~\ref{al:afs:greedy-balancing}), which is a simultaneous search method.
 In figures and tables, we use the abbreviations \emph{rep.} and \emph{bal.} to denote these heuristic search methods.
 Since these heuristics assume univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), we only combine them with the univariate feature-selection methods \emph{MI} and \emph{Model Gain}.
@@ -1398,7 +1400,7 @@ We exclude $\tau = 0$, which would allow returning duplicate feature sets.
 In solver-based search, we employ a timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, which even occurs for optimization problems of the same size.
 In particular, we grant each solver call 60~s multiplied by the number of feature sets sought.
 Thus, solver-based sequential search conducts multiple solver calls with 60~s timeout each, while solver-based simultaneous search conducts one solver call with proportionally more time, e.g., 300~s for five feature sets (i.e., four alternatives).
-The summed timeout for a fixed number of alternatives is the same for both solver-based search methods.
+The summed timeout for a fixed number of alternatives is the same for solver-based sequential and simultaneous search.
 For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
 
 \paragraph{Competitors for search methods}
@@ -2187,8 +2189,7 @@ In particular, the univariate feature qualities computed by \emph{Model Gain} in
 
 \paragraph{Optimization status}
 
-Table~\ref{tab:afs:impact-search-heuristics-fs-method-optimization-status} displays the frequency of optimization statuses for the different search methods.
-We only use \emph{not solved} and \emph{infeasible} as statuses for the two heuristic search methods, as they are neither guaranteed to find the optimum nor to prove infeasibility if they terminate early.
+Table~\ref{tab:afs:impact-search-heuristics-fs-method-optimization-status} displays the frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) for the different search methods.
 The status \emph{feasible} for solver-based simultaneous search indicates timeouts, which explain why \emph{Greedy Balancing} may be better in some cases (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}).
 
 The table shows that \emph{Greedy Replacement} more often did not find a valid alternative (9.2\%) than solver-based sequential search (4.93\%).
