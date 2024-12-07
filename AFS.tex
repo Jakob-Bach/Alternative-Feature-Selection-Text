@@ -649,9 +649,9 @@ However, as explained in Section~\ref{sec:afs:approach:problem}, we decided to p
 
 One can adapt an existing search heuristic to consider the constraints for alternatives.
 One idea is to prevent the search from producing feature sets that violate the constraints or at least make the latter less likely, e.g., with a penalty in the objective function.
-Another idea is to `repair' feature sets in the search that violate constraints, e.g., replacing them with the most similar feature sets satisfying the constraints.
-Such solver-assisted search approaches are common in search procedures for software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}.
-One could also apply solver-based repair to sampled feature sets.
+Another idea is to `repair' feature sets in the search that violate constraints, e.g., replacing them with the most similar valid feature sets.
+Such solver-assisted search approaches are common in search methods for software feature models~\cite{guo2018preserve, henard2015combining, white2010automated}, and our following method for wrapper feature selection falls into this category as well.
+Finally, one could also apply solver-based repair to sampled feature sets.
 
 \begin{algorithm}[t]
 	\DontPrintSemicolon
@@ -662,16 +662,16 @@ One could also apply solver-based repair to sampled feature sets.
 		Maximum number of iterations $\mathit{max\_iters} \in \mathbb{N}$}
 	\KwOut{Set of feature-selection decision vectors $S = \{s^{(0)}, \dots, s^{(a)}\}$}
 	\BlankLine
-	$S \leftarrow \text{solve}(C)$ \tcp*{Initial alternatives} \label{al:afs:greedy-wrapper:line:init}
+	$S^{\text{opt}} \leftarrow \text{solve}(C)$ \tcp*{Initial alternatives} \label{al:afs:greedy-wrapper:line:init}
 	$\mathit{iters} \leftarrow 1$ \tcp*{Number of iterations = solver calls}
-	\lIf(\tcp*[f]{No valid alternatives exist}){$S = \emptyset$}{\Return{$\emptyset$}}
-	$j_1 \leftarrow 1$ \tcp*{Indices of features to be swapped}
-	$j_2 \leftarrow j_1 + 1$\;
+	\lIf(\tcp*[f]{No valid alternatives exist}){$S^{\text{opt}} = \emptyset$}{\Return{$\emptyset$}} \label{al:afs:greedy-wrapper:line:no-valid}
+	$j_1 \leftarrow 1$ \tcp*{Indices of features to be swapped} \label{al:afs:greedy-wrapper:line:swap-init-start}
+	$j_2 \leftarrow j_1 + 1$\; \label{al:afs:greedy-wrapper:line:swap-init-end}
 	\While{$\mathit{iters} < \mathit{max\_iters}$ \textbf{and} $j_1 < n$}{ \label{al:afs:greedy-wrapper:line:stop}
-		$S' \leftarrow \text{solve}(C \cup \{\neg s^{(l)}_{j_1}, \neg s^{(l)}_{j_2} \mid l \in \{0, \dots, a\}\})$ \tcp*{Try swap} \label{al:afs:greedy-wrapper:line:swap}
+		$S \leftarrow $ solve(Equation~\ref{eq:afs:greedy-wrapper-problem-linear}) \tcp*{Try swap} \label{al:afs:greedy-wrapper:line:swap}
 		$\mathit{iters} \leftarrow \mathit{iters} + 1$\;
-		\If(\tcp*[f]{Swap if improved}){$S' \neq \emptyset$ \textbf{and} $Q(S',X,y) > Q(S,X,y)$}{ \label{al:afs:greedy-wrapper:line:improved-condition}
-			$S \leftarrow S'$\; \label{al:afs:greedy-wrapper:line:improved-start}
+		\If(\tcp*[f]{Swap if improved}){$S \neq \emptyset$ \textbf{and} $Q(S,X,y) > Q(S^{\text{opt}},X,y)$}{ \label{al:afs:greedy-wrapper:line:improved-condition}
+			$S^{\text{opt}} \leftarrow S$\; \label{al:afs:greedy-wrapper:line:improved-start}
 			$j_1 \leftarrow 1$ \tcp*{Reset swap-feature indices}
 			$j_2 \leftarrow j_1 + 1$\; \label{al:afs:greedy-wrapper:line:improved-end}
 		}
@@ -683,30 +683,57 @@ One could also apply solver-based repair to sampled feature sets.
 			$j_2 \leftarrow j_1 + 1$\; \label{al:afs:greedy-wrapper:line:next-end}
 		}
 	}
-	\Return{$S$}
+	\Return{$S^{\text{opt}}$}
 	\caption{\emph{Greedy Wrapper} for alternative feature selection.}
 	\label{al:afs:greedy-wrapper}
 \end{algorithm}
 
 \paragraph{Greedy Wrapper}
 
-For wrapper feature selection in our experiments, we use a method that falls into the category \emph{adapting search}.
-In particular, we propose a novel greedy hill-climbing procedure, displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
+For wrapper feature selection in our experiments, we propose a novel hill-climbing procedure, displayed in Algorithm~\ref{al:afs:greedy-wrapper}.
 Unlike standard hill climbing for feature selection~\cite{kohavi1997wrappers}, our procedure observes constraints.
-First, the algorithm uses a solver to find one solution that is alternative enough, given the current constraints (Line~\ref{al:afs:greedy-wrapper:line:init}).
-Thus, it has a valid starting point and can always return a solution unless there are no valid solutions at all.
-Next, it tries `swapping' two features, i.e., selecting the features if they were deselected or deselecting them if they were selected (Line~\ref{al:afs:greedy-wrapper:line:swap}).
-For simultaneous search, we swap the affected two features in each alternative feature set.
-This swap might violate cardinality constraints as well as constraints for alternatives.
-Thus, the algorithm calls the solver again to find one solution~$S'$ containing this swap and satisfying the other constraints.
-If such a solution~$S'$ exists and its quality~$Q(S',X,y)$ is higher than the one of the current solution, the algorithm proceeds with the new solution, attempting again to swap the first and second features (Lines~\ref{al:afs:greedy-wrapper:line:improved-start}--\ref{al:afs:greedy-wrapper:line:improved-end}).
-Otherwise, it tries to swap the next pair of features (Lines~\ref{al:afs:greedy-wrapper:line:next-start}--\ref{al:afs:greedy-wrapper:line:next-end}).
-Specifically, we assess only one solution per swap before proceeding instead of exhaustively enumerating and evaluating all valid solutions involving the swap.
+First, the algorithm uses a solver to find one solution that is alternative enough for the set of constraints~$C$ (Line~\ref{al:afs:greedy-wrapper:line:init}) and stores it as the currently best solution~$S^{\text{opt}}$.
+Thus, the algorithm has a valid starting point and can always return a solution unless there are no valid solutions at all (Line~\ref{al:afs:greedy-wrapper:line:no-valid}).
+Note that the solution is not only one feature-selection decision vector~$s$ but a set~$S$ of them, to enable simultaneous search.
+For sequential search, $|S| = 1$ and $a=0$.
+Also, we adapt the notion of feature-set quality~$Q(S,X,y)$ in this algorithm to support a set of feature sets, encompassing the aggregation operator~$\text{agg}(\cdot)$ for simultaneous search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}).
 
-The algorithm terminates if no swap leads to an improvement or a fixed number of iterations~$\mathit{max\_iters}$ is reached (Line~\ref{al:afs:greedy-wrapper:line:stop}).
-Due to its heuristic nature, the algorithm might get stuck in local optima rather than yielding the global optimum.
-In particular, $\mathit{max\_iters}$ only is an upper bound on the iteration count since the algorithm can stop earlier.
-We define the iteration count as the number of invocations of the solver, i.e., attempts to generate valid alternatives.
+Next, the algorithm tries `swapping' two features, i.e., selecting them if they were deselected or deselecting them if they were selected (Line~\ref{al:afs:greedy-wrapper:line:swap}).
+The corresponding swap indices~$j_1$ and $j_2$ start at~$1$ and~$2$, respectively (Lines~\ref{al:afs:greedy-wrapper:line:swap-init-start}--\ref{al:afs:greedy-wrapper:line:swap-init-end}).
+For simultaneous search, we swap the affected features in each alternative.
+As the swap may violate constraints, the algorithm calls the solver to find the solution~$S$ that is closest to the currently best one $S^{\text{opt}}$ while satisfying the swap constraints and the constraints for alternatives~$C$.
+To this end, we measure the similarity between feature-selection decisions with the Hamming distance~\cite{choi2010survey}, i.e., how many values of decision variables differ between~$S$ and~$S^{\text{opt}}$.
+Overall, we define the maximization problem for Line~\ref{al:afs:greedy-wrapper:line:swap} of Algorithm~\ref{al:afs:greedy-wrapper} as follows:
+
+\begin{equation}
+	\begin{aligned}
+		\max_{s^{(0)}, \dots, s^{(a)}} &\quad & \text{sim}(S, S^{\text{opt}}) &= \sum_{l=0}^{a} \sum_{j=1}^{n} \left( s^{(l)}_j \leftrightarrow s^{(\text{opt, } l)}_{j} \right) \\
+		\text{subject to:} &\quad & C & \\
+		&\quad \forall l \in \{0, \dots, a\}: & s^{(l)}_{j_1} &\leftrightarrow \neg s^{(\text{opt, } l)}_{j_1} \\
+		&\quad \forall l \in \{0, \dots, a\}: & s^{(l)}_{j_2} &\leftrightarrow \neg s^{(\text{opt, } l)}_{j_2} \\
+	\end{aligned}
+	\label{eq:afs:greedy-wrapper-problem}
+\end{equation}
+%
+The values of $s^{(\text{opt, } l)}$, $j_1$, and $j_2$ in this problem are fixed based on Algorithm~\ref{al:afs:greedy-wrapper}, while $s^{(l)}$ remains variable.
+Thus, we obtain a 0-1 integer linear program:
+
+\begin{equation}
+	\begin{aligned}
+		\max_{s^{(0)}, \dots, s^{(a)}} &&\quad \text{sim}(S, S^{\text{opt}}) &\quad = \sum_{l=0}^{a} \Big( \sum\limits_{\substack{j \in \{1, \dots, n\} \\ s^{(\text{opt, } l)}_{j} = 1}} s^{(l)}_j + \sum\limits_{\substack{j \in \{1, \dots, n\} \\ s^{(\text{opt, } l)}_{j} = 0}} \left( 1- s^{(l)}_j \right) \Big) \\
+		\text{subject to:} &&\quad &\quad C \\
+		&&\quad \forall l \in \{0, \dots, a\}: &\quad s^{(l)}_{j_1} = 1 - s^{(\text{opt, } l)}_{j_1} \\
+		&&\quad \forall l \in \{0, \dots, a\}: &\quad s^{(l)}_{j_2} = 1 - s^{(\text{opt, } l)}_{j_2} \\
+	\end{aligned}
+	\label{eq:afs:greedy-wrapper-problem-linear}
+\end{equation}
+
+If a solution~$S$ for Equation~\ref{eq:afs:greedy-wrapper-problem-linear} exists and its quality~$Q(S,X,y)$ improves upon the currently best solution~$S^{\text{opt}}$, the algorithm proceeds with the new solution, attempting again to swap the first and second features (Lines~\ref{al:afs:greedy-wrapper:line:improved-start}--\ref{al:afs:greedy-wrapper:line:improved-end}).
+Otherwise, it tries to swap another pair of features (Lines~\ref{al:afs:greedy-wrapper:line:next-start}--\ref{al:afs:greedy-wrapper:line:next-end}).
+Specifically, we assess only one solution per swap instead of exhaustively enumerating and evaluating all valid solutions involving the swap.
+
+The algorithm terminates if it reaches a local optimum, i.e., no swap leads to an improvement, or a fixed number of iterations~$\mathit{max\_iters}$ (Line~\ref{al:afs:greedy-wrapper:line:stop}).
+We define the iteration count as the number of solver calls, i.e., attempts to generate valid alternatives.
 This number also bounds the number of prediction models trained.
 However, we only train a model for valid solutions (Line~\ref{al:afs:greedy-wrapper:line:improved-condition}), and not all solver invocations may yield one.
 
@@ -1422,7 +1449,7 @@ In Sections~\ref{sec:afs:evaluation:solver-search-methods}, \ref{sec:afs:evaluat
 For the four white-box feature-selection methods, we use an integer-programming solver to solve the underlying optimization problems exactly.
 Thus, given sufficient solving time, these alternatives are globally optimal.
 For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based, so we place it in this category rather than the former) and might not cover the entire search space.
-There, the solver only assists in finding valid solutions but does not optimize.
+There, the solver only assists in finding valid solutions but does not optimize quality.
 
 For each feature selection method, we analyze \emph{sequential} (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) and \emph{simultaneous} (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) solver-based search for alternatives.
 For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
