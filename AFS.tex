@@ -938,7 +938,7 @@ This heuristic conducts a sequential search.
 		$l \leftarrow l + 1$\;
 	} \label{al:afs:greedy-replacement:line:disjoint-features-end}
 	\Return{$s^{(0)}, \dots, s^{(l)}$}
-	\caption{\emph{Greedy Replacement} for alternative feature sets.}
+	\caption{\emph{Greedy Replacement} for alternative feature selection.}
 	\label{al:afs:greedy-replacement}
 \end{algorithm}
 
@@ -961,16 +961,17 @@ We continue this procedure until we reach the desired number of alternatives~$a$
 %
 In general, the $l$-th alternative consists of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features plus the features $k + (l-1) \cdot \lceil \tau \cdot k \rceil + 1$ to $k + l \cdot \lceil \tau \cdot k \rceil$ in descending quality order.
 
-\paragraph{Complexity}
+\paragraph{Time complexity}
 
-Sorting the qualities of $n$~features (Line~\ref{al:afs:greedy-replacement:line:sorting}) has a time complexity of $O(n \cdot \log n)$.
+Sorting $n$~feature qualities (Line~\ref{al:afs:greedy-replacement:line:sorting}) has a time complexity of $O(n \cdot \log n)$.
 Next, the algorithm iterates over the features and processes each feature at most once.
 In particular, after selecting a feature in an alternative, $\mathit{feature\_position}$ increases by~1.
 The maximum value of this variable depends on~$a$ and~$k$ (Line~\ref{al:afs:greedy-replacement:line:stop}) but cannot exceed the total number of features~$n$.
-For each $\mathit{feature\_position}$, the algorithm accesses the arrays $indices$ and $s^{(l)}$ (Lines~\ref{al:afs:greedy-replacement:line:one-disjoint-feature-start}--\ref{al:afs:greedy-replacement:line:one-disjoint-feature-end}).
-Further, each alternative $s^{(l)}$ gets initialized as the selection~$s$ of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features (Line~\ref{al:afs:greedy-replacement:line:copy-common-selection}), which the algorithm only needs to determine once before the main loop (Lines~\ref{al:afs:greedy-replacement:line:common-features-start}--\ref{al:afs:greedy-replacement:line:common-features-end}).
-Each array operation runs in $O(n)$ or faster.
-Combining the cost per $\mathit{feature\_position}$ with the number of $\mathit{feature\_position}$s, the overall time complexity is~$O(n^2)$, i.e., polynomial in~$n$.
+For each $\mathit{feature\_position}$, the algorithm conducts a constant number of update operations (Lines~\ref{al:afs:greedy-replacement:line:one-disjoint-feature-start}--\ref{al:afs:greedy-replacement:line:one-disjoint-feature-end}).
+Assuming each array access takes $O(1)$, the total update cost is $O(n)$.
+Further, each alternative $s^{(l)}$ gets initialized as the selection~$s$ of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features (Line~\ref{al:afs:greedy-replacement:line:copy-common-selection}), which the algorithm determines once before the main loop (Lines~\ref{al:afs:greedy-replacement:line:common-features-start}--\ref{al:afs:greedy-replacement:line:common-features-end}).
+Initializing $a$~arrays costs $O(a \cdot n)$.
+Since the algorithm can only yield $a < n$ alternatives, the overall time complexity is~$O(n^2)$, i.e., polynomial in~$n$.
 
 \paragraph{Quality}
 
@@ -1056,17 +1057,17 @@ Finally, the heuristic assumes the same size~$k$ for all feature sets.
 		Dissimilarity threshold~$\tau \in [0, 1]$}
 	\KwOut{List of feature-selection decision vectors~$s^{(0)}, \dots, s^{(a)}$}
 	\BlankLine
-	\If{$\lceil \tau \cdot k \rceil \cdot a + k > n$}{ \label{al:afs:greedy-balancing:line:stop-early}
+	\lIf{$\lceil \tau \cdot k \rceil \cdot a + k > n$}{ \label{al:afs:greedy-balancing:line:stop-early}
 		\Return{$\emptyset$}
 	}
-	$\mathit{indices} \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities} \label{al:afs:greedy-balancing:line:sorting} \label{al:afs:greedy-balancing:line:common-features-start}
-	\For(\tcp*[f]{Initial selection for all alternatives}){$l \leftarrow 0$ \KwTo $a$}{
-		$s^{(l)} \leftarrow \{0\}^n$ \;
+	$\mathit{indices} \leftarrow$ sort\_indices($q$, order=descending) \tcp*{Order by qualities} \label{al:afs:greedy-balancing:line:sorting} \label{al:afs:greedy-balancing:line:common-features-start} 
+	\For(\tcp*[f]{Initial selection for all alternatives}){$l \leftarrow 0$ \KwTo $a$}{ \label{al:afs:greedy-balancing:line:array-initialization-start}
+		$s^{(l)} \leftarrow \{0\}^n$ \; \label{al:afs:greedy-balancing:line:array-initialization-end}
 	}
 	$\mathit{feature\_position} \leftarrow 1$ \tcp*{Index of index of current feature}
-	\While(\tcp*[f]{Select top features}){$\mathit{feature\_position} \leq \lfloor (1 - \tau) \cdot k \rfloor$}{
+	\While(\tcp*[f]{Select top features}){$\mathit{feature\_position} \leq \lfloor (1 - \tau) \cdot k \rfloor$}{ \label{al:afs:greedy-balancing:line:common-features-loop}
 		$j \leftarrow \mathit{indices}[\mathit{feature\_position}]$ \tcp*{Index feature by quality}
-		\For(\tcp*[f]{Same features in all alternatives}){$l \leftarrow 0$ \KwTo $a$}{
+		\For(\tcp*[f]{Same features in all alternatives}){$l \leftarrow 0$ \KwTo $a$}{ \label{al:afs:greedy-balancing:line:common-features-alternatives-start}
 			$s^{(l)}_j \leftarrow 1$ \;
 		}
 		$\mathit{feature\_position} \leftarrow \mathit{feature\_position} + 1$\;
@@ -1074,22 +1075,22 @@ Finally, the heuristic assumes the same size~$k$ for all feature sets.
 	\For{$l \leftarrow 0$ \KwTo $a$}{ \label{al:afs:greedy-balancing:line:disjoint-features-start}
 		$Q^{(l)} \leftarrow 0$\ \tcp*{Relative quality of each alternative}
 	}
-	\While(\tcp*[f]{Fill all positions}){$\mathit{feature\_position} \leq \lceil \tau \cdot k \rceil \cdot a + k$}{ \label{al:afs:greedy-balancing:line:stop}
+	\While(\tcp*[f]{Fill all positions}){$\mathit{feature\_position} \leq \lceil \tau \cdot k \rceil \cdot a + k$}{ \label{al:afs:greedy-balancing:line:stop} \label{al:afs:greedy-balancing:line:disjoint-features-loop}
 		$Q_\text{min} \leftarrow \infty$ \tcp*{Find alternative with lowest quality}
 		$l_\text{min} \leftarrow -1$ \;
-		\For{$l \leftarrow 0$ \KwTo $a$}{
-			\If(\tcp*[f]{Check cardinality}){$Q^{(l)} < Q_\text{min}$ \textbf{and} $\sum_{j=1}^{n} s^{(l)}_j < k$}{
+		\For{$l \leftarrow 0$ \KwTo $a$}{ \label{al:afs:greedy-balancing:line:disjoint-features-alternatives-start}
+			\If(\tcp*[f]{Check cardinality}){$Q^{(l)} < Q_\text{min}$ \textbf{and} $\sum_{j=1}^{n} s^{(l)}_j < k$}{ \label{al:afs:greedy-balancing:line:cardinality-check}
 				$Q_\text{min} \leftarrow Q^{(l)}$ \;
 				$l_\text{min} \leftarrow l$ \;
 			}
 		}
-		$j \leftarrow indices[\mathit{feature\_position}]$ \tcp*{Index feature by quality}
+		$j \leftarrow \mathit{indices}[\mathit{feature\_position}]$ \tcp*{Index feature by quality}
 		$s^{(l_\text{min})}_j \leftarrow 1$ \tcp*{Add to lowest-quality, non-full alternative}
 		$Q^{(l_\text{min})} \leftarrow Q^{(l_\text{min})} + q_j$ \tcp*{Update quality of that alternative}
 		$\mathit{feature\_position} \leftarrow \mathit{feature\_position} + 1$\;
 	} \label{al:afs:greedy-balancing:line:disjoint-features-end}
 	\Return{$s^{(0)}, \dots, s^{(a)}$}
-	\caption{\emph{Greedy Balancing} for alternative feature sets.}
+	\caption{\emph{Greedy Balancing} for alternative feature selection.}
 	\label{al:afs:greedy-balancing}
 \end{algorithm}
 
@@ -1121,11 +1122,13 @@ We continue this procedure until all alternatives have reached size~$k$ (Line~\r
 	\label{ex:afs:greedy-balancing:algorithm}
 \end{example}
 
-\paragraph{Complexity}
+\paragraph{Time complexity}
 
-Like \emph{Greedy Replacement}, \emph{Greedy Balancing} has an upfront cost of $O(n \cdot \log n)$ for sorting feature qualities (Line~\ref{al:afs:greedy-balancing:line:sorting}) and then iterates over $O(n)$ $\mathit{feature\_position}$s.
-For each $\mathit{feature\_position}$, the algorithm iterates over $a$~alternatives and conducts a fixed number of array operations in $O(n)$.
-Thus, the overall complexity of \emph{Greedy Balancing} is $O(a \cdot n^2)$.
+Like \emph{Greedy Replacement}, \emph{Greedy Balancing} has an upfront cost of $O(n \cdot \log n)$ for sorting feature qualities (Line~\ref{al:afs:greedy-balancing:line:sorting}) and then iterates over $O(n)$ $\mathit{feature\_position}$s (Lines~\ref{al:afs:greedy-balancing:line:common-features-loop} and~\ref{al:afs:greedy-balancing:line:disjoint-features-loop}).
+For each $\mathit{feature\_position}$, the algorithm iterates over $a$~alternatives (Lines~\ref{al:afs:greedy-balancing:line:common-features-alternatives-start} and~\ref{al:afs:greedy-balancing:line:disjoint-features-alternatives-start}) and conducts a constant number of operations each, which yields total update costs of $O(a \cdot n)$.
+This figure assumes cardinality checks (Line~\ref{al:afs:greedy-balancing:line:cardinality-check}) can be done in $O(1)$, e.g., by storing the current feature-set sizes.
+There is also a total cost of~$O(a \cdot n)$ for array initialization (Lines~\ref{al:afs:greedy-balancing:line:array-initialization-start}--\ref{al:afs:greedy-balancing:line:array-initialization-end}).
+Since $a < n$ (Line~\ref{al:afs:greedy-balancing:line:stop-early}), the overall time complexity of \emph{Greedy Balancing} is $O(n^2)$, as for \emph{Greedy Replacement}.
 
 \paragraph{Quality}
 
@@ -2874,7 +2877,7 @@ We repeat the main loop until we reach the desired number of alternatives~$a$ or
 	\label{ex:afs:greedy-depth:algorithm}
 \end{example}
 
-\paragraph{Complexity}
+\paragraph{Time complexity}
 
 The runtime behavior differs from the other two heuristics.
 In particular, \emph{Greedy Replacement} has the same runtime cost between subsequent alternatives since it directly creates valid alternatives by design.
