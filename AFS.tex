@@ -16,6 +16,7 @@
 \usepackage{amssymb} % mathematical symbols
 \usepackage{amsthm} % theorems, definitions etc.
 \usepackage{booktabs} % nicely formatted tables (with top, mid, and bottom rule)
+\usepackage{enumitem} % nicely formatted enumerations
 \usepackage{graphicx} % plots
 \usepackage{multirow} % cells spanning multiple rows in tables
 \usepackage{orcidlink} % ORCID icon
@@ -432,6 +433,20 @@ Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:sequent
 	\label{eq:afs:afs-sequential}
 \end{equation}
 %
+The full textual problem definition corresponding to Equation~\ref{eq:afs:afs-sequential} is the following:
+%
+\begin{definition}[Sequential-search problem for one alternative feature set]
+	Given
+	\begin{itemize}[noitemsep]
+		\item a dataset~$X \in \mathbb{R}^{m \times n}$ with prediction target~$y \in Y^m$,
+		\item a set~$\mathbb{F}$ of existing feature sets for~$X$,
+		\item a symmetric set-dissimilarity measure~$d(\cdot) \in [0,1]$ with $d(\cdot) = 1 \rightarrow$ no set overlap,
+		\item and a dissimilarity threshold~$\tau \in [0,1]$,
+	\end{itemize}
+	sequential search for one alternative feature set is the problem of making feature-selection decisions~$s \in \{0,1\}^n$ that maximize a given notion of feature-set quality~$Q(s,X,y)$ while making the corresponding feature set~$F_s$ a sequential alternative to~$\mathbb{F}$ (cf.~Definition~\ref{def:afs:sequential-alternative}).
+	\label{def:afs:alternative-feature-selection-sequential}
+\end{definition}
+%
 The objective function remains the same as for a single alternative ($|\mathbb{F}| = 1$), i.e., we only optimize the quality of one feature set at once.
 In particular, with $\mathbb{F} = \emptyset$ in the first iteration, we optimize for the `original' feature set, which is the same as in conventional feature selection without constraints for alternatives.
 Thus, the number of variables in the optimization problem is independent of the number of alternatives~$a$.
@@ -465,7 +480,22 @@ Combining Equation~\ref{eq:afs:afs-general} with Definition~\ref{def:afs:simulta
 	\label{eq:afs:afs-simultaneous}
 \end{equation}
 %
-In contrast to the sequential case (cf.~Equation~\ref{eq:afs:afs-sequential}), the problem requires $a+1$ instead one decision vector~$s$, and a modified objective function.
+The full textual problem definition corresponding to Equation~\ref{eq:afs:afs-simultaneous} is the following:
+%
+\begin{definition}[Simultaneous-search problem for alternative feature sets]
+	Given
+	\begin{itemize}[noitemsep]
+		\item a dataset~$X \in \mathbb{R}^{m \times n}$ with prediction target~$y \in Y^m$,
+		\item the number of alternatives~$a \in \mathbb{N}_0$,
+		\item an aggregation operator $\text{agg}(\cdot): \mathbb{R}^{a+1} \to \mathbb{R}$ for feature-set qualities,
+		\item a symmetric set-dissimilarity measure~$d(\cdot) \in [0,1]$ with $d(\cdot) = 1 \rightarrow$ no set overlap,
+		\item and a dissimilarity threshold~$\tau \in [0,1]$,
+	\end{itemize}
+	simultaneous search for alternative feature sets is the problem of making feature-selection decisions~$s^{(l)} \in \{0,1\}^n$ for $l \in \{0, \dots, a\}$ that maximize a given notion of feature-set quality~$Q(s,X,y)$ aggregated over the alternatives with $\operatorname*{agg}_{l \in \{0, \dots, a\}} Q(s^{(l)},X,y)$ while making the corresponding feature sets $\mathbb{F} = \{F_{s^{(0)}},$ $\dots, F_{s^{(a)}}\}$ simultaneous alternatives (cf.~Definition~\ref{def:afs:simultaneous-alternative}).
+	\label{def:afs:alternative-feature-selection-simultaneous}
+\end{definition}
+%
+In contrast to the sequential case (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), the problem requires $a+1$ instead one decision vector~$s$, and a modified objective function.
 The operator~$\text{agg}(\cdot)$ defines how to aggregate the feature-set qualities of the alternatives.
 In our experiments, we consider the sum as well as the minimum to instantiate~$\text{agg}(\cdot)$, which we refer to as \emph{sum-aggregation} and \emph{min-aggregation}.
 The latter explicitly fosters balanced feature-set qualities.
@@ -736,7 +766,7 @@ This procedure entails a cost of~$O(a \cdot n)$ for each new alternative and~$O(
 Combining this cost with Proposition~\ref{prop:afs:complexity-exhaustive-conventional}, we obtain the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive sequential search]
-	Exhaustive sequential search (cf.~Equation~\ref{eq:afs:afs-sequential}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k+1})$ without the cost of evaluating the objective function.
+	Exhaustive sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k+1})$ without the cost of evaluating the objective function.
 	\label{prop:afs:complexity-exhaustive-sequential}
 \end{proposition}
 %
@@ -750,7 +780,7 @@ Thus, an exhaustive search over size-$k$ feature sets iterates over~$O((n^k)^{a+
 Including the cost of constraint checking, we arrive at the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive simultaneous search]
-	Exhaustive simultaneous search (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective function.
+	Exhaustive simultaneous search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective function.
 	\label{prop:afs:complexity-exhaustive-simultaneuos}
 \end{proposition}
 %
@@ -759,7 +789,7 @@ Further, Proposition~\ref{prop:afs:complexity-exhaustive-simultaneuos} assumes t
 Finally, the complexity remains polynomial in~$n$ if $a$ and~$k$ are small and independent from~$n$, i.e., $a \cdot k \in O(1)$:
 %
 \begin{proposition}[Parameterized complexity of simultaneous-search problem]
-	The simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for $a \in \mathbb{N}$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features resides in the parameterized complexity class $\mathcal{XP}$ for the parameter~$a \cdot k$.
+	The simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for $a \in \mathbb{N}$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features resides in the parameterized complexity class $\mathcal{XP}$ for the parameter~$a \cdot k$.
 	\label{prop:afs:complexity-simultaneuos-xp}
 \end{proposition}
 
@@ -801,14 +831,14 @@ The tasks become features, the negative task lengths become univariate feature q
 Since \textsc{Multiprocessor Scheduling} is $\mathcal{NP}$-complete, even for just two partitions~\cite{garey2003computers}, our problem is $\mathcal{NP}$-complete as well:
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation, complete partitioning, and unconstrained feature-set size]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~features have to be selected, the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, unconstrained feature-set sizes, and all $n$~features have to be selected, the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-partitioning-min-unconstrained-k}
 \end{proposition}
 %
 Since the assumptions in Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} denote a special case of alternative feature selection, we directly obtain the following, more general proposition:
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation]
-	The simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-hard.
+	The simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-hard.
 	\label{prop:afs:complexity-simultaneous-np}
 \end{proposition}
 %
@@ -817,7 +847,7 @@ While Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} all
 can be transformed into our maximin objective as above:
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation, complete partitioning, and constrained feature-set size]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and all $n$~features have to be selected, the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and all $n$~features have to be selected, the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-partitioning-min-constrained-k}
 \end{proposition}
 
@@ -827,7 +857,7 @@ We now allow that some features may not be part of any feature set while we keep
 The problem of finding such an \emph{incomplete partitioning} still is $\mathcal{NP}$-complete in general (cf.~Appendix~\ref{sec:afs:appendix:complexity:proofs} for the proof):
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation, incomplete partitioning, and constrained feature-set size]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and \emph{not} all $n$~features have to be selected, the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and \emph{not} all $n$~features have to be selected, the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-incomplete-partitioning-min-constrained-k}
 \end{proposition}
 
@@ -836,7 +866,7 @@ The problem of finding such an \emph{incomplete partitioning} still is $\mathcal
 The problem with $\tau < 1$, i.e., set overlap, also is $\mathcal{NP}$-hard in general (cf.~Appendix~\ref{sec:afs:appendix:complexity:proofs} for the proof):
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation, $\tau < 1$, and constrained feature-set size]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau < 1$, and desired feature-set size~$k \in \mathbb{N}$, the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-hard.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau < 1$, and desired feature-set size~$k \in \mathbb{N}$, the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-hard.
 	\label{prop:afs:complexity-no-partitioning-min-constrained-k}
 \end{proposition}
 
@@ -948,7 +978,7 @@ While not optimizing exactly, \emph{Greedy Replacement} still offers an approxim
 %
 \begin{proposition}[Approximation quality of \emph{Greedy Replacement}]
 	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau \in (0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
-	Under these conditions, \emph{Greedy Replacement} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Equation~\ref{eq:afs:afs-sequential}), (2) simultaneous search with sum-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-min-objective}).
+	Under these conditions, \emph{Greedy Replacement} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}).
 	\label{prop:afs:approximation-greedy-replacement}
 \end{proposition}
 
@@ -963,13 +993,13 @@ While not optimizing exactly, \emph{Greedy Replacement} still offers an approxim
 	Thus, the quality bound of the heuristic solution relative to the exact solution also applies to the minimum and sum of qualities over multiple alternatives.
 \end{proof}
 %
-In particular, \emph{Greedy Replacement} yields a constant-factor approximation for the three optimization problems (cf.~Equation~\ref{eq:afs:afs-sequential} and~\ref{eq:afs:afs-simultaneous}) mentioned in Proposition~\ref{prop:afs:approximation-greedy-replacement}.
+In particular, \emph{Greedy Replacement} yields a constant-factor approximation for the three optimization problems mentioned in Proposition~\ref{prop:afs:approximation-greedy-replacement}.
 The condition $k + a \cdot \lceil \tau \cdot k \rceil \leq n$ describes scenarios where \emph{Greedy Replacement} can yield all desired alternatives, i.e., does not run out of unused features.
 As the heuristic has polynomial runtime, alternative feature selection lies in the complexity class $\mathcal{APX}$~\cite{khanna1998syntactic} under the specified conditions:
 %
 \begin{proposition}[Approximation complexity of alternative feature selection]
 	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau in [0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
-	Under these conditions, the optimization problems of alternative feature selection with (1) sequential search (cf.~Equation~\ref{eq:afs:afs-sequential}), (2) simultaneous search with sum-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-min-objective}) reside in the complexity class~$\mathcal{APX}$.
+	Under these conditions, the optimization problems of alternative feature selection with (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}) reside in the complexity class~$\mathcal{APX}$.
 	\label{prop:afs:approximation-apx}
 \end{proposition}
 %
@@ -1105,7 +1135,7 @@ Hence, the quality guarantee of \emph{Greedy Replacement} (cf.~Proposition~\ref{
 %
 \begin{proposition}[Approximation quality of \emph{Greedy Balancing}]
 	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau \in [0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
-	Under these conditions, \emph{Greedy Balancing} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Equation~\ref{eq:afs:afs-sequential}), (2) simultaneous search with sum-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-min-objective}).
+	Under these conditions, \emph{Greedy Balancing} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}).
 	\label{prop:afs:approximation-greedy-balancing}
 \end{proposition}
 %
@@ -1390,7 +1420,7 @@ Thus, given sufficient solving time, these alternatives are globally optimal.
 For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based, so we place it in this category rather than the former) and might not cover the entire search space.
 There, the solver only assists in finding valid solutions but does not optimize.
 
-For each feature selection method, we analyze \emph{sequential} (cf.~Equation~\ref{eq:afs:afs-sequential}) and \emph{simultaneous} (cf.~Equation~\ref{eq:afs:afs-simultaneous}) solver-based search for alternatives.
+For each feature selection method, we analyze \emph{sequential} (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) and \emph{simultaneous} (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) solver-based search for alternatives.
 For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
 In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these solver-based search methods.
 
@@ -2342,7 +2372,7 @@ This work was supported by the Ministry of Science, Research and the Arts Baden-
 \label{sec:afs:appendix}
 
 In this section, we provide supplementary materials.
-Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses possible aggregation operators for the objective of the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
+Section~\ref{sec:afs:appendix:simultaneous-objective-aggregation} discusses possible aggregation operators for the objective of the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}).
 Section~\ref{sec:afs:appendix:multivariate-filter-objectives} discusses additional objective functions for multivariate filter feature selection (cf.~Section~\ref{sec:afs:approach:objectives:white-box}).
 Section~\ref{sec:afs:appendix:univariate-complete-optimization-problem} provides complete definitions of the alternative-feature-selection problem (cf.~Section~\ref{sec:afs:approach:constraints}) for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:univariate-pre-selection} proposes how to speed up optimization for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}).
@@ -2353,7 +2383,7 @@ Section~\ref{sec:afs:appendix:evaluation} contains additional evaluation results
 \subsection{Aggregation Operators for the Simultaneous-Search Problem}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
 
-In this section, we discuss operators to aggregate the feature-set quality of multiple alternatives in the objective of the simultaneous-search problem (cf.~Equation~\ref{eq:afs:afs-simultaneous}).
+In this section, we discuss operators to aggregate the feature-set quality of multiple alternatives in the objective of the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}).
 
 \paragraph{Sum-aggregation}
 
@@ -2477,7 +2507,7 @@ Finally, we assume fixed, user-defined feature-set sizes~$k \in \mathbb{N}$.
 
 \paragraph{Sequential-search problem}
 
-In the sequential case, only one feature set~$F_s$ is variable in the optimization problem, while the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their selection vectors $\bar{s}$ are constants.
+In the sequential case (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential} and Equation~\ref{eq:afs:afs-sequential}), only one feature set~$F_s$ is variable in the optimization problem, while the existing feature sets $F_{\bar{s}} \in \mathbb{F}$ with their selection vectors $\bar{s}$ are constants.
 %
 \begin{equation}
 	\begin{aligned}
@@ -2491,7 +2521,7 @@ In the sequential case, only one feature set~$F_s$ is variable in the optimizati
 %
 \paragraph{Simultaneous-search problem}
 
-In the simultaneous case, all feature sets are variable.
+In the simultaneous case (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous}), all feature sets are variable.
 $a \in \mathbb{N}_0$ denotes the number of alternatives, which corresponds to the number of feature sets minus one.
 Next, we introduce auxiliary variables to linearize products between variables (cf.~Equation~\ref{eq:afs:product-linear}).
 Finally, we use sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) over alternatives in the objective here.
@@ -2573,7 +2603,7 @@ In particular, increasing the number of alternatives would increase the encoding
 
 The literature provides different formulations of \textsc{Multi-Way Number Partitioning} and \textsc{Multiprocessor Scheduling}.
 In particular, different objectives formalize the notion of balanced subset sums and can lead to different optimal solutions~\cite{korf2010objective, lawrinenko2017identical}.
-The maximin formulation we use for min-aggregation in the simultaneous-search problem (cf.~Equations~\ref{eq:afs:afs-simultaneous} and~\ref{eq:afs:afs-simultaneous-min-objective}) is one such notion.
+The maximin formulation we use for min-aggregation in the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is one such notion.
 
 There are several exact algorithms to solve \textsc{Multi-Way Number Partitioning}, e.g., using branch-and-bound approaches that might have exponential runtime~\cite{haouari2008maximizing, schreiber2018optimal, walter2017improved}.
 For a fixed number of partitions, the problem is weakly $\mathcal{NP}$-complete since it admits pseudo-polynomial algorithms~\cite{garey2003computers, korf2009multi}.
@@ -2641,7 +2671,7 @@ In this Section, we provide proofs for propositions from Section~\ref{sec:afs:ap
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-incomplete-partitioning-min-constrained-k}}
 %
 \begin{proof}
-Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed.
+Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
 We add one feature~$f'$ to~$I$ and keep $a$, $k$, and $\tau$ as before, obtaining an instance~$I'$ of the incomplete-partitioning problem since one feature will not be selected.
 We choose the quality~$q'$ of~$f'$ to be lower than the quality of all other features in~$I$.
 Since the univariate objective with min-aggregation is monotonically increasing in the selected feature qualities, selecting feature~$f'$ in a solution of~$I'$ does not have any benefit since~$f'$ would replace a feature with higher quality.
@@ -2659,7 +2689,7 @@ Since checking a solution for incomplete partitioning needs only polynomial time
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}}
 %
 \begin{proof}
-Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed.
+Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
 We create a new problem instance~$I'$ by adding a new feature~$f'$ and increasing the feature-set size to $k' = k + 1$.
 Further, we set $\tau' = (k' - 1) / k'$, thereby allowing an overlap of at most one feature between feature sets.
 Also, we choose~$f'$ to have a considerably higher quality~$q'$ than all other features.
@@ -2670,7 +2700,7 @@ Thus, a solution for~$I'$ contains~$f'$ in each feature set while the remaining 
 Hence, we remove~$f'$ to get feature sets of size~$k = k' - 1$ that constitute an optimal solution for the original problem instance~$I$.
 	
 This transformation shows how an algorithm for problem instances with $\tau < 1$ can help solve arbitrary problem instances with $\tau = 1$.
-Given the $\mathcal{NP}$-completeness of the latter problem, we obtain $\mathcal{NP}$-hardness of the former.
+Given the $\mathcal{NP}$-completeness of the latter problem (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), we obtain $\mathcal{NP}$-hardness of the former.
 \end{proof}
 %
 Adding the proposed~$f'$ with a high quality~$q'$ enlarges the size of the problem instance.
