@@ -320,17 +320,17 @@ When implementing Definition~\ref{def:afs:single-alternative}, the following pro
 \end{proposition}
 %
 \begin{proof}
-We re-arrange terms in the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) to get rid of the quotient of feature-set sizes:
+We re-arrange terms in the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) to eliminate the quotient of feature-set sizes:
 %
 \begin{equation}
 	\begin{aligned}
-		d_{\text{Dice}}(F',F'') = 1 - \frac{2 \cdot |F' \cap F''|}{|F'| + |F''|} &\geq \tau \\
-		\Leftrightarrow |F' \cap F''| &\leq \frac{1 - \tau}{2} \cdot (|F'| + |F''|)
+		d_{\text{Dice}}(F',F'') &= & 1 - \frac{2 \cdot |F' \cap F''|}{|F'| + |F''|} &\geq \tau \\
+		&\Leftrightarrow & |F' \cap F''| &\leq \frac{1 - \tau}{2} \cdot (|F'| + |F''|)
 	\end{aligned}
 	\label{eq:afs:dice-rearranged}
 \end{equation}
 %
-Next, we express set sizes in terms of the feature-selection vector $s$:
+Next, we express the set sizes in terms of the feature-selection vector $s$:
 %
 \begin{equation}
 	\begin{aligned}
@@ -990,8 +990,9 @@ While not optimizing exactly, \emph{Greedy Replacement} still offers an approxim
 	In comparison, the optimal original, i.e., unconstrained, feature set of size~$k$ contains the top $k$ features, which are the union of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features and the next-best $\lceil \tau \cdot k \rceil$ features.
 	Due to quality sorting, each of the next-best $\lceil \tau \cdot k \rceil$ features has at most the quality of each of the top $\lfloor (1 - \tau) \cdot k \rfloor$ features, i.e., contributes the same or less to the summed quality of the feature set.
 	Hence, assuming non-negative qualities, each alternative yielded by \emph{Greedy Replacement} has at least a quality of $\lfloor (1 - \tau) \cdot k \rfloor / k$ relative to the optimal original feature set of size~$k$ since the $\lfloor (1 - \tau) \cdot k \rfloor$ highest-quality features are part of both feature sets.
-	Next, the optimal original feature set of size~$k$ upper-bounds the quality of any alternative feature set of size~$k$ found by any search method.
-	Thus, the quality bound of the heuristic solution relative to the exact solution also applies to the minimum and sum of qualities over multiple alternatives.
+	Next, the optimal original feature set of size~$k$ upper-bounds the quality of any feature set of size~$k$.
+	Consequently, alternative feature sets found by exact sequential or simultaneous search can also not be better.
+	Thus, the quality bound of the heuristic solution relative to the exact solution also applies to the minimum and sum of qualities over multiple alternative feature sets.
 \end{proof}
 %
 In particular, \emph{Greedy Replacement} yields a constant-factor approximation for the three optimization problems mentioned in Proposition~\ref{prop:afs:approximation-greedy-replacement}.
@@ -2674,54 +2675,44 @@ In this Section, we provide proofs for propositions from Section~\ref{sec:afs:ap
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-incomplete-partitioning-min-constrained-k}}
 %
 \begin{proof}
-Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
-We add one feature~$f'$ to~$I$ and keep $a$, $k$, and $\tau$ as before, obtaining an instance~$I'$ of the incomplete-partitioning problem since one feature will not be selected.
-We choose the quality~$q'$ of~$f'$ to be lower than the quality of all other features in~$I$.
-Since the univariate objective with min-aggregation is monotonically increasing in the selected feature qualities, selecting feature~$f'$ in a solution of~$I'$ does not have any benefit since~$f'$ would replace a feature with higher quality.
-If~$f'$ is not selected, then this solution of~$I'$ also solves~$I$.
-However, if the qualities of the resulting alternatives are not equal, $f'$ might be chosen in a set that does not have the minimum quality of all sets since only the latter determines the overall objective value (cf.~Example~\ref{ex:afs:min-aggregation}).
-In that case, we replace $f'$ with the remaining feature that was not selected instead; the objective value remains the same, and the solution becomes valid for~$I$.
+Let~$I$ be an arbitrary problem instance of the simultaneous-search problem with min-aggregation, univariate feature qualities, a complete-partitioning scenario, and a fixed feature-set size~$k$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
+We add a new feature~$f'$ to~$I$ and keep the parameters $a$, $k$, and $\tau$ as before, obtaining an instance~$I'$ of the incomplete-partitioning scenario since one feature will not be selected.
+We set the quality~$q'$ of~$f'$ to be lower than all other feature qualities in~$I$.
+Since the univariate objective monotonically increases in the selected feature qualities, selecting feature~$f'$ in a solution of~$I'$ does not have any benefit since~$f'$ would replace a feature with higher quality.
+If~$f'$ is not selected, this solution of~$I'$ also solves~$I$.
+However, if the qualities of the alternatives are not equal, $f'$ might still be chosen in a set that does not have the minimum quality of all sets since only the latter determines the objective value (cf.~Example~\ref{ex:afs:min-aggregation}).
+In that case, we replace $f'$ with the remaining unselected feature; the objective value remains the same, and the solution becomes valid for~$I$.
 Thus, in any case, we can easily transform a solution for~$I'$ to a solution for~$I$.
-	
-This argument shows that an algorithm for incomplete partitioning can solve arbitrary complete-partitioning problem instances with negligible computational overhead.
+
+Overall, an algorithm for incomplete partitioning can solve arbitrary complete-partitioning instances with negligible computational overhead.
 Thus, a polynomial-time algorithm for incomplete partitioning could also solve complete partitioning polynomially.
-However, the latter problem type is $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), so incomplete partitioning has to be $\mathcal{NP}$-hard.
+However, the latter problem is $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), so incomplete partitioning has to be $\mathcal{NP}$-hard.
 Since checking a solution for incomplete partitioning needs only polynomial time, we obtain membership in $\mathcal{NP}$ and thereby $\mathcal{NP}$-completeness.
 \end{proof}
 
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-no-partitioning-min-constrained-k}}
 %
 \begin{proof}
-Let an arbitrary problem instance~$I$ of the complete-partitioning problem be given and the feature-set size~$k$ be fixed (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
+Let~$I$ be an arbitrary problem instance of the simultaneous-search problem with min-aggregation, univariate feature qualities, a complete-partitioning scenario, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and a fixed feature-set size~$k$ (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}).
 We create a new problem instance~$I'$ by adding a new feature~$f'$ and increasing the feature-set size to $k' = k + 1$.
 Further, we set $\tau' = (k' - 1) / k'$, thereby allowing an overlap of at most one feature between feature sets.
 Also, we choose~$f'$ to have a considerably higher quality~$q'$ than all other features.
-The goal is to force the selection of~$f'$ in all feature sets such that any other solution would be worse, no matter which other features are selected.
-One possible choice is $q' = \sum_{j=1}^n q_j + \varepsilon$, with $\varepsilon \in \mathbb{R}_{> 0}$ being a small positive number, or, if the qualities are integers, $\varepsilon = 1$.
+Our goal is to force the selection of~$f'$ in all feature sets, no matter which other features are selected.
+One possible choice is $q' = \sum_{j=1}^n q_j + \varepsilon$ for a small $\varepsilon \in \mathbb{R}_{> 0}$
 This quality~$q'$ of~$f'$ is higher than of any feature set not containing it.
-Thus, a solution for~$I'$ contains~$f'$ in each feature set while the remaining features are part of exactly one feature set.
-Hence, we remove~$f'$ to get feature sets of size~$k = k' - 1$ that constitute an optimal solution for the original problem instance~$I$.
-	
+Thus, a solution for~$I'$ contains~$f'$ in each feature set, while the remaining features are part of exactly one feature set.
+Hence, we can remove~$f'$ to get feature sets of size~$k = k' - 1$ that constitute an optimal solution for the original problem instance~$I$.
+
 This transformation shows how an algorithm for problem instances with $\tau < 1$ can help solve arbitrary problem instances with $\tau = 1$.
 Given the $\mathcal{NP}$-completeness of the latter problem (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), we obtain $\mathcal{NP}$-hardness of the former.
 \end{proof}
 %
-Adding the proposed~$f'$ with a high quality~$q'$ enlarges the size of the problem instance.
-However, the transformation from $I$ to $I'$ still runs in polynomial time and increases the input size by at most a fixed factor.
-In particular, encoding a problem instance involves $n$~feature qualities and the values of $a$, $k$, and $\tau$.
-Assuming the feature qualities in $I$ have an average encoding size of $c \in \mathbb{R}$, the overall quality encoding has the size $c \cdot n$.
-As~$q'$ roughly equals the sum of all feature qualities, its encoding size is upper-bounded by $c \cdot n$ if we disregard~$\epsilon$.
-The change of $k$ and $\tau$ is negligible for the encoding size of the problem instance overall.
-In consequence, the input size of~$I'$ is at most roughly double the size of~$I$.
-If we explicitly stored all the constraints instead of only the relevant parameters, we would obtain a similar result:
-Besides adding~$q'$ to the objective, all constraints would accommodate one new feature, independent of its quality, increasing their encoding size from $O(n)$ to $O(n+1)$, i.e., less than double.
-
-One can extend the reduction above from $\tau' = (k' - 1) / k'$ to all other $\tau > 0$.
-In particular, for a fixed feature set-size~$k$, there is only a finite number of $\tau$ values leading to different set overlaps, i.e., $\tau = \{0, 1/k, \dots, (k - 1) / k, 1\}$.
-The highest overlap except~$\tau=0$ requires creating an instance $I'$ with $\tau'= 1/k$ from an instance with $\tau = 1$.
+One can transfer this reduction from $\tau' = (k' - 1) / k'$ to all other $\tau > 0$.
+In particular, for a given~$k$, there is only a finite number of $\tau$ values leading to different set overlaps, e.g., $\tau = \{0, 1/k, \dots, (k - 1) / k, 1\}$ for the Dice dissimilarity.
+The proof for the highest overlap except~$\tau=0$ requires creating an instance $I'$ with $\tau'= 1/k$ from an instance with $\tau = 1$.
 For this purpose, $k^2 - k$ features need to be added since $\tau' = k / k' = k / (k + k^2 -k) = 1/k$.
 I.e., $k$ out of $k' = k^2$ features need to form a complete partitioning, while the remaining $k^2 - k$~features occur in each feature set and will be removed after solving~$I'$.
-The maximum number of features to be added is polynomial in~$k$ and thereby also polynomial in~$n$.
+The number of features to be added is polynomial in~$k$ and thereby also polynomial in~$n$.
 
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-partitioning-sum}}
 %
