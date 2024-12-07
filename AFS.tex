@@ -124,7 +124,7 @@ Fifth, we evaluate alternative feature selection with comprehensive experiments.
 In particular, we use 30 binary-classification datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb, romano2021pmlb} and five feature-selection methods.
 We focus our evaluation on the feature-set quality of the alternatives relative to our search methods for alternatives and user parameters.
 Additionally, we evaluate runtime.
-We publish all our code\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and experimental data\footnote{\url{https://doi.org/10.35097/1920}} online.
+We publish all code and data online (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
 
 \paragraph{Experimental results}
 
@@ -1496,7 +1496,11 @@ However, the table only shows the mean over all feature pairs.
 \label{sec:afs:experimental-design:implementation}
 
 We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn}~\cite{pedregosa2011scikit-learn} for machine learning and the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools} for optimization.
-A requirements file in our code specifies the versions of all packages.
+The code is available on \emph{GitHub}\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and additionally backed up in the \emph{Software Heritage archive}\footnote{\href{https://archive.softwareheritage.org/swh:1:dir:1e2b6605040a2151d31a90cde947787e92c98519;origin=https://github.com/Jakob-Bach/Alternative-Feature-Selection;visit=swh:1:snp:1413d85e1a9005d5681ee7dbeae0b4df851780de;anchor=swh:1:rev:14dea32227848c06b1430b6371e100f3d8c74010}{swh:1:dir:1e2b6605040a2151d31a90cde947787e92c98519}}.
+A requirements file in our repository specifies the versions of all dependencies.
+Further, we released the methods for alternative feature selection as the Python package \emph{alfese}\footnote{\url{https://pypi.org/project/alfese/}} on \emph{PyPI} to ease reuse.
+Finally, we published all experimental data\footnote{\url{https://doi.org/10.35097/1920}}.
+
 The experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while solver calls and model training are single-threaded.
 We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32~physical cores and a base clock of 2.0~GHz.
 The parallelized pipeline run took 255~hours, i.e., about 10.6~days.
