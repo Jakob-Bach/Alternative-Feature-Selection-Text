@@ -1075,7 +1075,7 @@ Finally, the heuristic assumes the same size~$k$ for all feature sets.
 \subsubsection{Greedy Balancing}
 \label{sec:afs:approach:univariate-heuristics:greedy-balancing}
 
-\emph{Greed Balancing Search} modifies \emph{Greedy Replacement} to obtain more balanced feature-set qualities by employing a simultaneous search method.
+\emph{Greedy Balancing} modifies \emph{Greedy Replacement} to obtain more balanced feature-set qualities by employing a simultaneous search method.
 
 \begin{algorithm}[tp]
 	\DontPrintSemicolon
@@ -1160,7 +1160,7 @@ Since $a < n$ (Line~\ref{al:afs:greedy-balancing:line:stop-early}), the overall 
 
 \paragraph{Quality}
 
-\emph{Greed Balancing Search} selects the same features as \emph{Greedy Replacement} and only changes their assignment to the feature sets.
+\emph{Greedy Balancing} selects the same features as \emph{Greedy Replacement} and only changes their assignment to the feature sets.
 Thus, the summed feature-set quality remains the same, while the minimum feature-set quality may be higher due to balancing.
 Hence, the quality guarantee of \emph{Greedy Replacement} (cf.~Proposition~\ref{prop:afs:approximation-greedy-replacement}) holds here as well:
 %
@@ -2845,7 +2845,7 @@ In particular, the new method \emph{Greedy Depth Search} is a sequential search 
 		}
 	}
 	\Return{$s^{(0)}, \dots, s^{(l)}$}
-	\caption{\emph{Greedy Depth Search} for alternative feature sets.}
+	\caption{\emph{Greedy Depth Search} for alternative feature selection.}
 	\label{al:afs:greedy-depth}
 \end{algorithm}
 
