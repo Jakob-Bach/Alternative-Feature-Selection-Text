@@ -875,13 +875,13 @@ The problem with $\tau < 1$, i.e., set overlap, also is $\mathcal{NP}$-hard in g
 In contrast to the previous $\mathcal{NP}$-hardness results for min-aggregation, sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) with $\tau=1$ admits polynomial-time algorithms (cf.~Appendix~\ref{sec:afs:appendix:complexity:proofs} for the proof):
 %
 \begin{proposition}[Complexity of search problems with sum-aggregation and $\tau=1$]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) and a dissimilarity threshold~$\tau = 1$, the search problem for alternative feature sets with sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) has a time complexity of $O(n)$ for a complete partitioning of $n$~features and $O(n \cdot \log n)$ for an incomplete partitioning.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) and a dissimilarity threshold~$\tau = 1$, the problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) and (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) have a time complexity of $O(n \cdot \log n)$.
 	\label{prop:afs:complexity-partitioning-sum}
 \end{proposition}
 %
-This feasibility result applies to sequential and simultaneous search, an arbitrary number of alternatives~$a$, and arbitrary feature-set sizes.
+This feasibility result applies to an arbitrary number of alternatives~$a$ and arbitrary feature-set sizes.
 The key reason for polynomial runtime is that sum-aggregation does not require balancing the feature sets' qualities.
-Thus, $\tau=1$ allows many solutions with the same objective value.
+Thus, $\tau=1$ allows many solutions with the same summed objective value.
 While at least one of these solutions also optimizes the objective with min-aggregation, most do not.
 Hence, it is not a contradiction that optimizing with min-aggregation is considerably harder.
 
@@ -2723,19 +2723,22 @@ The maximum number of features to be added is polynomial in~$k$ and thereby also
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-partitioning-sum}}
 %
 \begin{proof}
-For a complete partitioning, we must use each of the $n$~features exactly once.
-How we distribute the features among sets does not change the objective value, which is the sum of all $n$~qualities in any case.
-We only need to ensure that each feature set satisfies cardinality constraints if the latter exist.
-Thus, `searching' for alternatives amounts to iterating over the features once to assign them to the feature sets.
-Hence, the time complexity is $O(n)$ assuming each assignment takes~$O(1)$, e.g., using arrays to store feature-set membership.
+We discuss the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) with sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) first.
+We leverage the monotonicity of the univariate objective with sum-aggregation.
+In particular, this objective cannot decrease when selecting features of higher quality.
+Thus, we order all features decreasingly by their quality, which yields the complexity of~$O(n \cdot \log n)$.
+Next, we pick features in this order without replacement and assign them to sets until we have the user-defined number of alternatives with the user-defined feature-set sizes.
+Apart from observing cardinality constraints, the actual assignment of the selected features to sets does not matter quality-wise since swapping features between sets does not change the summed objective.
+Thus, one can fill the feature sets in an arbitrary order.
+Each assignment runs in $O(1)$, e.g., using arrays to store feature-set membership, yielding $O(n)$ for all features.
+Without cardinality constraints, only the number of alternatives needs to be satisfied.
+Further, if all features need to be selected, i.e., for a complete partitioning, one need not sort the features.
+Finally, if only a small fraction of features needs to be selected, one might slightly improve complexity to $O(k \cdot n)$ by iteratively picking the maximum instead of sorting all qualities.
 
-For an incomplete partitioning, we use the monotonicity of the univariate objective with sum-aggregation (cf.~Section~\ref{sec:afs:appendix:univariate-pre-selection}):
-This objective cannot decrease when selecting features of higher quality.
-Thus, we order the features decreasingly by their individual quality.
-Next, we pick features without replacement until we have the desired number of alternatives with the desired feature-set sizes.
-Again, assigning features to sets does not matter for the objective value.
-Due to the quality-based sorting, the time complexity is~$O(n \cdot \log n)$.
-If only a small fraction of features is used, one might slightly improve complexity by iteratively picking the maximum instead of sorting all qualities.
+For the sequential-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), we conduct the same quality-sorting procedure.
+In contrast to the simultaneous-search problem, the actual assignment of features to sets matters since the sets have an explicit order.
+In particular, each alternative should get the remaining highest-quality features until its user-defined size is reached.
+The complexity is still dominated by sorting and therefore~$O(n \cdot \log n)$.
 \end{proof}
 
 \subsubsection{Future Work}
