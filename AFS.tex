@@ -315,7 +315,7 @@ Continue this procedure till an alternative with an acceptable quality-dissimila
 When implementing Definition~\ref{def:afs:single-alternative}, the following proposition gives way to using a broad range of solvers to tackle the related optimization problem:
 %
 \begin{proposition}[Linearity of constraints for alternatives]
-	Using the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}), one can express alternative feature sets (cf.~Definition~\ref{def:afs:single-alternative}) with 0-1 integer linear constraints.
+	Using the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}), alternative feature sets (cf.~Definition~\ref{def:afs:single-alternative}) can be expressed with 0-1 integer linear constraints.
 	\label{prop:afs:linear-constraints}
 \end{proposition}
 %
@@ -466,7 +466,7 @@ In the simultaneous-search problem, users obtain multiple alternatives at once, 
 We use pairwise dissimilarity constraints for alternatives again:
 %
 \begin{definition}[Simultaneous alternatives]
-	A set of feature sets~$\mathbb{F}$ contains simultaneous alternatives if each feature set~$F' \in \mathbb{F}$ is a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) to each other set~$F'' \in \mathbb{F}$, $F' \neq F''$.
+	A set of feature sets~$\mathbb{F}$ contains simultaneous alternatives if each feature set~$F' \in \mathbb{F}$ is a single alternative (cf.~Definition~\ref{def:afs:single-alternative}) to each other feature set~$F'' \in \mathbb{F}$ with $F' \neq F''$.
 	\label{def:afs:simultaneous-alternative}
 \end{definition}
 %
@@ -770,7 +770,7 @@ For a fixed feature-set size~$k$, there are $\binom{n}{k} = \frac{n!}{k! \cdot (
 In an exhaustive search, we iterate over these feature sets:
 %
 \begin{proposition}[Complexity of exhaustive conventional feature selection]
-	Exhaustive search for one feature set of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O(n^k)$ without the cost of evaluating the objective function.
+	Exhaustive search for one feature set of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O(n^k)$ without the cost of evaluating the objective.
 	\label{prop:afs:complexity-exhaustive-conventional}
 \end{proposition}
 %
@@ -793,7 +793,7 @@ This procedure entails a cost of~$O(a \cdot n)$ for each new alternative and~$O(
 Combining this cost with Proposition~\ref{prop:afs:complexity-exhaustive-conventional}, we obtain the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive sequential search]
-	Exhaustive sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k+1})$ without the cost of evaluating the objective function.
+	Exhaustive sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k+1})$ without the cost of evaluating the objective.
 	\label{prop:afs:complexity-exhaustive-sequential}
 \end{proposition}
 %
@@ -807,7 +807,7 @@ Thus, an exhaustive search over size-$k$ feature sets iterates over~$O((n^k)^{a+
 Including the cost of constraint checking, we arrive at the following proposition:
 %
 \begin{proposition}[Complexity of exhaustive simultaneous search]
-	Exhaustive simultaneous search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective function.
+	Exhaustive simultaneous search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for $a \in \mathbb{N}_0$~alternative feature sets of size~$k \in \mathbb{N}$ from $n$~features has a time complexity of~$O((a+1)^2 \cdot n^{k \cdot (a+1) + 1})$ without the cost of evaluating the objective.
 	\label{prop:afs:complexity-exhaustive-simultaneuos}
 \end{proposition}
 %
@@ -1006,7 +1006,7 @@ While not optimizing exactly, \emph{Greedy Replacement} still offers an approxim
 %
 \begin{proposition}[Approximation quality of \emph{Greedy Replacement}]
 	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau \in (0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
-	Under these conditions, \emph{Greedy Replacement} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}).
+	Under these conditions, \emph{Greedy Replacement} reaches at least a fraction of $\frac{\lfloor (1 - \tau) \cdot k \rfloor}{k}$ of the optimal objective values of the optimization problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}).
 	\label{prop:afs:approximation-greedy-replacement}
 \end{proposition}
 
@@ -1027,8 +1027,8 @@ The condition $k + a \cdot \lceil \tau \cdot k \rceil \leq n$ describes scenario
 As the heuristic has polynomial runtime, alternative feature selection lies in the complexity class $\mathcal{APX}$~\cite{khanna1998syntactic} under the specified conditions:
 %
 \begin{proposition}[Approximation complexity of alternative feature selection]
-	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau in [0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
-	Under these conditions, the optimization problems of alternative feature selection with (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}) reside in the complexity class~$\mathcal{APX}$.
+	Assume non-negative univariate feature qualities of $n$~features (cf.~Equation~\ref{eq:afs:univariate-filter}), $a \in \mathbb{N}_0$~alternatives, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, a dissimilarity threshold~$\tau \in [0,1]$, desired feature-set size~$k \in \mathbb{N}$, and $k + a \cdot \lceil \tau \cdot k \rceil \leq n$.
+	Under these conditions, the optimization problems for (1) sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}), (2) simultaneous search with sum-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-sum-objective}), and (3) simultaneous search with min-aggregation (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous} and Equation~\ref{eq:afs:afs-simultaneous-min-objective}) reside in the complexity class~$\mathcal{APX}$.
 	\label{prop:afs:approximation-apx}
 \end{proposition}
 %
@@ -1135,10 +1135,9 @@ We assign each feature to the alternative that currently has the lowest summed q
 We continue this procedure until all alternatives have reached size~$k$ (Line~\ref{al:afs:greedy-balancing:line:stop}).
 %
 \begin{example}[Algorithm of \emph{Greedy Balancing}]
-	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of two features between sets here.
-	The features with qualities~$9$ and $8$ become part of both feature sets, $s^{(0)}$ and $s^{(1)}$ (Lines~\ref{al:afs:greedy-balancing:line:common-features-start}--\ref{al:afs:greedy-balancing:line:common-features-end}).
-	At this point, both alternatives have the same relative quality $Q^{(0)} = Q^{(1)} = 0$.
-	Note that $Q^{(l)}$ in the algorithm ignores the quality of the shared features.
+	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=4$, number of alternatives~$a=1$, and dissimilarity threshold~$\tau = 0.5$.
+	The features with qualities~$9$ and $8$ become part of both feature sets, $s^{(0)}$ and $s^{(1)}$, since $\lfloor (1 - \tau) \cdot k \rfloor = 2$ (Lines~\ref{al:afs:greedy-balancing:line:common-features-start}--\ref{al:afs:greedy-balancing:line:common-features-end}).
+	At this point, both alternatives have the same relative quality $Q^{(0)} = Q^{(1)} = 0$, which ignores the quality of the shared features.
 	Now the LPT heuristic becomes active (Lines~\ref{al:afs:greedy-balancing:line:disjoint-features-start}--\ref{al:afs:greedy-balancing:line:disjoint-features-end}).
 	The feature with quality~$7$ is added to $s^{(0)}$, which causes $Q^{(0)} > Q^{(1)}$ (i.e., $7 > 0$).
 	Thus, the feature with quality~3 is added to $s^{(1)}$.
@@ -2428,9 +2427,9 @@ The arguably simplest way to aggregate the qualities of multiple feature sets is
 While this objective fosters a high average quality of feature sets, it does not guarantee that the alternatives have similar quality:
 %
 \begin{example}[Sum-aggregation]
-Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
-Exact sequential search yields the selection $s^{(0)} = (1,1,1,0,0,0)$, $s^{(1)} = (1,0,0,1,1,0)$, and $s^{(2)} = (0,1,0,1,0,1)$, with a summed quality of $\,24+14+12=50$.
-One possible exact simultaneous-search solution consists of the feature sets $s^{(0)} = (1,1,0,1,0,0)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,0,0,1)$, with a summed quality of $\,20+18+16=54$.
+Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (9,8,7,3,2,1)$, feature-set size~$k=3$, number of alternatives~$a=2$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}).
+Exact sequential search (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) yields the selection $s^{(0)} = (1,1,1,0,0,0)$, $s^{(1)} = (1,0,0,1,1,0)$, and $s^{(2)} = (0,1,0,1,0,1)$, with a summed quality of $\,24+14+12=50$.
+One possible exact simultaneous-search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) solution consists of the feature sets $s^{(0)} = (1,1,0,1,0,0)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,0,0,1)$, with a summed quality of $\,20+18+16=54$.
 Another possible exact simultaneous-search solution is $s^{(0)} = (1,1,0,0,0,1)$, $s^{(1)} = (1,0,1,0,1,0)$, and $s^{(2)} = (0,1,1,1,0,0)$, with a summed quality of $\,18+18+18=54$.
 \label{ex:afs:sum-aggregation}
 \end{example}
@@ -2460,8 +2459,8 @@ We already showed a solution optimizing sum-aggregation but not min-aggregation 
 In the following, we demonstrate the other direction:
 %
 \begin{example}[Min-aggregation]
-Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
-One solution optimizing the objective with min-aggregation is $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $\,25+22=47$.
+Consider $n=6$~features with univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}) $q = (11,10,6,5,4,1)$, feature-set size~$k=3$, number of alternatives~$a=1$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}).
+One simultaneous-search (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) solution with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $s^{(0)} = (1,1,0,0,1,0)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $\,25+22=47$.
 Another solution is $s^{(0)} = (1,1,0,0,0,1)$ and $s^{(1)} = (1,0,1,1,0,0)$, with a summed quality of $\,22+22=44$.
 \label{ex:afs:min-aggregation}
 \end{example}
