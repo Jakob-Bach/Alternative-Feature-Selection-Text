@@ -393,10 +393,11 @@ Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization pr
 
 \begin{table}[t]
 	\centering
+	\caption{Size of the optimization problem, i.e., number of variables and constraints, for $a$~alternatives ($a + 1$~feature sets overall) and $n$ features.}
 	\renewcommand*{\arraystretch}{1.3}
 	\begin{tabular}{lccc}
 		\toprule
-		& \multicolumn{2}{c}{Sequential search} & \multirow{2}{*}{Simultaneous search} \\
+		& \multicolumn{2}{c}{Sequential search} & \multirow{2}{*}{Simult. search} \\
 		\cmidrule(lr){2-3}
 		& $l$-th Alternative & Summed & \\
 		\midrule
@@ -406,7 +407,6 @@ Table~\ref{tab:afs:seq-sim-comparison} compares the sizes of the optimization pr
 		Linearization constraints & $0$ & $0$ & $\frac{3 \cdot a \cdot (a+1) \cdot n}{2}$ \\
 		\bottomrule
 	\end{tabular}
-	\caption{Size of the optimization problem, i.e., number of variables and constraints, for $a$~alternatives ($a + 1$~feature sets overall) and $n$ features.}
 	\label{tab:afs:seq-sim-comparison}
 \end{table}
 
@@ -875,7 +875,7 @@ While Proposition~\ref{prop:afs:complexity-partitioning-min-unconstrained-k} all
 can be transformed into our maximin objective as above:
 %
 \begin{proposition}[Complexity of simultaneous-search problem with min-aggregation, complete partitioning, and constrained feature-set size]
-	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and all $n$~features have to be selected, the simultaneous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
+	Assuming univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), a dissimilarity threshold~$\tau = 1$, desired feature-set size~$k \in \mathbb{N}$, and all $n$~features have to be selected, the simulta\-neous-search problem (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) for alternative feature sets with min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) is $\mathcal{NP}$-complete.
 	\label{prop:afs:complexity-partitioning-min-constrained-k}
 \end{proposition}
 
@@ -971,6 +971,7 @@ This heuristic conducts a sequential search.
 \end{algorithm}
 
 Algorithm~\ref{al:afs:greedy-replacement} outlines \emph{Greedy Replacement}.
+It retains a fixed subset of features in each alternative while iteratively replacing the remaining ones.
 We start by sorting the features decreasingly based on their qualities~$q_j$ (Line~\ref{al:afs:greedy-replacement:line:sorting}).
 For a fixed feature-set size~$k$, a dissimilarity threshold~$\tau$, and using the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}), one subset with $\lfloor (1 - \tau) \cdot k \rfloor$~features can be contained in all alternatives without violating the dissimilarity threshold (cf.~Equation~\ref{eq:afs:dice-rearranged-equal-size}).
 Thus, our algorithm indeed selects the $\lfloor (1 - \tau) \cdot k \rfloor$~features with highest quality in each alternative~$s^{(\cdot)}$ (Lines~\ref{al:afs:greedy-replacement:line:common-features-start}--\ref{al:afs:greedy-replacement:line:common-features-end}).
@@ -1037,7 +1038,7 @@ For~$\tau = 1$, \emph{Greedy Replacement} even yields the same objective values 
 In contrast, for arbitrary~$\tau$, the following example shows that the heuristic can be worse than exact sequential search for as few as $a=2$ alternatives:
 %
 \begin{example}[Quality of \emph{Greedy Replacement} vs. exact search]
-	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size~$k=2$, number of alternatives~$a=2$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
+	Consider $n=6$~features with univariate feature qualities $q = (9,8,7,3,2,1)$, feature-set size $k=2$, number of alternatives~$a=2$, the Dice dissimilarity (cf.~Equation~\ref{eq:afs:dice}) as~$d(\cdot)$, and dissimilarity threshold~$\tau = 0.5$, which permits an overlap of one feature between sets here.
 	Exact sequential search and exact simultaneous search, for min- and sum-aggregation, yield the selection $s^{(0)} = (1,1,0,0,0,0)$, $s^{(1)} = (1,0,1,0,0,0)$, and $s^{(2)} = (0,1,1,0,0,0)$, with a summed quality of $\,17+16+15=48$.
 	\emph{Greedy Replacement} yields the selection $s^{(0)} = (1,1,0,0,0,0)$, $s^{(1)} = (1,0,1,0,0,0)$, and $s^{(2)} = (1,0,0,1,0,0)$, with a summed quality of $\,17+16+12=45$.
 	\label{ex:afs:greedy-replacement:worse-than-exact}
@@ -1076,7 +1077,8 @@ Finally, the heuristic assumes the same size~$k$ for all feature sets.
 \subsubsection{Greedy Balancing}
 \label{sec:afs:approach:univariate-heuristics:greedy-balancing}
 
-\emph{Greedy Balancing} modifies \emph{Greedy Replacement} to obtain more balanced feature-set qualities by employing a simultaneous search method.
+\emph{Greedy Balancing} adapts \emph{Greedy Replacement} to obtain more balanced feature-set qualities by employing a simultaneous search method.
+In particular, it tries to distribute the individual feature qualities evenly to alternatives.
 
 \begin{algorithm}[tp]
 	\DontPrintSemicolon
@@ -2711,7 +2713,7 @@ However, if the qualities of the alternatives are not equal, $f'$ might still be
 In that case, we replace $f'$ with the remaining unselected feature; the objective value remains the same, and the solution becomes valid for~$I$.
 Thus, in any case, we can easily transform a solution for~$I'$ to a solution for~$I$.
 
-Overall, an algorithm for incomplete partitioning can solve arbitrary complete-partitioning instances with negligible computational overhead.
+Overall, an algorithm for incomplete partitioning instances can also solve arbitrary complete-partitioning instances with negligible computational overhead.
 Thus, a polynomial-time algorithm for incomplete partitioning could also solve complete partitioning polynomially.
 However, the latter problem is $\mathcal{NP}$-complete (cf.~Proposition~\ref{prop:afs:complexity-partitioning-min-constrained-k}), so incomplete partitioning has to be $\mathcal{NP}$-hard.
 Since checking a solution for incomplete partitioning needs only polynomial time, we obtain membership in $\mathcal{NP}$ and thereby $\mathcal{NP}$-completeness.
@@ -2887,7 +2889,7 @@ We repeat the main loop until we reach the desired number of alternatives~$a$ or
 	
 	\emph{Greedy Replacement} would terminate now since the options for replacing the $\lceil \tau \cdot k \rceil = 2$ lowest-quality features are exhausted.
 	In contrast, \emph{Greedy Depth Search} attempts to replace the third-lowest-quality feature, starting with $\mathit{feature\_positions} = (1,3,4,5)$.
-	This feature set is not a valid alternative, and neither are the subsequent sets with $\mathit{feature\_positions} = (1,3,4,6)$, $\mathit{feature\_positions} = (1,3,5,6)$, etc.
+	This feature set is not a valid alternative, and neither are the subsequent feature sets with $\mathit{feature\_positions} = (1,3,4,6)$, $\mathit{feature\_positions} = (1,3,5,6)$, etc.
 	After more iterations, the algorithm also replaces the highest-quality feature, starting with $\mathit{feature\_positions} = (2,3,4,5)$.
 	Eventually, the algorithm reaches $\mathit{feature\_positions} = (3,4,5,6)$, which yields the valid alternative $s^{(2)} = (0,0,1,1,1,1)$.
 	After obtaining $s^{(2)}$, there is no valid update of the feature positions left (Line~\ref{al:afs:greedy-depth:line:position-update-impossible}).
