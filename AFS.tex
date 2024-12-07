@@ -366,9 +366,9 @@ In contrast, the Jaccard distance exhibits a non-linear relationship between $\t
 %
 \begin{equation}
 	\begin{aligned}
-		d_{\text{Jacc}}(F',F'') = 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|} &\geq \tau \\
-		\Leftrightarrow |F' \cap F''| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F'| + |F''|)
-		\end{aligned}
+		d_{\text{Jacc}}(F',F'') &= & 1 - \frac{|F' \cap F''|}{|F'| + |F''| - |F' \cap F''|} &\geq \tau \\
+		&\Leftrightarrow & |F' \cap F''| &\leq \frac{1 - \tau}{2 - \tau} \cdot (|F'| + |F''|)
+	\end{aligned}
 	\label{eq:afs:jaccard-rearranged}
 \end{equation}
 %
@@ -532,7 +532,7 @@ For univariate filter feature selection, the objective function is linear by def
 In particular, these methods decompose the quality of a feature set into the qualities of the individual features:
 %
 \begin{equation}
-	\max_s \quad Q_{\text{uni}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j
+	\max_s \quad Q_{\text{uni}}(s,X,y) = \sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j = \sum_{j=1}^{n} q_j \cdot s_j
 	\label{eq:afs:univariate-filter}
 \end{equation}
 %
@@ -600,7 +600,7 @@ However, there is a more efficient linearization~\cite{nguyen2009optimizing, ngu
 \begin{equation}
 	\begin{aligned}
 		\max_s &\quad & Q_{\text{mRMR}}(s,X,y) &= \frac{\sum_{j=1}^{n} q(X_{\cdot{}j},y) \cdot s_j}{k} - \frac{\sum_{j=1}^{n} z_j}{k \cdot (k-1)} \\
-		\text{subject to:} &\quad \forall j_1: & A_{j_1} &= \sum_{j_2 \neq j_1} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_2} \\
+		\text{subject to:} &\quad \forall j_1: & A_{j_1} &:= \sum_{j_2 \neq j_1} q(X_{\cdot{}j_1}, X_{\cdot{}j_2}) \cdot s_{j_2} \\
 		&\quad \forall j: & z_j &\geq M \cdot (s_j - 1) + A_j \\
 		&\quad \forall j: & z_j &\in \mathbb{R}_{\geq 0} \\
 		\text{with indices:} &\quad & j, j_1, j_2 &\in \{1, \dots, n\}
@@ -610,6 +610,7 @@ However, there is a more efficient linearization~\cite{nguyen2009optimizing, ngu
 %
 Here, $A_{j_1}$ is the sum of all redundancy terms related to the feature with index~$j_1$, i.e., the summed dependency value between this feature and all other selected features.
 Thus, one can use one real-valued auxiliary variable $z_j$ for each feature instead of one new binary variable for each pair of features.
+$A_j$ does not need a separate variable but can be directly inserted in the subsequent constraint, so we wrote `$:=$' instead of `$=$'.
 Since redundancy should be minimized, $z_j$ assumes the value of $A_j$ with equality if the feature with index~$j$ is selected~($s_j=1$) and is zero otherwise ($s_j=0$).
 To this end, $M$ is a large positive value that deactivates the constraint $z_j \geq A_j$ if $s_j=0$.
 
