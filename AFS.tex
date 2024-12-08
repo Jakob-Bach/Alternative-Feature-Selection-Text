@@ -1337,9 +1337,10 @@ Finally, we use importance scores from one instead of multiple models to find im
 \section{Experimental Design}
 \label{sec:afs:experimental-design}
 
-In this section, we describe our experimental design.
-We give a brief overview of its goal and components (cf.~Section~\ref{sec:afs:experimental-design:overview}) before elaborating on the components in detail.
-In particular, we describe evaluation metrics (cf.~Section~\ref{sec:afs:experimental-design:evaluation}), methods (cf.~Section~\ref{sec:afs:experimental-design:approaches}), datasets (cf.~Section~\ref{sec:afs:experimental-design:datasets}), and implementation (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
+In this section, we introduce our experimental design.
+After a brief overview of its goal and components (cf.~Section~\ref{sec:afs:experimental-design:overview}), we describe its components in detail:
+evaluation metrics (cf.~Section~\ref{sec:afs:experimental-design:evaluation}), methods (cf.~Section~\ref{sec:afs:experimental-design:approaches}), and datasets (cf.~Section~\ref{sec:afs:experimental-design:datasets}).
+Finally, we briefly outline our implementation (cf.~Section~\ref{sec:afs:experimental-design:implementation}).
 
 \subsection{Overview}
 \label{sec:afs:experimental-design:overview}
@@ -1348,8 +1349,8 @@ We conduct experiments with 30 binary-classification datasets.
 As evaluation metrics, we consider feature-set quality and runtime.
 We compare five feature-selection methods, representing different notions of feature-set quality.
 Also, we train prediction models with the resulting feature sets and analyze prediction performance.
-To find alternatives, we consider simultaneous as well as sequential search, both with solver-based and heuristic search methods.
-We systematically vary the number of alternatives~$a$ and the dissimilarity threshold~$\tau$.
+To find alternatives, we consider simultaneous and sequential search, both with solver-based and heuristic search methods.
+We systematically vary the two user parameters for searching alternatives, i.e., the number of alternatives~$a$ and the dissimilarity threshold~$\tau$.
 
 \subsection{Evaluation Metrics}
 \label{sec:afs:experimental-design:evaluation}
@@ -1362,10 +1363,9 @@ Second, we train prediction models with the found feature sets.
 We report \emph{prediction performance} in terms of the Matthews correlation coefficient (MCC)~\cite{matthews1975comparison}.
 This coefficient is insensitive to class imbalance, reaches its maximum of~1 for perfect predictions, and is~0 for random guessing as well as constant predictions.
 
-To analyze how well feature selection and prediction models generalize, we conduct a stratified five-fold cross-validation.
-The search for alternatives and model training only have access to the training data.
-However, we also use the test data to evaluate the quality of each feature set found with the training data.
-For the test-set objective value, we initialize the objective function with feature qualities computed on the test set but insert the feature selection from the training set.
+We conduct a stratified five-fold cross-validation.
+In particular, the search for alternatives and model training only use the training data, while we employ the test data for evaluation:
+For the test-set objective value, we compute the objective on the test set but with the feature selection from the training set.
 For the test-set prediction performance, we predict on the test set but use a prediction model trained with these features on the training set.
 
 \paragraph{Runtime}
@@ -1373,59 +1373,53 @@ For the test-set prediction performance, we predict on the test set but use a pr
 We consider two metrics related to runtime.
 
 First, we analyze the \emph{optimization time}.
-For white-box feature-selection methods in solver-based search for alternatives, we measure the summed runtime of solver calls.
-We exclude the time for computing feature qualities and feature dependencies for the objective since one can compute these values once per dataset and then re-use them in each solver call.
-For \emph{Greedy Wrapper} as the feature-selection method and for the heuristic search methods for alternatives, we measure the runtime of the corresponding search algorithms.
-For \emph{Greedy Wrapper}, this search procedure involves multiple solver calls and trainings of the prediction model.
+For white-box feature-selection methods in solver-based search for alternatives, we sum the measured runtime of solver calls.
+We exclude the time for computing feature qualities and feature dependencies for the objective since one can compute these values once per dataset and then reuse them in each solver call.
+For \emph{Greedy Wrapper} feature selection and the heuristic search methods for alternatives, we measure the runtime of the corresponding search algorithms.
+For \emph{Greedy Wrapper}, this search procedure involves multiple solver calls and trainings of a prediction model.
 
 Second, we examine the \emph{optimization status}, which can take four values for the solver-based search.
-If the solver finished before reaching a timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., no solution exists.
-If the solver reached its timeout, it either found a \emph{feasible} solution whose optimality it could not prove or found no valid solution, though one might exist, so the problem is \emph{not solved}.
+If the solver finished before the timeout, it either found an \emph{optimal} solution or proved the problem \emph{infeasible}, i.e., no solution exists.
+If the solver reached its timeout, it either found a \emph{feasible} solution without proving its optimality or found no valid solution, though one might exist, so the problem is \emph{not solved}.
 For the heuristic search methods, we only use \emph{not solved} and \emph{feasible} as statuses, as these search methods are neither guaranteed to find the optimum nor do they prove infeasibility if they terminate early.
 
 \subsection{Methods}
 \label{sec:afs:experimental-design:approaches}
 
-We compare several approaches for making predictions (cf.~Section~\ref{sec:afs:experimental-design:approaches:prediction}), feature selection (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}), and searching alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}).
+We employ multiple methods for making predictions (cf.~Section~\ref{sec:afs:experimental-design:approaches:prediction}), feature selection (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}), and searching alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}).
 
 \subsubsection{Prediction}
 \label{sec:afs:experimental-design:approaches:prediction}
 
-As prediction models, we use decision trees~\cite{breiman1984classification} and random forests with 100 trees \cite{breiman2001random}.
-Both these models admit learning complex, non-linear dependencies from the data.
-We leave the hyperparameters of the models at their defaults, except for using information gain instead of Gini impurity as the split criterion, to be consistent with our parametrization of filter feature-selection methods.
-Preliminary experiments with a k-nearest neighbors classifier yielded similar insights paired with a lower average prediction performance.
-
-Note that tree models also carry out feature selection themselves, i.e., they are embedded feature-selection approaches.
-Thus, they may not use all features from the alternative feature sets.
-However, this is not a problem for our study.
-We are interested in which performance the models achieve if they are limited to certain feature sets, not if and how they use each feature from these sets.
+As prediction models, we use decision trees~\cite{breiman1984classification}, which admit learning complex, non-linear dependencies from the data.
+Preliminary experiments with random forests~\cite{breiman2001random} and k-nearest neighbors yielded similar insights.
+We leave the trees' hyperparameters at their defaults, except for using information gain instead of Gini impurity as the split criterion, to be consistent with our filter feature-selection methods.
+Note that tree models also select features themselves, so they may not use all features from the alternative feature sets.
+However, this is not an issue for our study.
+We are interested in which performance the models achieve if limited to certain feature sets, not how they use each available feature.
 
 \subsubsection{Feature Selection (Objective Functions)}
 \label{sec:afs:experimental-design:approaches:feature-selection}
 
 We search for alternatives under different notions of feature-set quality in the objective function.
 We choose five well-known feature-selection methods that are easy to parameterize and cover the different categories from Section~\ref{sec:afs:fundamentals:quality} except \emph{embedded}, as explained in Section~\ref{sec:afs:approach:objectives:embedding}.
-However, we use feature importance from an embedded method, i.e., decision trees, as univariate post-hoc importance scores.
-
-Four feature-selection methods allow a white-box formulation of the optimization problem, while \emph{Greedy Wrapper} tackles black-box optimization.
-With each feature-selection method, we select $k \in \{5,10\}$ features, thereby obtaining small feature sets.
-We enforce the desired~$k$ with simple equality constraints in optimization, using the feature-set-size expression from Equation~\ref{eq:afs:feature-set-size}.
+However, we use feature importance from an embedded method as post-hoc importance scores.
+Four feature-selection methods allow a white-box formulation of the optimization problem, while \emph{Greedy Wrapper} is black-box.
+With each feature-selection method, we enforce a fixed feature-set sizes of $k \in \{5,10\}$.
 
 \paragraph{Filter feature selection}
 
 We evaluate three filter methods, all using mutual information~\cite{kraskov2004estimating} as the dependency measure~$q(\cdot)$.
-This measure can capture arbitrary dependencies rather than, e.g., just linear correlations.
+This measure can capture arbitrary dependencies rather than, e.g., just linear ones.
 \emph{MI} denotes a univariate filter (cf.~Equation~\ref{eq:afs:univariate-filter}), while \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) and \emph{mRMR} (cf.~Equation~\ref{eq:afs:mrmr-linear}) are multivariate.
-Since mutual information has no fixed upper bound, we normalize its value per dataset and cross-validation fold to improve the comparability of feature-set quality.
-For \emph{FCBF} and \emph{MI}, we normalize the individual features' qualities such that selecting all features yields a quality of~1 and selecting no feature yields a quality of~0.
+We normalize the mutual-information values per dataset and cross-validation fold to improve comparability:
+For \emph{FCBF} and \emph{MI}, we scale the individual features' qualities with a constant such that the overall objective value is in $[0, 1]$.
 For \emph{mRMR}, we min-max-normalize all mutual-information values to $[0,1]$, so the overall objective is in $[-1,1]$.
 
 \paragraph{Wrapper feature selection}
 
-As a wrapper method, we employ our hill-climbing procedure \emph{Greedy Wrapper} (cf.~Algorithm~\ref{al:afs:greedy-wrapper}).
-We set $\mathit{max\_iters}$ to 1000.
-To evaluate feature-set quality within the wrapper, we apply a stratified 80:20 holdout split and train decision trees.
+As a wrapper method, we employ our hill-climbing procedure \emph{Greedy Wrapper} (cf.~Algorithm~\ref{al:afs:greedy-wrapper}) with $\mathit{max\_iters} = 1000$.
+To evaluate feature-set quality in the wrapper, we apply a stratified 80:20 holdout split and train decision trees.
 $Q(s,X,y)$ corresponds to the prediction performance in terms of MCC on the 20\% validation part.
 
 \paragraph{Post-hoc feature importance}
@@ -1433,8 +1427,7 @@ $Q(s,X,y)$ corresponds to the prediction performance in terms of MCC on the 20\%
 As a post-hoc importance measure called \emph{Model Gain}, we use importance scores from \emph{scikit-learn's} decision trees.
 There, importance expresses a feature's contribution towards optimizing the split criterion of the tree, for which we choose information gain.
 These importances are normalized to sum up to~1 by default.
-We plug the importances into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores.
-The interpretation is different, though, since the importance scores originate from trees trained with all features rather than assessing features in isolation.
+We plug them into Equation~\ref{eq:afs:univariate-filter}, i.e., treat them like univariate filter scores, though they actually originate from trees trained with all features and thus are not univariate.
 
 \subsubsection{Alternatives (Constraints)}
 \label{sec:afs:experimental-design:approaches:alternatives}
@@ -1443,31 +1436,30 @@ The interpretation is different, though, since the importance scores originate f
 
 In our evaluation, we categorize search methods for alternatives in two dimensions that are orthogonal to each other:
 Solver-based vs. heuristic and sequential vs. simultaneous.
-Also, we analyze the impact of the user parameters~$a$ and~$\tau$ on the search for alternatives.
+Also, we analyze the impact of the user parameters~$a$ and~$\tau$.
 
 \paragraph{Solver-based search methods}
 
-In Sections~\ref{sec:afs:evaluation:solver-search-methods}, \ref{sec:afs:evaluation:num-alternatives}, and~\ref{sec:afs:evaluation:tau}, we use solver-based search methods to find alternative feature sets.
-For the four white-box feature-selection methods, we use an integer-programming solver to solve the underlying optimization problems exactly.
-Thus, given sufficient solving time, these alternatives are globally optimal.
-For \emph{Greedy Wrapper} as the feature-selection method, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based, so we place it in this category rather than the former) and might not cover the entire search space.
+For the four feature-selection methods with white-box objectives, we use the integer-programming solver \emph{SCIP}~\cite{bestuzheva2021scip} to solve the underlying optimization problems exactly.
+Given sufficient solving time, these alternatives are globally optimal.
+For \emph{Greedy Wrapper}, the search procedure (Algorithm~\ref{al:afs:greedy-wrapper}) is heuristic (though still solver-based, so we place it in this category) and might not cover the entire search space.
 There, the solver only assists in finding valid solutions but does not optimize quality.
 
 For each feature selection method, we analyze \emph{sequential} (cf.~Definition~\ref{def:afs:alternative-feature-selection-sequential}) and \emph{simultaneous} (cf.~Definition~\ref{def:afs:alternative-feature-selection-simultaneous}) solver-based search for alternatives.
 For the latter, we employ sum-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-sum-objective}) and min-aggregation (cf.~Equation~\ref{eq:afs:afs-simultaneous-min-objective}) in the objective.
-In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)} to denote these solver-based search methods.
+In figures and tables, we use the abbreviations \emph{seq.}, \emph{sim. (sum)}, and \emph{sim. (min)}.
 
 \paragraph{Heuristic search methods}
 
-In Section~\ref{sec:afs:evaluation:heuristic-search-methods}, we additionally compare heuristic search methods that do not use a solver (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
+We also evaluate heuristic search methods, which do not use a solver (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}).
 In particular, we employ \emph{Greedy Replacement} (cf.~Algorithm~\ref{al:afs:greedy-replacement}), which is a sequential search method, and \emph{Greedy Balancing} (cf.~Algorithm~\ref{al:afs:greedy-balancing}), which is a simultaneous search method.
-In figures and tables, we use the abbreviations \emph{rep.} and \emph{bal.} to denote these heuristic search methods.
+In figures and tables, we use the abbreviations \emph{rep.} and \emph{bal.}.
 Since these heuristics assume univariate feature qualities (cf.~Equation~\ref{eq:afs:univariate-filter}), we only combine them with the univariate feature-selection methods \emph{MI} and \emph{Model Gain}.
 
 \paragraph{Search parametrization}
 
 We vary the parameters of the search systematically:
-We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search methods and $a \in \{1, \dots, 5\}$ for simultaneous search methods due to the potentially higher runtime of the latter.
+We evaluate $a \in \{1, \dots, 10\}$~alternatives for sequential search methods and $a \in \{1, \dots, 5\}$ for simultaneous search methods due to the higher runtime of the latter.
 For the dissimilarity threshold~$\tau$, we analyze all possible sizes of the feature-set overlap in the Dice dissimilarity (cf.~Equations~\ref{eq:afs:dice} and~\ref{eq:afs:dice-rearranged-equal-size}).
 Thus, for $k=5$, we consider $\tau \in \{0.2, 0.4, 0.6, 0.8, 1.0\}$, corresponding to an overlap of four to zero features.
 For $k=10$, we consider $\tau \in \{0.1, 0.2, \dots, 1.0\}$.
@@ -1475,287 +1467,380 @@ We exclude $\tau = 0$, which would allow returning duplicate feature sets.
 
 \paragraph{Timeout}
 
-In solver-based search, we employ a timeout to make a large-scale evaluation feasible and to account for the high variance of solver runtime, which even occurs for optimization problems of the same size.
+In solver-based search, we employ a timeout to enable a large-scale evaluation and account for the high variance of solver runtime.
 In particular, we grant each solver call 60~s multiplied by the number of feature sets sought.
-Thus, solver-based sequential search conducts multiple solver calls with 60~s timeout each, while solver-based simultaneous search conducts one solver call with proportionally more time, e.g., 300~s for five feature sets (i.e., four alternatives).
-The summed timeout for a fixed number of alternatives is the same for solver-based sequential and simultaneous search.
+Thus, solver-based sequential search conducts multiple solver calls with 60~s timeout each, while solver-based simultaneous search conducts one solver call with proportionally more time, e.g., 300~s for five feature sets.
 For 84\% of the feature sets in our evaluation, the solver finished before the timeout.
 
 \paragraph{Competitors for search methods}
 
-As discussed in Section~\ref{sec:afs:related-work}, approaches from related work pursue different objective functions, operate with different notions of alternatives, and may only work for particular feature-selection methods.
-All these points prevent a meaningful comparison of these approaches to ours.
-E.g., a feature set considered alternative in related work might violate our constraints for alternatives.
-Further, within our search methods, we can still put the feature-set quality into perspective by comparing alternatives to each other.
-In particular, the quality of the `original' feature set, i.e., obtained by running the feature-selection methods without constraints for alternatives, serves as a natural reference point.
+As discussed in Section~\ref{sec:afs:related-work}, related work pursues different objective functions, operates with different notions of alternatives, and may only target particular feature-selection methods.
+All these points prevent a meaningful comparison to our search methods.
+E.g., a feature set deemed alternative in related work may violate our constraints for alternatives.
+Further, we can still put the feature-set quality into perspective by comparing alternatives to each other.
+In particular, the original feature set, i.e., without constraints for alternatives, serves as a natural reference point.
 
 \begin{table}[p]
 	\centering
-	\begin{tabular}{lrrr}
-		\toprule
-		Dataset & $m$ & $n$ & Mean corr. \\
-		\midrule
-		backache & 180 & 32 & 0.10 \\
-		chess & 3196 & 36 & 0.08 \\
-		churn & 5000 & 20 & 0.04 \\
-		clean1 & 476 & 168 & 0.25 \\
-		clean2 & 6598 & 168 & 0.25 \\
-		coil2000 & 9822 & 85 & 0.07 \\
-		credit\_a & 690 & 15 & 0.12 \\
-		credit\_g & 1000 & 20 & 0.07 \\
-		dis & 3772 & 29 & 0.08 \\
-		GE\_2\_Way\_20atts\_0.1H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
-		GE\_2\_Way\_20atts\_0.4H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
-		GE\_3\_Way\_20atts\_0.2H\_EDM\_1\_1 & 1600 & 20 & 0.02 \\
-		GH\_20atts\_1600\_Het\_0.4\_0.2\_50\_EDM\_2\_001 & 1600 & 20 & 0.02 \\
-		GH\_20atts\_1600\_Het\_0.4\_0.2\_75\_EDM\_2\_001 & 1600 & 20 & 0.02 \\
-		hepatitis & 155 & 19 & 0.15 \\
-		Hill\_Valley\_with\_noise & 1212 & 100 & 1.00 \\
-		horse\_colic & 368 & 22 & 0.16 \\
-		house\_votes\_84 & 435 & 16 & 0.30 \\
-		hypothyroid & 3163 & 25 & 0.15 \\
-		ionosphere & 351 & 34 & 0.25 \\
-		molecular\_biology\_promoters & 106 & 57 & 0.08 \\
-		mushroom & 8124 & 22 & 0.18 \\
-		ring & 7400 & 20 & 0.02 \\
-		sonar & 208 & 60 & 0.21 \\
-		spambase & 4601 & 57 & 0.14 \\
-		spect & 267 & 22 & 0.20 \\
-		spectf & 349 & 44 & 0.19 \\
-		tokyo1 & 959 & 44 & 0.44 \\
-		twonorm & 7400 & 20 & 0.17 \\
-		wdbc & 569 & 30 & 0.42 \\
-		\bottomrule
-	\end{tabular}
 	\caption{
 		Datasets from PMLB used in our experiments.
 		$m$~denotes the number of data objects and $n$~the number of features.
-		\emph{Mean corr.} is the average of absolute values of all pairwise Spearman's rank correlations between features.
 		In dataset names, we replaced \emph{GAMETES\_Epistasis} with \emph{GE\_} and \emph{GAMETES\_Heterogeneity} with \emph{GH\_} to reduce the table's width.
 	}
+	\begin{tabular}{lrr}
+		\toprule
+		Dataset & $m$ & $n$ \\
+		\midrule
+		backache & 180 & 32 \\
+		chess & 3196 & 36 \\
+		churn & 5000 & 20 \\
+		clean1 & 476 & 168 \\
+		clean2 & 6598 & 168 \\
+		coil2000 & 9822 & 85 \\
+		credit\_a & 690 & 15 \\
+		credit\_g & 1000 & 20 \\
+		dis & 3772 & 29 \\
+		GE\_2\_Way\_20atts\_0.1H\_EDM\_1\_1 & 1600 & 20 \\
+		GE\_2\_Way\_20atts\_0.4H\_EDM\_1\_1 & 1600 & 20 \\
+		GE\_3\_Way\_20atts\_0.2H\_EDM\_1\_1 & 1600 & 20 \\
+		GH\_20atts\_1600\_Het\_0.4\_0.2\_50\_EDM\_2\_001 & 1600 & 20 \\
+		GH\_20atts\_1600\_Het\_0.4\_0.2\_75\_EDM\_2\_001 & 1600 & 20 \\
+		hepatitis & 155 & 19 \\
+		Hill\_Valley\_with\_noise & 1212 & 100 \\
+		horse\_colic & 368 & 22 \\
+		house\_votes\_84 & 435 & 16 \\
+		hypothyroid & 3163 & 25 \\
+		ionosphere & 351 & 34 \\
+		molecular\_biology\_promoters & 106 & 57 \\
+		mushroom & 8124 & 22 \\
+		ring & 7400 & 20 \\
+		sonar & 208 & 60 \\
+		spambase & 4601 & 57 \\
+		spect & 267 & 22 \\
+		spectf & 349 & 44 \\
+		tokyo1 & 959 & 44 \\
+		twonorm & 7400 & 20 \\
+		wdbc & 569 & 30 \\
+		\bottomrule
+	\end{tabular}
 	\label{tab:afs:datasets}
 \end{table}
 
 \subsection{Datasets}
 \label{sec:afs:experimental-design:datasets}
 
-\paragraph{Selection criteria}
-
-We use a variety of datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
+We use datasets from the Penn Machine Learning Benchmarks (PMLB)~\cite{olson2017pmlb,romano2021pmlb}.
 To harmonize evaluation, we only consider binary-classification datasets, though alternative feature selection also works for regression and multi-class problems.
-We exclude datasets with less than 100 data objects since they might entail a high uncertainty when assessing feature-set quality.
-Otherwise, the number of data objects should not systematically impact the feature-set quality and is unimportant for our evaluation.
-Also, we exclude datasets with less than 15 features to leave some room for alternatives.
-Next, we exclude one dataset with 1000 features, which would dominate the overall runtime of the experiments.
-Finally, we manually exclude datasets that seem duplicated or modified versions of other datasets from the benchmark.
-
-Consequently, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features.
+We exclude datasets with less than 100 data objects since they may entail a high uncertainty when assessing feature-set quality.
+Also, we exclude datasets with less than 15 features to leave room for alternatives.
+Next, we exclude one dataset with 1000 features, which would dominate the overall runtime.
+Finally, we manually exclude datasets that seem to be duplicated or modified versions of other datasets.
+Consequently, we obtain 30 datasets with 106 to 9822 data objects and 15 to 168 features (cf.~Table~\ref{tab:afs:datasets}).
 The datasets do not contain any missing values.
 Categorical features have an ordinal encoding by default.
-Table~\ref{tab:afs:datasets} lists these datasets.
-
-\paragraph{Feature correlation}
-
-Table~\ref{tab:afs:datasets} also displays the datasets' average feature correlation.
-In particular, we compute Spearman's rank correlation between each pair of features and take the absolute values to evaluate the strength of dependencies rather than their sign.
-For the datasets in our study, the average feature correlations are often weak, mostly below 0.3.
-Generally, correlated features indicate that alternative feature sets may exist.
-However, there are two caveats.
-First, rank correlation only captures certain types of dependencies, while our feature-selection criteria and prediction models are more general.
-Second, for optimal alternatives, the dependency between highly predictive features is crucial, while the dependency between unimportant features matters less.
-However, the table only shows the mean over all feature pairs.
 
 \subsection{Implementation and Execution}
 \label{sec:afs:experimental-design:implementation}
 
-We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn}~\cite{pedregosa2011scikit-learn} for machine learning and the solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools} for optimization.
+We implemented our experimental pipeline in Python~3.8, using \emph{scikit-learn}~\cite{pedregosa2011scikit-learn} for machine learning and the integer-programming solver \emph{SCIP}~\cite{bestuzheva2021scip} via the package \emph{OR-Tools}~\cite{perron2022or-tools} for solver-based search.
 The code is available on \emph{GitHub}\footnote{\url{https://github.com/Jakob-Bach/Alternative-Feature-Selection}} and additionally backed up in the \emph{Software Heritage archive}\footnote{\href{https://archive.softwareheritage.org/swh:1:dir:1e2b6605040a2151d31a90cde947787e92c98519;origin=https://github.com/Jakob-Bach/Alternative-Feature-Selection;visit=swh:1:snp:1413d85e1a9005d5681ee7dbeae0b4df851780de;anchor=swh:1:rev:14dea32227848c06b1430b6371e100f3d8c74010}{swh:1:dir:1e2b6605040a2151d31a90cde947787e92c98519}}.
 A requirements file in our repository specifies the versions of all dependencies.
 Further, we released the methods for alternative feature selection as the Python package \emph{alfese}\footnote{\url{https://pypi.org/project/alfese/}} on \emph{PyPI} to ease reuse.
 Finally, we published all experimental data\footnote{\url{https://doi.org/10.35097/1920}}.
 
-The experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while solver calls and model training are single-threaded.
-We ran the pipeline on a server with 128~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32~physical cores and a base clock of 2.0~GHz.
-The parallelized pipeline run took 255~hours, i.e., about 10.6~days.
+Our experimental pipeline parallelizes over datasets, cross-validation folds, and feature-selection methods, while each of these experimental tasks runs single-threaded.
+We ran the pipeline on a server with 160~GB RAM and an \emph{AMD EPYC 7551} CPU, having 32~physical cores and a base clock of 2.0~GHz.
+With this hardware, the parallelized pipeline run took approximately 249~hours, i.e., about 10.4~days.
 
 \section{Evaluation}
 \label{sec:afs:evaluation}
 
 In this section, we evaluate our experiments.
-In particular, we discuss the parametrization for searching alternatives with solver-based search methods: the search method (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}), number of alternatives~$a$ (cf.~Section~\ref{sec:afs:evaluation:num-alternatives}), and dissimilarity threshold~$\tau$ (cf.~Section~\ref{sec:afs:evaluation:tau}).
-Further, we compare heuristic search methods for univariate feature qualities to solver-based optimization (cf.~Section~\ref{sec:afs:evaluation:heuristic-search-methods}).
+After comparing feature-selection methods without constraints (cf.~Section~\ref{sec:afs:evaluation:feature-selection}), we discuss the parametrization for searching alternatives: the search methods (cf.~Section~\ref{sec:afs:evaluation:search-methods}) and the two user parameters~$a$ and~$\tau$ (cf.~Section~\ref{sec:afs:evaluation:parameters}).
 Section~\ref{sec:afs:evaluation:summary} summarizes key findings.
-Additionally, Appendix~\ref{sec:afs:appendix:evaluation} contains results for further dimensions of our experimental design.
 
-\begin{figure}[p]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/afs-impact-search-stddev-train-objective.pdf}
-		\caption{Standard deviation of training-set objective value within search runs.}
-		\label{fig:afs:impact-search-stddev-train-objective}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 10, clip]{plots/afs-impact-search-mean-train-objective.pdf}
-		\caption{Mean of training-set objective value within search runs.}
-		\label{fig:afs:impact-search-mean-train-objective}
-	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-stddev-test-objective.pdf}
-		\caption{Standard deviation of test-set objective value within search runs.}
-		\label{fig:afs:impact-search-stddev-test-objective}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-mean-test-objective.pdf}
-		\caption{Mean of test-set objective value with\-in search runs.}
-		\label{fig:afs:impact-search-mean-test-objective}
-	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/afs-impact-search-stddev-decision-tree-test-mcc.pdf}
-		\caption{Standard deviation of test-set prediction performance within search runs.}
-		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 5, clip]{plots/afs-impact-search-mean-decision-tree-test-mcc.pdf}
-		\caption{Mean of test-set prediction performance within search runs.}
-		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
-	\end{subfigure}
-	\caption{
-		Feature-set quality over the number of alternatives~$a$, by solver-based search method for alternatives and evaluation metric.
-		Results with \emph{MI} as the feature-selection method and $k=5$.
-		Y-axes are truncated to improve readability.
-	}
-	\label{fig:afs:impact-search-quality}
-\end{figure}
+\subsection{Feature-Selection Methods}
+\label{sec:afs:evaluation:feature-selection}
 
 \begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 35 5 10, clip]{plots/afs-impact-search-fs-method-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance.}
-		\label{fig:afs:impact-search-fs-method-decision-tree-test-mcc}
+		\includegraphics[width=\textwidth, trim=15 35 5 15, clip]{plots/afs-impact-fs-method-k-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance by feature-set size~$k$.}
+		\label{fig:afs:impact-fs-method-k-decision-tree-test-mcc}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=15 35 5 10, clip]{plots/afs-impact-search-fs-method-metric-diff.pdf}
+		\includegraphics[width=\textwidth, trim=15 35 5 15, clip]{plots/afs-impact-fs-method-k-metric-diff.pdf}
 		\caption{
-			Difference in quality between simultaneous (sum-aggregation) and sequential search by evaluation metric.
+			Difference in feature-set quality between $k=10$ and $k=5$ by evaluation metric.
 			Y-axis is truncated to improve readability.
 		}
-		\label{fig:afs:impact-search-fs-method-metric-diff}
+		\label{fig:afs:impact-fs-method-k-metric-diff}
 	\end{subfigure}
 	\caption{
-		Feature-set quality by feature-selection method and solver-based search method for alternatives.
-		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
+		Distribution of feature-set quality over datasets and cross-validation folds, by feature-selection method.
+		Results from the original feature sets of solver-based sequential search.
 	}
-	\label{fig:afs:impact-search-fs-method-quality}
+	\label{fig:afs:impact-fs-method-k-quality}
 \end{figure}
 
-\subsection{Solver-Based Search Methods for Alternatives}
-\label{sec:afs:evaluation:solver-search-methods}
+\paragraph{Prediction performance}
+
+The five feature-selection methods in our experiments employ different objective functions~$Q(s,X,y)$, so comparing objective values between them does not make sense.
+However, we can analyze the prediction performance of the obtained feature sets.
+Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} displays the distribution of a decision tree's test-set MCC on the original feature sets, i.e., without constraints, for the feature-selection methods.
+The mean test-set MCC is 0.53 for \emph{Model Gain} and \emph{Greedy Wrapper}, 0.47 for \emph{MI}, 0.46 for \emph{mRMR}, and 0.43 for \emph{FCBF}.
+Thus, the analyses of alternative feature sets in Sections~\ref{sec:afs:evaluation:search-methods} and~\ref{sec:afs:evaluation:parameters} focus on \emph{Model Gain} while still discussing the remaining feature-selection methods.
+
+The univariate, model-free method \emph{MI} keeps up surprisingly well with more sophisticated methods.
+It uses the same objective function as \emph{Model Gain} but obtains its feature qualities from a bivariate dependency measure rather than a prediction model.
+
+\emph{Greedy Wrapper} uses prediction performance to assess feature-set quality but employs a search heuristic instead of optimizing globally.
+In particular, it performed 661 iterations on average to determine the original feature sets.
+However, the number of possible feature sets is higher, e.g., already $\binom{15}{5} = 3003$ for the lowest-dimensional dataset in our evaluation (cf.~Table~\ref{tab:afs:datasets}) and $k=5$.
+The still high prediction performance comes at the expense of high runtime (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-time}), so we prefer \emph{Model Gain} for later evaluations.
+
+\emph{FCBF}'s results may be taken with a grain of salt:
+The original feature set in solver-based sequential search is already infeasible, i.e., no solution satisfied the constraints, in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
+Over all solver-based search runs, even 89\% of the feature sets were infeasible for \emph{FCBF} but only 18\% for \emph{Model Gain}.
+In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) with a fixed feature-set size~$k$ may make the problem infeasible, especially if~$k$ gets larger.
+
+\paragraph{Influence of feature-set size~$k$}
+
+One could expect larger feature sets to exhibit a higher feature-set quality than smaller ones, but the picture in our experiments is more nuanced.
+In particular, quality may not increase proportionally with $k$ or may even decrease.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of solver-based sequential search, \emph{MI} and \emph{Model Gain} exhibit an increase of the training-set objective value~$Q_\text{train}$ from~$k=5$ to~$k=10$, i.e., the difference depicted in Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} is positive.
+As these objectives are monotonic and the feature qualities are non-negative, a decrease in the training-set objective value is impossible.
+In contrast, \emph{Greedy Wrapper} with its black-box objective does not necessarily benefit from more features.
+The latter insight also applies to \emph{mRMR}, which normalizes its objective with the number of selected features and penalizes feature redundancy.
+For \emph{FCBF}, the fraction of feasible feature sets changes considerably from $k=5$ to $k=10$, so the overall quality between these two settings should not be compared.
+As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance.
+In particular, all feature-selection methods except \emph{FCBF} show a median difference in test-set MCC close to zero when comparing $k=5$ to $k=10$.
+
+\subsection{Search Methods for Alternatives}
+\label{sec:afs:evaluation:search-methods}
+
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 15, clip]{plots/afs-impact-search-stddev-train-objective.pdf}
+		\caption{Training-set objective value.}
+		\label{fig:afs:impact-search-stddev-train-objective}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 15, clip]{plots/afs-impact-search-stddev-test-objective.pdf}
+		\caption{Test-set objective value.}
+		\label{fig:afs:impact-search-stddev-test-objective}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 15, clip]{plots/afs-impact-search-stddev-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance.}
+		\label{fig:afs:impact-search-stddev-decision-tree-test-mcc}
+	\end{subfigure}
+	\caption{
+		Distribution of standard deviation of feature-set quality within search runs over datasets, cross-validation-folds, and~$\tau$, by search method for alternatives and number of alternatives~$a$.
+		Results with \emph{Model Gain} as the feature-selection method and $k=5$.
+		Excludes search settings where at least one combination of search method and~$a$ yielded no valid solution.
+		Y-axes are truncated to improve readability.
+	}
+	\label{fig:afs:impact-search-stddev-quality}
+\end{figure}
 
 \paragraph{Variance in feature-set quality}
 
-As expected, the search method influences how much the training-set objective value~$Q$ varies between alternatives found within each search run.
-Figure~\ref{fig:afs:impact-search-stddev-train-objective} visualizes this result for \emph{MI} as the feature-selection method and $k=5$.
-Each box in the figure shows how the variance within individual search runs for alternatives is distributed over other experimental settings, e.g., datasets and cross-validation folds.
-In particular, the quality of multiple alternatives found by solver-based sequential search usually varies more than for solver-based simultaneous search.
+As expected, the search method influences how much the training-set objective value~$Q$ varies between multiple alternatives obtained for the same experimental settings, i.e., within one search run for alternatives.
+Figure~\ref{fig:afs:impact-search-stddev-train-objective} visualizes this result for \emph{Model Gain} as the feature-selection method and $k=5$.
+The figure shows how the standard deviation of the training-set objective value within individual search runs for alternatives is distributed over other experimental settings, e.g., datasets and cross-validation folds.
+In particular, the quality of multiple alternatives varies more if they are found by solver-based sequential search rather than solver-based simultaneous search.
 For solver-based simultaneous search, min-aggregation yields considerably more homogeneous feature-set quality than sum-aggregation.
-These findings apply to all white-box feature-selection methods but not the heuristic \emph{Greedy Wrapper}.
+These findings apply to all white-box feature-selection methods but not \emph{Greedy Wrapper}.
 
-As Figures~\ref{fig:afs:impact-search-stddev-test-objective} and~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc} show, the variance of feature-set quality differs considerably less between the solver-based search methods on the test set, for the objective value as well as prediction performance.
-In particular, alternatives found by solver-based simultaneous search do not have considerably more homogeneous test feature-set quality than for solver-based sequential search.
+The heuristic search method \emph{Greedy Balancing} yields a small variance of training-set objective value within search runs, only slightly higher than for solver-based simultaneous search with min-aggregation.
+In contrast, \emph{Greedy Replacement} rather mimics solver-based sequential search, having a substantial variance of quality.
+Additionally, the variance of \emph{Greedy Replacement} noticeably grows with the number of alternatives~$a$.
+
+As Figures~\ref{fig:afs:impact-search-stddev-test-objective} and~\ref{fig:afs:impact-search-stddev-decision-tree-test-mcc} show, the variance of feature-set quality differs considerably less between the search methods on the test set, for the objective value as well as prediction performance.
 This effect might result from overfitting:
-Even if training feature-set quality is similar, some alternatives might generalize better, i.e., lose less quality on the test set than others.
-Thus, the variance in test feature-set quality caused by overfitting could alleviate the effect on variance caused by the search method.
+Even if the training-set quality is similar, some alternatives might generalize better than others.
+Thus, this variance caused by overfitting could alleviate the effect caused by the choice of search method.
+
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 15, clip]{plots/afs-impact-search-mean-train-objective.pdf}
+		\caption{Training-set objective value.}
+		\label{fig:afs:impact-search-mean-train-objective}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 15, clip]{plots/afs-impact-search-mean-test-objective.pdf}
+		\caption{Test-set objective value.}
+		\label{fig:afs:impact-search-mean-test-objective}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 25 35 14, clip]{plots/afs-impact-search-mean-decision-tree-test-mcc.pdf}
+		\caption{Test-set prediction performance.}
+		\label{fig:afs:impact-search-mean-decision-tree-test-mcc}
+	\end{subfigure}
+	\caption{
+		Distribution of mean feature-set quality within search runs over datasets, cross-validation-folds, and~$\tau$, by search method for alternatives and number of alternatives~$a$.
+		Results with \emph{Model Gain} as the feature-selection method and $k=5$.
+		Excludes search settings where at least one combination of search method and~$a$ yielded no valid solution.
+		Y-axes are truncated to improve readability.
+	}
+	\label{fig:afs:impact-search-mean-quality}
+\end{figure}
 
 \paragraph{Average value of feature-set quality}
 
-While obtaining alternatives of homogeneous quality can be one goal of simultaneous search, the main selling point compared to sequential search would be alternatives of higher average quality.
-However, we found that solver-based simultaneous search is not clearly better than solver-based sequential search in that regard.
-In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective in search runs with \emph{MI} as the feature-selection method and $k=5$.
-We observe that all solver-based search methods yield very similar distributions of feature-set quality.
-The other four feature-selection methods besides \emph{MI} also do not show a general quality advantage of solver-based simultaneous search.
-At most, solver-based simultaneous search tends to develop a slight advantage with a growing number of alternatives for \emph{MI}, as visible in Figure~\ref{fig:afs:impact-search-mean-train-objective}, and \emph{Model Gain}.
+While obtaining alternatives of homogeneous quality can be one goal of simultaneous search, another selling point would be reaching higher average quality than sequential search.
+However, this potential advantage rarely materialized in our experiments.
+In particular, Figure~\ref{fig:afs:impact-search-mean-train-objective} compares the distribution of the mean training-set objective value in search runs with \emph{Model Gain} as the feature-selection method and $k=5$.
+We observe that all search methods yield very similar overall distributions of average feature-set quality.
+Comparing solver-based sequential and simultaneous search on each experimental setting separately and then aggregating also shows a mean quality difference close to zero.
+Further, outliers can occur in both directions, i.e., either solver-based search method may yield higher quality.
 
-The test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-objective} and the test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc} also exhibit the negligible quality difference between the solver-based search methods.
-As Figure~\ref{fig:afs:impact-search-fs-method-decision-tree-test-mcc} displays, the variation in prediction performance caused by other dimensions of the experimental design, e.g., dataset, dissimilarity threshold~$\tau$, etc., exceeds the variation due to the choice of the solver-based search method.
+The mean test-set objective value in Figure~\ref{fig:afs:impact-search-mean-test-objective} and the mean test-set prediction performance in Figure~\ref{fig:afs:impact-search-mean-decision-tree-test-mcc} also exhibit a negligible quality difference between the search methods.
+Finally, the other four feature-selection methods do not show a general quality advantage of solver-based simultaneous search either.
 
-Finally, Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} displays the difference in feature-set quality between solver-based sequential and simultaneous search compared on each search setting separately, i.e., each combination of dataset, dissimilarity threshold~$\tau$, etc.
-Positive values in this figure denote a higher quality of simultaneous-search solutions, while negative values denote a higher quality of sequential-search solutions.
-The figure matches previous results by showing little variation in quality between the solver-based search methods except for \emph{Greedy Wrapper} feature selection.
-In particular, the quality difference is usually close to zero, apart from a few outliers.
-Additionally, the figure highlights that outliers can occur in both directions:
-While solver-based simultaneous search can yield better feature sets in some scenarios, solver-based sequential search can be better in others.
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-num-alternatives.pdf}
+		\caption{
+			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, by the number of alternatives~$a$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-num-alternatives.pdf}
+		\caption{
+			Difference between solver-based sequential search and \emph{Greedy Replacement}, by the number of alternatives~$a$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}
+	\end{subfigure}
+	\\ \vspace{\baselineskip}
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-tau.pdf}
+		\caption{
+			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, by the dissimilarity threshold~$\tau$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-sim-tau}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[t]{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-tau.pdf}
+		\caption{
+			Difference between solver-based sequential search and \emph{Greedy Replacement}, by the dissimilarity threshold~$\tau$.
+		}
+		\label{fig:afs:impact-search-heuristics-metric-diff-seq-tau}
+	\end{subfigure}
+	\caption{
+		Distribution of difference in mean training feature-set quality within a search run between solver-based and heuristic search methods over remaining experimental settings, by feature-selection method.
+		Results with $k=5$.
+		Excludes search settings where at least one combination of search method and~$a$ yielded no valid solution.
+	}
+	\label{fig:afs:impact-search-heuristics-metric-diff}
+\end{figure}
+
+\paragraph{Quality difference of heuristics}
+
+We now look closer at the quality difference between solver-based and heuristic search.
+Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} compares the mean training feature-set quality within search runs for each experimental setting separately.
+In particular, we compare solver-based simultaneous search with min-aggregation to \emph{Greedy Balancing} (cf.~Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-tau}) and solver-based sequential search to \emph{Greedy Replacement} (cf.~Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-tau}).
+Positive values in Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} express that solver-based search yields higher quality; negative values favor heuristic search.
+The latter can occur if solver-based search yields suboptimal solutions due to timeouts, as we analyze later (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}).
+
+Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives} compare solver-based and heuristic search over the number of alternatives~$a$.
+For $a=1$, solver-based and heuristic search yield the same mean training feature-set quality except when timeouts occur.
+The more alternatives are desired, the more advantageous a solver-based search is quality-wise.
+As in prior analyses, the picture is less clear on the test set, which shows a smaller quality difference here.
+Further, the difference in mean training feature-set quality between \emph{Greedy Balancing} and solver-based simultaneous search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}) grows faster with~$a$ than between \emph{Greedy Replacement} and solver-based sequential search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}).
+As an explanation, consider that simultaneous search may generally develop a quality advantage over sequential search for more alternatives.
+\emph{Greedy Balancing} selects the same features as \emph{Greedy Replacement}, i.e., a sequential search heuristic, and only distributes them differently into feature sets, yielding the same mean feature-set quality.
+
+Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-tau} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-tau} compare solver-based and heuristic search over the dissimilarity threshold~$\tau$.
+Unlike for~$a$, the difference in mean training feature-set quality between solver-based and heuristic search does not increase over the whole range of~$\tau$ but shows an increase followed by a decrease.
+In particular, $\tau=1$ allows the two heuristic search methods to reach the same mean training feature-set quality as the solver-based methods.
+This observation corresponds to our theoretical result that optimizing the summed quality of alternatives with~$\tau=1$ admits polynomial-time algorithms (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
 
 \begin{table}[t]
 	\centering
-	\begin{tabular}{llrrr}
-		\toprule
-		\multirow{2}{*}{Feature selection} & \multirow{2}{*}{Search} & \multicolumn{3}{c}{Optimization status} \\
-		\cmidrule(lr){3-5}
-		& & Infeasible & Feasible & Optimal \\
-		\midrule
-		FCBF & seq. & 74.51\% & 0.00\% & 25.49\% \\
-		FCBF & sim. (min) & 73.07\% & 1.73\% & 25.20\% \\
-		FCBF & sim. (sum) & 73.07\% & 2.19\% & 24.75\% \\
-		MI & seq. & 4.93\% & 0.00\% & 95.07\% \\
-		MI & sim. (min) & 4.67\% & 9.15\% & 86.19\% \\
-		MI & sim. (sum) & 4.67\% & 2.88\% & 92.45\% \\
-		Model Gain & seq. & 4.93\% & 0.00\% & 95.07\% \\
-		Model Gain & sim. (min) & 4.67\% & 5.17\% & 90.16\% \\
-		Model Gain & sim. (sum) & 4.67\% & 1.84\% & 93.49\% \\
-		mRMR & seq. & 4.88\% & 9.63\% & 85.49\% \\
-		mRMR & sim. (min) & 4.67\% & 49.04\% & 46.29\% \\
-		mRMR & sim. (sum) & 4.67\% & 67.39\% & 27.95\% \\
-		\bottomrule
-	\end{tabular}
 	\caption{
-		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by feature-selection method and solver-based search method for alternatives.
-		Results with $k=5$, $a \in \{1,2,3,4,5\}$, and excluding \emph{Greedy Wrapper}, which uses the solver for satisfiability checking rather than optimizing.
+		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) over datasets, cross-validation folds, $a$, and $\tau$, by feature-selection method and search method for alternatives.
+		Results with $k=5$, $a \in \{1,2,3,4,5\}$, and excluding \emph{Greedy Wrapper}, which does not use the solver for optimizing.
 		Each row adds up to 100\%.
 	}
+	\begin{tabular}{llrrrr}
+		\toprule
+		\multirow{2}{*}{Feature sel.} & \multirow{2}{*}{Search} & \multicolumn{4}{c}{Optimization status} \\
+		\cmidrule(lr){3-6}
+		& & Infeasible & Not solved & Feasible & Optimal \\
+		\midrule
+		FCBF & seq. & 74.51\% & 0.00\% & 0.00\% & 25.49\% \\
+		FCBF & sim. (min) & 73.07\% & 0.00\% & 1.60\% & 25.33\% \\
+		FCBF & sim. (sum) & 73.07\% & 0.00\% & 2.19\% & 24.75\% \\
+		MI & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		MI & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		MI & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
+		MI & sim. (min) & 4.67\% & 0.00\% & 9.33\% & 86.00\% \\
+		MI & sim. (sum) & 4.67\% & 0.00\% & 3.04\% & 92.29\% \\
+		Model Gain & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		Model Gain & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
+		Model Gain & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
+		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.28\% & 90.05\% \\
+		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.87\% & 93.47\% \\
+		mRMR & seq. & 4.88\% & 0.00\% & 9.55\% & 85.57\% \\
+		mRMR & sim. (min) & 4.67\% & 0.00\% & 48.64\% & 46.69\% \\
+		mRMR & sim. (sum) & 4.67\% & 0.00\% & 67.04\% & 28.29\% \\
+		\bottomrule
+	\end{tabular}
 	\label{tab:afs:impact-search-fs-method-optimization-status}
 \end{table}
 
 \begin{table}[t]
 	\centering
+	\caption{
+		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) over datasets, cross-validation folds, feature-selection methods, and~$\tau$, by number of alternatives~$a$.
+		Results from solver-based simultaneous search with sum-aggregation, $k=5$, and excluding \emph{Greedy Wrapper}.
+		Each row adds up to 100\%.
+	}
 	\begin{tabular}{rrrr}
 		\toprule
 		\multirow{2}{*}{$a$} & \multicolumn{3}{c}{Optimization status} \\
 		\cmidrule(lr){2-4}
 		& Infeasible & Feasible & Optimal \\
 		\midrule
-		1 & 16.10\% & 7.57\% & 76.33\% \\
-		2 & 17.50\% & 13.43\% & 69.07\% \\
-		3 & 20.00\% & 20.40\% & 59.60\% \\
-		4 & 27.00\% & 21.47\% & 51.53\% \\
-		5 & 28.23\% & 30.00\% & 41.77\% \\
+		1 & 16.10\% & 7.60\% & 76.30\% \\
+		2 & 17.50\% & 13.27\% & 69.23\% \\
+		3 & 20.00\% & 20.20\% & 59.80\% \\
+		4 & 27.00\% & 21.43\% & 51.57\% \\
+		5 & 28.23\% & 30.17\% & 41.60\% \\
 		\bottomrule
 	\end{tabular}
-	\caption{
-		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by number of alternatives~$a$.
-		Results from solver-based simultaneous search with sum-aggregation, $k=5$, and excluding \emph{Greedy Wrapper}.
-		Each row adds up to 100\%.
-	}
 	\label{tab:afs:impact-num-alternatives-optimization-status}
 \end{table}
 
 \paragraph{Optimization status}
 
-One reason why solver-based simultaneous search fails to consistently beat solver-based sequential search quality-wise is that search results can be suboptimal.
+Suboptimal search results are one reason why solver-based simultaneous search does not consistently beat solver-based sequential search quality-wise.
 For \emph{Greedy Wrapper}, the search is heuristic per se and does not cover the entire search space.
 For all feature-selection methods, the solver can time out.
 Table~\ref{tab:afs:impact-search-fs-method-optimization-status} shows that solver-based simultaneous search has a higher likelihood of timeouts than solver-based sequential search, likely due to the larger size of the optimization problem (cf.~Table~\ref{tab:afs:seq-sim-comparison}).
@@ -1763,204 +1848,86 @@ In particular, for up to five alternatives and $k=5$, all solver-based sequentia
 In contrast, for solver-based simultaneous search with sum-aggregation, all feature-selection methods experience timeouts:
 1--3\% of the searches for \emph{FCBF}, \emph{MI}, and \emph{Model Gain}, and 67\% of the searches for \emph{mRMR} found a feasible solution but could not prove optimality.
 Such timeout-affected simultaneous solutions can be worse than optimal sequential solutions.
-The optimization status \emph{not solved}, i.e., not finding a feasible solution without proving infeasibility, did not occur in the displayed results.
-The feature-selection method \emph{mRMR} is especially prone to suboptimal solutions, likely because it has a more complex objective than~\emph{MI} and \emph{Model Gain}.
-In contrast, \emph{FCBF} often results in infeasible optimization problems since its constraints, preventing the selection of redundant features (cf.~Equation~\ref{eq:afs:fcbf}), might prevent finding any valid feature set of size~$k$.
-Min-aggregation instead of sum-aggregation in solver-based simultaneous search exhibits more timeouts for \emph{MI} and \emph{Model Gain} but less for \emph{FCBF} and \emph{mRMR}.
-Still, solver-based sequential search incurs fewer timeouts for all these four feature-selection methods.
 
-Finally, note that the fraction of timeouts strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
-For solver-based simultaneous search with $k=5$ and sum-aggregation, roughly 8\% of the white-box searches timed out for~$a=1$ but 20\% for~$a=3$ and 30\% for~$a=5$.
-While we grant solver-based simultaneous searches proportionally more time for multiple alternatives, the observed increase in timeouts suggests that runtime clearly increases super-proportionally, as we analyze next.
+\emph{mRMR} is especially prone to suboptimal solutions, likely because it has a more complex objective (cf.~Equation~\ref{eq:afs:mrmr-linear}) than~\emph{MI} and \emph{Model Gain}.
+\emph{FCBF} often results in infeasible optimization problems since its constraints, which prevent the selection of redundant features (cf.~Equation~\ref{eq:afs:fcbf}), might prevent finding any valid feature set of size~$k$.
+Min-aggregation instead of sum-aggregation in solver-based simultaneous search exhibits more timeouts for \emph{MI} and \emph{Model Gain} but less for \emph{FCBF} and \emph{mRMR}.
+Still, solver-based sequential search incurs fewer timeouts for all of these four feature-selection methods.
+
+Also, note that the fraction of timeouts in solver-based simultaneous search strongly depends on the number of alternatives~$a$, as Table~\ref{tab:afs:impact-num-alternatives-optimization-status} displays:
+For $k=5$ and sum-aggregation, roughly 8\% of the white-box searches timed out for~$a=1$, but 20\% for~$a=3$ and 30\% for~$a=5$.
+While we grant solver-based simultaneous searches proportionally more time for multiple alternatives (cf.~Section~\ref{sec:afs:experimental-design:approaches:alternatives}), the observed increase in timeouts suggests that runtime increases super-proportionally with~$a$, as we analyze later.
+
+For the heuristic search methods, Table~\ref{tab:afs:impact-search-fs-method-optimization-status} shows that \emph{Greedy Replacement} more often did not find a valid alternative (9.20\%) than solver-based sequential search (4.93\%).
+A similar phenomenon occurred for \emph{Greedy Balancing} (9.20\%) compared to solver-based simultaneous search (4.67\%).
+Such a result can be expected since both heuristic search methods stop early as soon as each feature is part of at least one alternative.
 
 \begin{table}[t]
 	\centering
-	\begin{tabular}{lrrr}
-		\toprule
-		\multirow{2}{*}{Feature selection} & \multicolumn{3}{c}{Optimization time} \\
-		\cmidrule(lr){2-4}
-		& Seq. & Sim. (min) & Sim. (sum) \\
-		\midrule
-		FCBF & 0.22~s & 11.91~s & 13.09~s \\
-		Greedy Wrapper & 54.23~s & 61.10~s & 63.45~s \\
-		MI & 0.02~s & 46.36~s & 24.19~s \\
-		Model Gain & 0.02~s & 29.46~s & 18.79~s \\
-		mRMR & 34.12~s & 157.87~s & 189.76~s \\
-		\bottomrule
-	\end{tabular}
 	\caption{
-		Mean optimization time by feature-selection method and solver-based search method for alternatives.
+		Mean optimization time over datasets, cross-validation folds, $a$, and $\tau$, by feature-selection method and search method for alternatives.
 		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
 	}
+	\begin{tabular}{lrrrrr}
+		\toprule
+		\multirow{2}{*}{Feature selection} & \multicolumn{5}{c}{Optimization time} \\
+		\cmidrule(lr){2-6}
+		& Bal. & Rep. & Seq. & Sim. (min) & Sim. (sum) \\
+		\midrule
+		FCBF & --- & --- & 0.22~s & 11.41~s & 12.62~s \\
+		Greedy Wrapper & --- & --- & 52.62~s & 68.39~s & 70.36~s \\
+		MI & 0.00~s & 0.00~s & 0.03~s & 47.39~s & 24.56~s \\
+		Model Gain & 0.00~s & 0.00~s & 0.03~s & 30.38~s & 19.08~s \\
+		mRMR & --- & --- & 33.59~s & 156.00~s & 189.25~s \\
+		\bottomrule
+	\end{tabular}
 	\label{tab:afs:impact-search-fs-method-optimization-time}
 \end{table}
 
 \begin{table}[t]
 	\centering
+	\caption{
+		Mean optimization time over datasets, cross-validation folds, and $\tau$, by number of alternatives and feature-selection method.
+		Results from solver-based simultaneous search with sum-aggregation and $k=5$.
+	}
 	\begin{tabular}{lrrrrr}
 		\toprule
 		\multirow{2}{*}{$a$} & \multicolumn{5}{c}{Optimization time} \\
 		\cmidrule(lr){2-6}
-		& FCBF & Wrapper & MI & Model Gain & mRMR \\
+		& FCBF & Greedy Wrapper & MI & Model Gain & mRMR \\
 		\midrule
-		1 & 0.52~s & 25.94~s & 0.02~s & 0.02~s & 44.99~s \\
-		2 & 0.95~s & 39.44~s & 0.07~s & 0.06~s & 118.80~s \\
-		3 & 3.26~s & 56.52~s & 0.25~s & 0.22~s & 208.90~s \\
-		4 & 14.02~s & 86.13~s & 3.39~s & 3.19~s & 258.40~s \\
-		5 & 46.71~s & 109.20~s & 117.21~s & 90.49~s & 317.69~s \\
+		1 & 0.45~s & 28.44~s & 0.03~s & 0.02~s & 44.68~s \\
+		2 & 0.86~s & 41.76~s & 0.09~s & 0.08~s & 117.62~s \\
+		3 & 2.97~s & 62.70~s & 0.30~s & 0.27~s & 208.14~s \\
+		4 & 13.32~s & 96.65~s & 3.68~s & 3.47~s & 258.19~s \\
+		5 & 45.52~s & 122.26~s & 118.72~s & 91.58~s & 317.63~s \\
 		\bottomrule
 	\end{tabular}
-	\caption{
-		Mean optimization time by number of alternatives and feature-selection method.
-		Results from solver-based simultaneous search with sum-aggregation and $k=5$.
-	}
 	\label{tab:afs:impact-num-alternatives-fs-method-optimization-time}
 \end{table}
 
 \paragraph{Optimization time}
 
-The optimization times also speak in favor of sequential search.
-As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, the mean optimization time of solver-based sequential search is lower for all five feature-selection methods.
-In particular, the difference between solver-based sequential and simultaneous search is up to three orders of magnitude for the four white-box feature-selection methods.
+As Table~\ref{tab:afs:impact-search-fs-method-optimization-time} shows, solver-based sequential search is faster on average than solver-based simultaneous search for all five feature-selection methods.
+In particular, the difference is up to three orders of magnitude for the four white-box feature-selection methods.
 Further, \emph{FCBF}, \emph{MI}, and \emph{Model Gain} experience a dramatic increase in optimization time with the number of alternatives~$a$ in solver-based simultaneous search, as Table~\ref{tab:afs:impact-num-alternatives-fs-method-optimization-time} displays.
 In contrast, the runtime increase is considerably less for solver-based sequential search, which shows an approximately linear trend with the number of alternatives.
 
-Based on all results described in this section, we focus on solver-based sequential search in the subsequent Sections~\ref{sec:afs:evaluation:num-alternatives} and~\ref{sec:afs:evaluation:tau}.
-In particular, it was significantly faster than solver-based simultaneous search while yielding similar feature-set quality.
+Table~\ref{tab:afs:impact-search-fs-method-optimization-time} also shows that the optimization time of the heuristic search methods for \emph{MI} and \emph{Model Gain} is negligible.
+In particular, \emph{Greedy Replacement} and \emph{Greedy Balancing} never took longer than 1~ms per search run for alternatives.
+These results highlight the runtime advantage of the heuristics, particularly of \emph{Greedy Balancing} for simultaneous search.
 
-Another interesting question for practitioners is how the runtime relates to~$n$, the number of features in the dataset.
-One would expect a positive correlation since the optimization problem's instance size increases with~$n$.
+An interesting question for practitioners is how the runtime relates to~$n$, the number of features in the dataset.
+One could expect a positive correlation since the problem instance increases with~$n$.
 Roughly speaking, this trend appears in our experimental data indeed.
 However, the observed trend is rather noisy, particularly for solver-based simultaneous search, and some higher-dimensional datasets even show lower average runtimes than lower-dimensional ones.
-This result indicates that other factors than~$n$ influence runtime.
-Besides factors related to the datasets and experimental design, search heuristics used by the solver may also cause the runtime to fluctuate considerably.
+This result indicates that other factors than~$n$ influence runtime as well, e.g., other experimental settings or the solver's internal search heuristics.
 
-\subsection{Number of Alternatives \texorpdfstring{$a$}{}}
-\label{sec:afs:evaluation:num-alternatives}
+Based on all results described in this section, we focus on solver-based sequential search in the next section.
+In particular, it was significantly faster than solver-based simultaneous search while yielding similar feature-set quality.
 
-\begin{figure}[p]
-	\centering
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=14 33 14 16, clip]{plots/afs-impact-num-alternatives-quality-max.pdf}
-		\caption{Max-normalized, infeasible feature sets excluded.}
-		\label{fig:afs:impact-num-alternatives-quality-max}
-	\end{subfigure}
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=14 33 14 16, clip]{plots/afs-impact-num-alternatives-quality-max-fillna.pdf}
-		\caption{Max-normalized, infeasible feature sets assigned a quality of~0.}
-		\label{fig:afs:impact-num-alternatives-quality-max-fillna}
-	\end{subfigure}
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=14 33 14 16, clip]{plots/afs-impact-num-alternatives-quality-min-max.pdf}
-		\caption{Min-max-normalized, infeasible feature sets excluded.}
-		\label{fig:afs:impact-num-alternatives-quality-min-max}
-	\end{subfigure}
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=14 33 14 16, clip]{plots/afs-impact-num-alternatives-quality-min-max-fillna.pdf}
-		\caption{Min-max-normalized, infeasible feature sets assigned a quality of~0.}
-		\label{fig:afs:impact-num-alternatives-quality-min-max-fillna}
-	\end{subfigure}
-	\caption{
-		Feature-set quality, normalized per search run for alternatives, over the number of alternatives, by evaluation metric and normalization method.
-		Results from solver-based sequential search with \emph{MI} as the feature-selection method and $k=5$.
-	}
-	\label{fig:afs:impact-num-alternatives-quality}
-\end{figure}
-
-\paragraph{Feature-set quality}
-
-For sequential search, the training-set objective value has to decrease with the number of alternatives, at least for exact optimization.
-In particular, each found feature set constrains the optimization problem further.
-Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} illustrate this trend for \emph{MI}-based feature selection.
-Since feature-set quality varies between datasets (cf.~Appendix~\ref{sec:afs:appendix:evaluation:datasets}), we additionally normalize feature-set quality here.
-In particular, we analyze the relative development of feature-set quality within each search run for alternatives.
-First, we shift the range of all evaluation metrics to~$[0,1]$ since prediction performance and the objectives of \emph{Greedy Wrapper} and \emph{mRMR} have the range~$[-1,1]$ without this shift.
-Second, we max-normalize feature-set quality for each search of alternatives, i.e., the highest feature-set quality in the search run is set to~1, and the other qualities are scaled accordingly.
-Figure~\ref{fig:afs:impact-num-alternatives-quality-max} shows that multiple alternatives may have a similar quality, as the median training-set objective value remains relatively stable over the alternatives and is above~0.8 even for the tenth alternative.
-For comparison, Figure~\ref{fig:afs:impact-num-alternatives-quality-min-max} uses min-max normalization, i.e., the worst of the alternatives gets~0 as objective.
-This figure makes the decrease in quality over the alternatives more visible.
-In particular, this figure highlights that the training-set objective value decreases most from the original feature set, i.e., the zeroth alternative in the figures, to the first alternative, but the decrease is less beyond.
-
-Additionally, Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} show that the test-set objective value also drops most to the first alternative.
-However, this decrease is less prominent than on the training set, and there is no clear trend beyond the first few alternatives.
-In particular, alternatives can even have a higher test-set objective value than the original feature set due to overfitting.
-Similar findings hold for test-set prediction performance.
-Overall, these results indicate that alternative feature sets fulfill their purpose of being different solutions with similar quality.
-
-\paragraph{Optimization status}
-
-The prior observations refer to the quality of the found feature sets.
-However, the more alternatives are desired, the likelier an infeasible optimization problem is (cf.~Table~\ref{tab:afs:impact-num-alternatives-optimization-status}).
-For example, \emph{MI}-based feature selection in solver-based sequential search always finds an original feature set.
-However, with $k=5$, the problem is infeasible in 2\% of the cases for the third alternative, 12\% for the fifth, and 17\% for the tenth.
-Increasing the feature-set size~$k$ or having lower dataset dimensionality~$n$ naturally causes more infeasible solutions, as fewer features become available for alternatives.
-Thus, even if the quality of found feature sets remains relatively stable for more alternatives, valid alternatives may simply not exist.
-Figures~\ref{fig:afs:impact-num-alternatives-quality-max-fillna} and~\ref{fig:afs:impact-num-alternatives-quality-min-max-fillna} show the same data as Figures~\ref{fig:afs:impact-num-alternatives-quality-max} and~\ref{fig:afs:impact-num-alternatives-quality-min-max} but with the quality of infeasible feature sets set to zero, i.e., the theoretical minimum after we shifted the value ranges of evaluation metrics.
-In these figures, the downward trend of feature-set quality over the alternatives becomes slightly more prominent, particularly for many alternatives.
-This trend also depends on the dissimilarity threshold~$\tau$, which we analyze in the next section.
-
-\begin{figure}[p]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-train-objective-max.pdf}
-		\caption{
-			Training-set objective value.
-			Infeasible feature sets excluded.
-		}
-		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-train-objective-max-fillna.pdf}
-		\caption{
-			Training-set objective value.
-			Infeasible feature sets assigned a quality of~0.
-		}
-		\label{fig:afs:impact-num-alternatives-fs-method-train-objective-max-fillna}
-	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-decision-tree-test-mcc-max.pdf}
-		\caption{
-			Test-set prediction performance.
-			Infeasible feature sets excluded.
-		}
-		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna.pdf}
-		\caption{
-			Test-set prediction performance.
-			Infeasible feature sets assigned a quality of~0.
-		}
-		\label{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna}
-	\end{subfigure}
-	\caption{
-		Mean of feature-set quality, max-normalized per search run for alternatives, over the number of alternatives, by feature-selection method and evaluation metric.
-		Results from solver-based sequential search with $k=5$.
-	}
-	\label{fig:afs:impact-num-alternatives-fs-method-quality}
-\end{figure}
-
-\paragraph{Influence of feature-selection method}
-
-While we discussed \emph{MI} before, the decrease in objective value over the number of alternatives occurs for all feature-selection methods in our experiments, as Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} displays.
-The strength of the decrease varies between the feature selection methods.
-For example, \emph{Greedy Wrapper} and \emph{mRMR} show little effect of increasing the number of alternatives, while \emph{MI} and \emph{Model Gain} exhibit the strongest effect.
-As Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max-fillna} displays, the quality decrease becomes more prominent if one sets the quality of infeasible feature sets to zero.
-Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max}, no feature-selection method exhibits a strong decrease over the number of alternatives, unless we account for infeasible feature sets (cf.~Figure~\ref{fig:afs:impact-num-alternatives-fs-method-decision-tree-test-mcc-max-fillna}).
-
-\subsection{Dissimilarity Threshold \texorpdfstring{$\tau$}{}}
-\label{sec:afs:evaluation:tau}
+\subsection{User Parameters \texorpdfstring{$a$ And $\tau$}{}}
+\label{sec:afs:evaluation:parameters}
 
 \begin{figure}[p]
 	\centering
@@ -2024,26 +1991,35 @@ Further, for the test-set prediction performance shown in Figure~\ref{fig:afs:im
 		\label{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna}
 	\end{subfigure}
 	\caption{
-		Mean of feature-set quality, max-normalized per search run for alternatives, over the number of alternatives and dissimilarity threshold~$\tau$, by evaluation metric.
-		Results from solver-based sequential search with \emph{MI} as the feature-selection method and $k=10$.
+		Mean feature-set quality over datasets and cross-validation folds, max-normalized per search run for alternatives, by the number of alternative and dissimilarity threshold~$\tau$.
+		Results from solver-based sequential search with \emph{Model Gain} as the feature-selection method and $k=10$.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-quality}
 \end{figure}
 
 \paragraph{Feature-set quality}
 
-As Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} shows for \emph{MI} as the feature-selection method, the decrease in the objective value~$Q$ over the number of alternatives strongly depends on the dissimilarity threshold~$\tau$.
-We use results with $k=10$ instead of $k=5$ here to show more distinct values of $\tau$.
-For a low dissimilarity threshold, e.g., $\tau=0.1$, the objective value barely drops over the number of alternatives.
-In contrast, the objective value decreases significantly for a high dissimilarity threshold, e.g., $\tau=1$.
-This trend is expected since a higher~$\tau$ constrains the feature selection more.
-Further, datasets with more features~$n$ tend to experience a smaller decrease in quality over~$a$ and~$\tau$.
+Higher values of the two user parameters introduce more (for~$a$) or stronger (for~$\tau$) constraints into the optimization problem of alternative feature selection.
+Thus, one would expect a corresponding decrease in feature-set quality.
+Figure~\ref{fig:afs:impact-num-alternatives-tau-quality} illustrates this trend for \emph{Model Gain} as the feature-selection method and $k=10$.
+Since the maximum feature-set quality varies among datasets, we max-normalize quality in this figure.
+In particular, we set the highest feature-set quality in each search run for alternatives to~1 and scale the other feature-set qualities accordingly.
+For prediction performance in terms of MCC, we shift its range from~$[-1,1]$ to~$[0,1]$ before normalization.
+
+Figure~\ref{fig:afs:impact-num-alternatives-tau-quality} shows that multiple alternatives may have a similar quality.
+Further, the training-set objective value (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max}) decreases most from the original feature set, i.e., the zeroth alternative, to the first alternative, but less beyond.
+Also, the decrease strongly depends on the dissimilarity threshold~$\tau$.
+For a low dissimilarity threshold like $\tau=0.1$, the training-set objective value barely drops over the number of alternatives.
+Additionally, note that Figure~\ref{fig:afs:impact-num-alternatives-tau-quality} averages the normalized feature-set quality over multiple datasets.
+In our experiments, datasets with more features tend to experience a smaller decrease in quality over~$a$ and~$\tau$.
 As higher-dimensional datasets offer more options for alternatives, this observation makes sense.
 However, this effect is not guaranteed since datasets with many features could also contain many useless features instead of interesting alternatives.
 
-As Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} displays, the decreasing quality over $\tau$ also shows for the test-set objective value, though the trend is weaker there.
-The effect of~$\tau$ on prediction performance exhibits an even less clear trend, as visualized in Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}.
-This result underlines our previous observations that the objective value is only partially indicative of prediction performance.
+The overall decrease in quality is slightly less pronounced for the test-set objective value (Figure~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}) than on the training set (Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max}) since overfitting might occur.
+In particular, the original feature set can even have lower test-set quality than the subsequent alternatives.
+The trend becomes even less clear for prediction performance, which varies little over~$a$ and~$\tau$ in our experiments (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}).
+In general, the optimization objective~$Q$ may only partially indicate actual prediction performance since the former may use a simplified feature-set quality criterion.
+Indeed, the correlation between optimization objective~$Q$ and prediction MCC is only weak to moderate in our experiments.
 
 \begin{figure}[t]
 	\centering
@@ -2061,286 +2037,106 @@ This result underlines our previous observations that the objective value is onl
 		\label{fig:afs:impact-num-alternatives-tau-optimization-status-k-10}
 	\end{subfigure}
 	\caption{
-		Fraction of optimization runs yielding a valid feature set over the number of alternatives and dissimilarity threshold~$\tau$, by feature-set size~$k$.
-		Results from solver-based sequential search with \emph{MI} as the feature-selection method.
+		Frequency of optimization runs yielding a valid feature set over datasets and cross-validation folds, by the number of alternative and dissimilarity threshold~$\tau$.
+		Results from solver-based sequential search with \emph{Model Gain} as the feature-selection method.
 	}
 	\label{fig:afs:impact-num-alternatives-tau-optimization-status}
 \end{figure}
 
 \paragraph{Optimization status}
 
-Similar to our analysis for the number of alternatives (cf.~Section~\ref{sec:afs:evaluation:num-alternatives}), one needs to consider that setting~$\tau$ too high can make the optimization problem infeasible.
-In particular, a higher dissimilarity threshold increases the likelihood that no feature set is alternative enough.
-Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes the fraction of valid feature sets over the number of alternatives and dissimilarity threshold~$\tau$.
-Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna} account for infeasible feature sets by setting their feature-set quality to zero.
-Compared to Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max}, the decrease in feature-set quality is noticeably stronger.
-In contrast, if only considering valid feature sets, the mean quality can increase over the number of alternatives, as visible in Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} for $\tau=1.0$ or in Figure~\ref{fig:afs:impact-num-alternatives-fs-method-train-objective-max} for \emph{MI} and \emph{Model Gain}.
+The previous observations refer to the quality of the found feature sets.
+However, the more alternatives one desires and the more they should differ, the likelier an infeasible optimization problem is.
+Figure~\ref{fig:afs:impact-num-alternatives-tau-optimization-status} visualizes the fraction of valid feature sets over the number of alternatives and dissimilarity threshold~$\tau$, showing the expected trend.
+Additionally, Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fillna},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max-fillna}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max-fillna} display the same data as Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max},~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max}, and~\ref{fig:afs:impact-num-alternatives-tau-decision-tree-test-mcc-max} but with the quality of infeasible feature sets set to zero instead of excluding these feature sets from evaluation.
+Consequently, the decrease in feature-set quality over~$a$ and~$\tau$ is noticeably stronger.
+In contrast, if only considering valid feature sets, the mean quality in our experiments can increase over the number of alternatives, e.g., as visible in Figures~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max} and~\ref{fig:afs:impact-num-alternatives-tau-test-objective-max} for $\tau=0.9$.
 This counterintuitive phenomenon can occur because some datasets run out of valid feature sets sooner than others, so the average quality may be determined for different sets of datasets at each number of alternatives.
 
-\begin{figure}[p]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-tau-fs-method-train-objective-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-mi.pdf}
 		\caption{
-			Training-set objective value.
-			Infeasible feature sets excluded.
+			\emph{MI} for feature selection.
 		}
-		\label{fig:afs:impact-tau-fs-method-train-objective-max}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-mi}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-tau-fs-method-train-objective-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-mrmr.pdf}
 		\caption{
-			Training-set objective value.
-			Infeasible feature sets assigned a quality of~0.
+			\emph{mRMR} for feature selection.
 		}
-		\label{fig:afs:impact-tau-fs-method-train-objective-max-fillna}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-mrmr}
 	\end{subfigure}
 	\\ \vspace{\baselineskip}
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-tau-fs-method-decision-tree-test-mcc-max.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-fcbf.pdf}
 		\caption{
-			Test-set prediction performance.
-			Infeasible feature sets excluded.
+			\emph{FCBF} for feature selection.
 		}
-		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-fcbf}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\textwidth, trim=20 35 15 15, clip]{plots/afs-impact-tau-fs-method-decision-tree-test-mcc-max-fillna.pdf}
+		\includegraphics[width=\textwidth, trim=15 17 10 15, clip]{plots/afs-impact-num-alternatives-tau-train-objective-max-greedy-wrapper.pdf}
 		\caption{
-			Test-set prediction performance.
-			Infeasible feature sets assigned a quality of~0.
+			\emph{Greedy Wrapper} for feature selection.
 		}
-		\label{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max-fillna}
+		\label{fig:afs:impact-num-alternatives-tau-train-objective-max-greedy-wrapper}
 	\end{subfigure}
 	\caption{
-		Mean of feature-set quality, max-normalized per search run for alternatives, over the dissimilarity threshold~$\tau$, by feature-selection method and evaluation metric.
+		Mean training-set objective value over datasets and cross-validation folds, max-normalized per search run for alternatives, by the number of alternative and dissimilarity threshold~$\tau$.
 		Results from solver-based sequential search with $k=10$.
+		Infeasible feature sets excluded.
 	}
-	\label{fig:afs:impact-tau-fs-method-quality}
+	\label{fig:afs:impact-num-alternatives-tau-train-objective-fs-method}
 \end{figure}
 
 \paragraph{Influence of feature-selection method}
 
-The impact of~$\tau$ on feature-set quality varies between feature-selection methods, as Figure~\ref{fig:afs:impact-tau-fs-method-train-objective-max} shows.
-Besides \emph{MI}, the objective value of \emph{Model Gain} strongly depends on~$\tau$ as well.
-In contrast, the remaining three feature-selection methods exhibit little influence of~$\tau$ on feature-set quality unless one also accounts for infeasible feature sets (cf.~Figure~\ref{fig:afs:impact-tau-fs-method-train-objective-max-fillna}).
-For \emph{Greedy Wrapper}, this outcome may be explained by the heuristic, inexact search procedure.
-For \emph{FCBF}, the additional constraints on feature-feature correlation (cf.~Equation~\ref{eq:afs:fcbf}) may alleviate the effect of~$\tau$.
-For \emph{mRMR}, the low influence of~$\tau$ matches the low influence of the number of alternatives.
-For this feature-selection method, alternatives tend to vary little in their objective value.
-Finally, the test-set prediction performance does not vary considerably over $\tau$ for any feature-selection method, as Figure~\ref{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max} displays.
-Only considering infeasible feature sets results in decreased prediction performance (cf.~Figure~\ref{fig:afs:impact-tau-fs-method-decision-tree-test-mcc-max-fillna}).
-
-\subsection{Heuristic Search Methods for Alternatives}
-\label{sec:afs:evaluation:heuristic-search-methods}
-
-\begin{figure}[t]
-	\centering
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-heuristics-stddev-train-objective.pdf}
-		\caption{Standard deviation of training-set objective value within search runs.}
-		\label{fig:afs:impact-search-heuristics-stddev-train-objective}
-	\end{subfigure}
-	\begin{subfigure}[t]{\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 25 15 15, clip]{plots/afs-impact-search-heuristics-stddev-test-objective.pdf}
-		\caption{Standard deviation of test-set objective value within search runs.}
-		\label{fig:afs:impact-search-heuristics-stddev-test-objective}
-	\end{subfigure}
-	\caption{
-		Feature-set quality over the number of alternatives~$a$, by search method for alternatives (including heuristics) and evaluation metric.
-		Results with \emph{MI} as the feature-selection method and $k=5$.
-		Y-axes are truncated to improve readability.
-	}
-	\label{fig:afs:impact-search-heuristics-stddev}
-\end{figure}
-
-\paragraph{Variance in feature-set quality}
-
-Figure~\ref{fig:afs:impact-search-heuristics-stddev} shows how the feature-set quality varies over alternatives within individual search runs for alternatives.
-The figure uses \emph{MI} as the feature-selection method, but results for \emph{Model Gain} are similar.
-Also, this figure is similar to Figure~\ref{fig:afs:impact-search-stddev-train-objective} from our analysis of solver-based search methods but includes heuristic search methods.
-
-For the training-set objective value (cf.~Figure~\ref{fig:afs:impact-search-heuristics-stddev-train-objective}), we observe that the heuristic \emph{Greedy Balancing} yields a small variance of quality within search runs, very similar to the solver-based simultaneous search with min-aggregation.
-While the variance within search runs produced by the heuristic is slightly higher than for the solver-based search, this difference is barely visible in the figure.
-In contrast, the heuristic \emph{Greedy Replacement} rather mimics solver-based sequential search, having a substantial variance over alternatives within search runs.
-Also, the variance of \emph{Greedy Replacement} noticeably grows with the number of alternatives~$a$ and the dissimilarity threshold~$\tau$.
-For \emph{Greedy Balancing}, the increase in variance over~$a$ also exists but is considerably smaller.
-
-For the test-set objective value (cf.~Figure~\ref{fig:afs:impact-search-heuristics-stddev-test-objective}) and the test-set prediction performance, the variance within search runs differs less between the different search methods for alternatives.
-As explained for solver-based search methods in Section~\ref{sec:afs:evaluation:solver-search-methods}, this phenomenon may be caused by overfitting, i.e., the training-set quality does not perfectly correspond to the test-set quality, thereby introducing additional variance.
-
-\begin{figure}[p]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-num-alternatives.pdf}
-		\caption{
-			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the number of alternatives~$a$.
-		}
-		\label{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-num-alternatives.pdf}
-		\caption{
-			Difference between solver-based sequential search and \emph{Greedy Replacement}, over the number of alternatives~$a$.
-		}
-		\label{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}
-	\end{subfigure}
-	\\ \vspace{\baselineskip}
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-sim-tau.pdf}
-		\caption{
-			Difference between solver-based simultaneous (min-aggregation) search and \emph{Greedy Balancing}, over the dissimilarity threshold~$\tau$.
-		}
-		\label{fig:afs:impact-search-heuristics-metric-diff-sim-tau}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-search-heuristics-metric-diff-seq-tau.pdf}
-		\caption{
-			Difference between solver-based sequential search and \emph{Greedy Replacement}, over the dissimilarity threshold~$\tau$.
-		}
-		\label{fig:afs:impact-search-heuristics-metric-diff-seq-tau}
-	\end{subfigure}
-	\caption{
-		Difference in mean training-set objective value between solver-based and heuristic search methods for alternatives, over user parameters~$a$ and~$\tau$, by feature-selection method and search methods.
-		Results with $k=5$.
-	}
-	\label{fig:afs:impact-search-heuristics-metric-diff}
-\end{figure}
-
-\paragraph{Average value of feature-set quality}
-
-Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} compares the mean training-set objective value of alternatives within search runs for each search setting separately, like Figure~\ref{fig:afs:impact-search-fs-method-metric-diff} does.
-In particular, we compare solver-based simultaneous search with min-aggregation to \emph{Greedy Balancing} (cf.~Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-tau}) and solver-based sequential search to \emph{Greedy Replacement} (cf.~Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-tau}).
-Positive values in Figure~\ref{fig:afs:impact-search-heuristics-metric-diff} express that solver-based search is better; negative values favor heuristic search.
-The latter can only occur if solver-based search encounters timeouts and may, therefore, yield suboptimal solutions, which happens for solver-based simultaneous search (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}).
-
-Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives} compare solver-based and heuristic search over the number of alternatives~$a$.
-For $a=1$, solver-based and heuristic search yield the same training-set objective value except when timeouts occur.
-The more alternatives are desired, the more advantageous a solver-based search is regarding training-set objective value.
-As in prior analyses, the picture is less clear on the test set.
-In particular, the quality advantage of solver-based search is smaller for the test-objective value than for the training-set objective value and vanishes for the test-set prediction performance.
-
-Further, the difference in training-set objective value between \emph{Greedy Balancing} and solver-based simultaneous search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-num-alternatives}) grows faster with~$a$ than between \emph{Greedy Replacement} and solver-based sequential search (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-num-alternatives}).
-This phenomenon may be explained by the fact that simultaneous search can generally develop an advantage over sequential search for more alternatives.
-While \emph{Greedy Balancing} is a simultaneous search heuristic in the sense that it balances the quality of the alternatives, it selects the same features as \emph{Greedy Replacement}, i.e., a sequential search heuristic, and only distributes them differently into feature sets.
-
-Figures~\ref{fig:afs:impact-search-heuristics-metric-diff-sim-tau} and~\ref{fig:afs:impact-search-heuristics-metric-diff-seq-tau} compare solver-based and heuristic search over the dissimilarity threshold~$\tau$.
-Unlike for~$a$, the difference in training-set objective value between solver-based and heuristic search does not increase over the whole range of~$\tau$ but shows an increase followed by a decrease.
-In particular, $\tau=1$ allows the two heuristic search methods to reach the same training-set objective value as the solver-based methods.
-This observation corresponds to our theoretical result that optimizing the summed quality of alternatives with~$\tau=1$ admits polynomial-time algorithms (cf.~Proposition~\ref{prop:afs:complexity-partitioning-sum}).
-
-Regarding the feature-selection methods, \emph{MI} exhibits a larger difference in training-set objective value between solver-based and heuristic search than \emph{Model Gain}, which is also visible in Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}.
-In particular, the univariate feature qualities computed by \emph{Model Gain} in our experiments may have a distribution that brings heuristic search closer to the optimum than for \emph{MI}-based feature qualities.
-
-\begin{table}[t]
-	\centering
-	\begin{tabular}{llrrrr}
-		\toprule
-		\multirow{2}{*}{Selection} & \multirow{2}{*}{Search} & \multicolumn{4}{c}{Optimization status} \\
-		\cmidrule(lr){3-6}
-		& & Infeasible & Not solved & Feasible & Optimal \\
-		\midrule
-		MI & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		MI & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		MI & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
-		MI & sim. (min) & 4.67\% & 0.00\% & 9.15\% & 86.19\% \\
-		MI & sim. (sum) & 4.67\% & 0.00\% & 2.88\% & 92.45\% \\
-		Model Gain & bal. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		Model Gain & rep. & 0.00\% & 9.20\% & 90.80\% & 0.00\% \\
-		Model Gain & seq. & 4.93\% & 0.00\% & 0.00\% & 95.07\% \\
-		Model Gain & sim. (min) & 4.67\% & 0.00\% & 5.17\% & 90.16\% \\
-		Model Gain & sim. (sum) & 4.67\% & 0.00\% & 1.84\% & 93.49\% \\
-		\bottomrule
-	\end{tabular}
-	\caption{
-		Frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) by feature-selection method and search method for alternatives (including heuristics).
-		Results with $k=5$ and $a \in \{1,2,3,4,5\}$.
-		Each row adds up to 100\%.
-	}
-	\label{tab:afs:impact-search-heuristics-fs-method-optimization-status}
-\end{table}
-
-\paragraph{Optimization status}
-
-Table~\ref{tab:afs:impact-search-heuristics-fs-method-optimization-status} displays the frequency of optimization statuses (cf.~Section~\ref{sec:afs:experimental-design:evaluation}) for the different search methods.
-The status \emph{feasible} for solver-based simultaneous search indicates timeouts, which explains why \emph{Greedy Balancing} is better in some cases (cf.~Figure~\ref{fig:afs:impact-search-heuristics-metric-diff}).
-
-The table shows that \emph{Greedy Replacement} more often did not find a valid alternative (9.2\%) than solver-based sequential search (4.93\%).
-A similar phenomenon occurred for \emph{Greedy Balancing} (9.2\%) compared to solver-based simultaneous search (4.67\%).
-One can expect such a result since the termination criterion of both heuristic search methods causes them to terminate early as soon as each feature is part of at least one alternative.
-The latter criterion does not prevent further solutions from existing, but one would need a new strategy to enumerate further valid alternatives.
-
-\paragraph{Optimization time}
-
-The optimization time of the heuristic search methods is negligible.
-In particular, \emph{Greedy Replacement} and \emph{Greedy Balancing} never took longer than 1~ms per search run for alternatives.
-As discussed in Section~\ref{sec:afs:evaluation:solver-search-methods}, solver-based sequential search required less than 1~s on average for \emph{MI} and \emph{Model Gain} as feature-selection methods (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-time}), while solver-based simultaneous search sometimes did not even finish within the 1-min timeout per alternative (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}).
-These results highlight the runtime advantage of the heuristics, particularly of \emph{Greedy Balancing} for simultaneous search.
+While we discussed \emph{Model Gain} before, the decrease in objective value over~$a$ and~$\tau$ occurs to different extents for the other feature-selection methods in our experiments, as Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-fs-method} displays.
+In this figure, we shifted the objectives of \emph{Greedy Wrapper} and \emph{mRMR} to~$[0, 1]$ before max-normalization since their original range is~$[-1,1]$.
+\emph{MI} (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-mi}) shows a similar behavior as \emph{Model Gain} (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max}), which may result from both feature-selection methods using the same objective function, though with different feature qualities.
+In contrast, \emph{mRMR} (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-mrmr}) exhibits a considerably smaller effect of increasing~$\tau$.
+For \emph{FCBF} (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-fcbf}), the additional constraints on feature-feature correlation (cf.~Equation~\ref{eq:afs:fcbf}) cause many infeasible results (cf.~Table~\ref{tab:afs:impact-search-fs-method-optimization-status}), so we cannot determine the average feature-set quality for some combinations of~$a$ and~$\tau$.
+For \emph{Greedy Wrapper} (cf.~Figure~\ref{fig:afs:impact-num-alternatives-tau-train-objective-max-greedy-wrapper}), $a$ and~$\tau$ barely make any difference, which may be explained by the heuristic, inexact search procedure.
 
 \subsection{Summary}
 \label{sec:afs:evaluation:summary}
 
-\paragraph{Datasets (cf.~Appendix~\ref{sec:afs:appendix:evaluation:datasets})}
+\paragraph{Feature-selection methods (cf.~Section~\ref{sec:afs:evaluation:feature-selection})}
 
-Generally, feature-set quality strongly depended on the dataset.
-Thus, an analysis of alternative feature sets should be dataset-specific or appropriately normalize quality, as we did.
+Among the feature-selection methods, \emph{Model Gain} yielded the best average prediction performance.
+The simple univariate \emph{MI} also turned out competitive, while \emph{Greedy Wrapper} and \emph{mRMR} required high optimization times, and our constraint-based version of \emph{FCBF} yielded many infeasible solutions.
+Selecting $k=10$ instead of $k=5$ features had only a small impact on prediction performance, so users may stick to smaller feature-set sizes if such a setting benefits interpretability.
 
-\paragraph{Feature-set quality metrics (cf.~Appendix~\ref{sec:afs:appendix:evaluation:metrics})}
-
-Different notions of feature-set quality exhibited different trends in our experiments, so one should choose a notion of feature-set quality carefully.
-In particular, the objective function of feature-selection methods might disagree with the prediction performance of the corresponding feature sets.
-Further, we observed overfitting, i.e., a gap between training-set quality and test-set quality, also for simple objective functions, though to a lesser extent than for prediction performance.
-
-\paragraph{Feature-selection methods (cf.~Appendix~\ref{sec:afs:appendix:evaluation:feature-selection})}
-
-Among the feature-selection methods, \emph{Model Gain} resulted in the best prediction performance on average, though the simple univariate \emph{MI} also turned out competitive.
-\emph{Greedy Wrapper} and \emph{mRMR} required high optimization times, while our constraint-based version of \emph{FCBF} yielded many infeasible solutions.
-Finally, selecting $k=10$ instead of $k=5$ features yielded only a slight improvement in prediction performance for all feature-selection methods, so one might stick to smaller feature-set sizes if such a setting benefits interpretability for users.
-
-\paragraph{Solver-based search methods for alternatives (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods})}
+\paragraph{Search methods for alternatives (cf.~Section~\ref{sec:afs:evaluation:search-methods})}
 
 Solver-based simultaneous search, particularly with min-aggregation, considerably reduced the variance of the training-set objective value over alternatives compared to solver-based sequential search, as we desired.
 However, results were less clear on the test set and when using prediction performance to measure feature-set quality.
 Further, the average quality of alternatives was similar to solver-based sequential search.
-In addition, the latter was considerably faster and led to less solver timeouts, particularly when increasing the number of alternatives.
-Also, sequential search allows users to stop searching after each alternative instead of requiring the number of alternatives to be specified beforehand.
-Thus, we recommend using solver-based sequential search.
-
-\paragraph{Number of alternatives $a$ (cf.~Section~\ref{sec:afs:evaluation:num-alternatives})}
-
-Feature-set quality decreased most from the original feature set to the first alternative but less beyond.
-The strength of this decrease depended on the feature-selection method.
-There usually were several alternatives of similar quality, if such valid alternatives existed at all.
-In particular, the frequency of infeasible solutions increased with~$a$ due to more constraints.
-Finally, the quality decrease was more prominent on the training set than on the test set.
-
-\paragraph{Dissimilarity threshold $\tau$ (cf.~Section~\ref{sec:afs:evaluation:tau})}
-
-A higher dissimilarity threshold caused a stronger decrease in feature-set quality in terms of objective value for the feature-selection methods \emph{MI} and \emph{Model Gain}.
-This result shows that users can control a trade-off between quality and dissimilarity.
-However, results regarding prediction performance and for the other three feature-selection methods were less clear.
-In any case, a higher~$\tau$ naturally caused more infeasible solutions, which users should be aware of.
-
-\paragraph{Heuristic search methods for alternatives (cf.~Section~\ref{sec:afs:evaluation:heuristic-search-methods})}
+In addition, the latter was considerably faster and led to fewer solver timeouts, particularly when increasing the number of alternatives.
+Also, sequential search allows users to stop searching after each alternative.
 
 The heuristic search methods \emph{Greedy Replacement} and \emph{Greedy Balancing} for univariate feature qualities achieved a good feature-set quality relative to solver-based search, particularly for a low number of alternatives and on the test set.
-Apart from noticeable differences in training-set objective value for a high number of alternatives, users should be aware that the heuristics may stop in situations where solver-based search can still find further alternatives.
+For a high number of alternatives, the training feature-set quality may differ more and the heuristics may stop early despite the existence of further alternatives.
 As a positive point, both the heuristics' runtime was negligible.
-Also, \emph{Greedy Balancing} achieved a low variance of training-set objective value between alternatives found simultaneously, similar to solver-based simultaneous search with min-aggregation.
+Also, \emph{Greedy Balancing} achieved a low variance of training-set objective value between alternatives, similar to solver-based simultaneous search with min-aggregation.
+
+\paragraph{User parameters $a$ and $\tau$ (cf.~Section~\ref{sec:afs:evaluation:parameters})}
+
+Feature-set quality tended to decrease with a higher number of alternatives~$a$ and dissimilarity threshold~$\tau$, so these parameters give users control over alternatives.
+The decrease was highest from the original feature set to the first alternative but smaller beyond, resulting in multiple alternatives of similar quality.
+Also, the decrease was more prominent on the training set than on the test set.
+Further, the strength of this decrease depended on the feature-selection method;
+\emph{MI} and \emph{Model Gain} showed the largest effect.
+Independent from the feature-selection method, the frequency of infeasible solutions increased with~$a$ and~$\tau$ due to stronger constraints.
 
 \section{Conclusions and Future Work}
 \label{sec:afs:conclusion}
@@ -2378,11 +2174,13 @@ One could vary the definition of alternatives, e.g., the set-dissimilarity measu
 While we made general and straightforward decisions for each of these points, particular applications might demand other formalizations of alternatives.
 E.g., one could use soft instead of hard constraints.
 
-\paragraph{Time complexity} Appendix~\ref{sec:afs:appendix:complexity:future-work} discusses how one could extend our complexity analysis of alternative feature selection (cf.~Section~\ref{sec:afs:approach:complexity}).
+\paragraph{Time complexity}
+
+Appendix~\ref{sec:afs:appendix:complexity:future-work} discusses how one could extend our complexity analysis of alternative feature selection (cf.~Section~\ref{sec:afs:approach:complexity}).
 
 \paragraph{Runtime}
 
-Our experiments (cf.~Section~\ref{sec:afs:evaluation:solver-search-methods}) and theoretical analyses (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that exact simultaneous search scales poorly with the number of alternatives.
+Our experiments (cf.~Section~\ref{sec:afs:evaluation:search-methods}) and theoretical analyses (cf.~Section~\ref{sec:afs:approach:constraints:multiple}) revealed that exact simultaneous search scales poorly with the number of alternatives.
 One could conceive a more efficient problem formulation.
 Further, one could limit the solver runtime and take the intermediate results once the timeout is reached.
 We already used a fixed timeout in our experiments, but studying the exact influence of timeouts on feature-set quality is an open topic.
@@ -2411,7 +2209,6 @@ Section~\ref{sec:afs:appendix:univariate-complete-optimization-problem} provides
 Section~\ref{sec:afs:appendix:univariate-pre-selection} proposes how to speed up optimization for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}).
 Section~\ref{sec:afs:appendix:complexity} complements the complexity analysis (cf.~Section~\ref{sec:afs:approach:complexity}).
 Section~\ref{sec:afs:appendix:greedy-depth} proposes another heuristic search method for the univariate objective (cf.~Equation~\ref{eq:afs:univariate-filter}), complementing Section~\ref{sec:afs:approach:univariate-heuristics}.
-Section~\ref{sec:afs:appendix:evaluation} contains additional evaluation results (cf.~Section~\ref{sec:afs:evaluation}).
 
 \subsection{Aggregation Operators for the Simultaneous-Search Problem}
 \label{sec:afs:appendix:simultaneous-objective-aggregation}
@@ -2932,177 +2729,6 @@ The quality of alternatives may not even be monotonically decreasing anymore, as
 Like \emph{Greedy Balancing} and \emph{Greedy Replacement}, \emph{Greedy Depth Search} assumes univariate feature qualities and may be worse than exact search.
 As a sequential procedure, it does not balance the alternatives' qualities.
 It may yield more alternatives than the former two heuristics but has a higher and more variable runtime.
-
-\subsection{Evaluation}
-\label{sec:afs:appendix:evaluation}
-
-In this section, we evaluate experimental results not covered in Section~\ref{sec:afs:evaluation}.
-In particular, we cover three experimental dimensions not stemming from the search for alternatives:
-datasets (cf.~Section~\ref{sec:afs:appendix:evaluation:datasets}), feature-set-quality metrics (cf.~Section~\ref{sec:afs:appendix:evaluation:metrics}), and feature-selection methods (cf.~Section~\ref{sec:afs:appendix:evaluation:feature-selection}).
-
-\subsubsection{Datasets}
-\label{sec:afs:appendix:evaluation:datasets}
-
-\begin{figure}[t]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-dataset-k-train-objective.pdf}
-		\caption{Training-set objective value.}
-		\label{fig:afs:impact-dataset-k-train-objective}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 30 15 15, clip]{plots/afs-impact-dataset-k-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance.}
-		\label{fig:afs:impact-dataset-k-decision-tree-test-mcc}
-	\end{subfigure}
-	\caption{
-		Feature-set quality in datasets over feature-set size~$k$ relative to dimensionality~$n$, by feature-set size~$k$ and evaluation metric.
-		Results from the original feature sets of solver-based sequential search with \emph{MI} as the feature-selection method.
-	}
-	\label{fig:afs:impact-dataset-k-quality}
-\end{figure}
-
-Naturally, feature-set quality depends on the dataset, and several effects could occur.
-For example, the distribution of feature-set quality in a dataset may be relatively uniform or relatively skewed.
-Further, datasets with more features~$n$ give way to more alternative feature sets.
-At the same time, the feature quality can be spread over more features than for lower-dimensional datasets, making it harder to compose a small high-quality feature set.
-Indeed, our experiments show a broad variation of feature-set quality over the datasets.
-Figure~\ref{fig:afs:impact-dataset-k-quality} depicts the relationship between datasets and the quality of the original, i.e., unconstrained, feature set in solver-based sequential search.
-To account for the varying dataset dimensionality, we put the ratio between feature-set size~$k$ and dimensionality~$n$ on the x-axis, which measures relative feature-set sizes.
-As Figure~\ref{fig:afs:impact-dataset-k-train-objective} displays, the objective of the univariate feature-selection method \emph{MI} approximately increases linearly with~$k/n$.
-However, there still is variation exclusively caused by the dataset rather than its dimensionality.
-Further, the quality of a prediction model, i.e., decision trees, does not exhibit any trend but varies strongly between datasets, as Figure~\ref{fig:afs:impact-dataset-k-decision-tree-test-mcc} visualizes.
-This variation justifies our normalization of feature-set quality when analyzing alternatives in Sections~\ref{sec:afs:evaluation:num-alternatives} and~\ref{sec:afs:evaluation:tau}.
-
-\subsubsection{Feature-Set Quality Metrics}
-\label{sec:afs:appendix:evaluation:metrics}
-
-\begin{figure}[t]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-evaluation-metrics-overfitting.pdf}
-		\caption{
-			Training-test difference in feature-set quality by feature-selection method.
-			Y-axis is truncated to improve readability.
-		}
-		\label{fig:afs:evaluation-metrics-overfitting}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 15 10 15, clip]{plots/afs-evaluation-metrics-correlation.pdf}
-		\caption{Correlation between evaluation metrics, averaged over datasets, cross-valida\-tion folds, and feature-selection methods.}
-		\label{fig:afs:evaluation-metrics-correlation}
-	\end{subfigure}
-	\caption{
-		Feature-set quality by evaluation metric.
-		Results from all solver-based search runs.
-	}
-	\label{fig:afs:evaluation-metrics}
-\end{figure}
-
-\paragraph{Prediction models and overfitting}
-
-As one can expect, random forests have a higher average prediction performance than decision trees.
-Further, both model types exhibit overfitting, i.e., there is a gap between training-set and test-set performance.
-In particular, over all feature sets from solver-based search runs, both model types have a mean training-set MCC around 0.85--0.86 (median: 1.0).
-In contrast, decision trees have a mean MCC of 0.47 (median: 0.53) on the test set, while random forests have a slightly higher mean MCC of 0.52 (median: 0.61).
-I.e., prediction performance is significantly worse on the test set than on the training set.
-The existence of overfitting makes sense as we do not regularize, i.e., limit the growth of the trees or prune them after training.
-
-As another comparison, Figure~\ref{fig:afs:evaluation-metrics-overfitting} shows the distribution of the difference between training and test feature-set quality, again over all feature sets from solver-based search runs.
-Once more, we observe that training feature-set quality is usually higher, i.e., the difference shown in the figure is greater than zero.
-However, this phenomenon does not invalidate our analysis of how feature-set quality develops over alternatives.
-The optimization objective~$Q$, which Figure~\ref{fig:afs:evaluation-metrics-overfitting} also depicts, shows overfitting for all feature-selection methods as well, though to a lesser extent than prediction performance.
-Thus, Section~\ref{sec:afs:evaluation} considers the training and test set for the objective value, but only the test set for prediction performance.
-
-\paragraph{Correlation between evaluation metrics}
-
-Figure~\ref{fig:afs:evaluation-metrics-correlation} shows the Spearman correlation between different evaluation metrics over all feature sets from solver-based search runs:
-First, we compute the correlation between metrics for each combination of dataset, cross-validation fold, and feature-selection method.
-Second, we average the correlation values over these three experimental dimensions.
-This two-step procedure accounts for the different objectives of feature-selection methods and the normalization of quality per dataset and cross-validation fold in some objectives (cf.~Section~\ref{sec:afs:experimental-design:approaches:feature-selection}).
-The plot shows that the performance of decision trees and random forests is highly correlated.
-Thus, we only report MCC of decision trees in Section~\ref{sec:afs:evaluation}, which are the simpler model type and always consider all features during training rather than randomly sampling them.
-
-Figure~\ref{fig:afs:evaluation-metrics-correlation} also shows that the correlation between training and test feature-set quality over all solver-based search runs is only moderate for the optimization objective~$Q$ and weak for prediction performance in terms of MCC.
-This result might be caused by overfitting, whose strength may depend on the experimental settings.
-Further, the correlation between optimization objective~$Q$ and prediction MCC is only weak to moderate as well.
-I.e., the objective of feature selection is only partially indicative of prediction performance since the former might use a simplified quality criterion.
-Among the five feature-selection methods, \emph{Greedy Wrapper} has the highest correlation between training-set objective value and test-set MCC, with a value of 0.48.
-Since this feature-selection method uses prediction performance in its objective, a comparatively high correlation is expected.
-The correlation still is far from perfect since the search procedure of \emph{Greedy Wrapper} evaluates feature sets with a validation split of the training set.
-MCC on this holdout set may not perfectly correspond to MCC on the test set, which is not used in the search.
-On the other end of the spectrum, \emph{mRMR} exhibits a correlation of -0.05 between training-set objective value and test-set MCC.
-This filter method penalizes the correlation between features in its objective.
-However, redundant features may not hurt prediction performance in decision trees, even if they do not improve it.
-
-\subsubsection{Feature-Selection Methods}
-\label{sec:afs:appendix:evaluation:feature-selection}
-
-\begin{figure}[t]
-	\centering
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 35 5 15, clip]{plots/afs-impact-fs-method-k-decision-tree-test-mcc.pdf}
-		\caption{Test-set prediction performance.}
-		\label{fig:afs:impact-fs-method-k-decision-tree-test-mcc}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[t]{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth, trim=15 35 5 15, clip]{plots/afs-impact-fs-method-k-metric-diff.pdf}
-		\caption{
-			Difference in feature-set quality between $k=10$ and $k=5$ by evaluation metric.
-			Y-axis is truncated to improve readability.
-		}
-		\label{fig:afs:impact-fs-method-k-metric-diff}
-	\end{subfigure}
-	\caption{
-		Feature-set quality by feature-selection method and feature-set size~$k$.
-		Results from the original feature sets of solver-based sequential search.
-	}
-	\label{fig:afs:impact-fs-method-k-quality}
-\end{figure}
-
-\paragraph{Prediction performance}
-
-As the five feature-selection methods employ different objective functions~$Q$, comparing absolute objective values between them does not make sense.
-However, we can analyze the prediction performance of the obtained feature sets.
-Figure~\ref{fig:afs:impact-fs-method-k-decision-tree-test-mcc} compares a decision tree's test-set MCC on the original feature sets of solver-based sequential search between feature-selection methods.
-On average, \emph{Model Gain} is the best feature-selection method:
-The mean test-set MCC of decision trees is 0.53 for \emph{Model Gain}, 0.49 for \emph{Greedy Wrapper}, 0.47 for \emph{MI}, 0.46 for \emph{mRMR}, 0.43 for \emph{FCBF}.
-In particular, the univariate, model-free method \emph{MI} keeps up surprisingly well with more sophisticated methods.
-Thus, the analyses of alternative feature sets in Section~\ref{sec:afs:evaluation} focus on \emph{MI} while still discussing the remaining feature-selection methods.
-The overall best feature-selection method, \emph{Model Gain}, uses the same objective function as \emph{MI} but obtains its feature qualities from a prediction model rather than a bivariate dependency measure, which might boost its performance. 
-
-While \emph{Greedy Wrapper} uses actual prediction performance to assess feature-set quality, its heuristic nature might prevent better results:
-This method only evaluates a fraction of all feature sets, while the other feature-selection methods optimize globally.
-In particular, \emph{Greedy Wrapper} performed 629 iterations on average (median: 561) to determine the original feature sets of solver-based sequential search.
-However, the number of possible feature sets is much higher, e.g., already $\binom{15}{5} = 3003$ for the lowest-dimensional datasets in our evaluation (cf.~Table~\ref{tab:afs:datasets}) and $k=5$.
-
-\emph{FCBF}'s results may be taken with a grain of salt:
-Over all solver-based search runs, 89\% of the feature sets for \emph{FCBF} were infeasible, i.e., no solution satisfied the constraints.
-In contrast, this figure only is 18\% for \emph{MI}.
-Even the original feature set in solver-based sequential search is infeasible in 71\% of the cases for \emph{FCBF} but never for the other feature-selection methods.
-In particular, the combination of feature-correlation constraints in our formulation of \emph{FCBF} (cf.~Equation~\ref{eq:afs:fcbf}) with a feature-set-cardinality constraint, i.e., enforcing a feature-set size~$k$, may make the problem infeasible, especially if~$k$ gets larger.
-
-\paragraph{Influence of feature-set size~$k$}
-
-As expected, larger feature sets usually exhibit a higher feature-set quality than smaller feature sets in our experiments.
-However, the increase in quality with $k$ is not proportional, and there might even be a decrease.
-As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} shows for the original feature sets of solver-based sequential search, \emph{MI} and \emph{Model Gain} exhibit an increase of the training-set objective value~$Q_\text{train}$ from~$k=5$ to~$k=10$, i.e., the difference depicted in Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} is positive.
-As these objectives are monotonic in the set of selected features, a decrease in the training-set objective value is impossible.
-In contrast, the heuristic \emph{Greedy Wrapper} does not necessarily benefit from more features.
-The latter insight also applies to \emph{mRMR}, which normalizes its objective with the number of selected features and penalizes feature redundancy.
-For \emph{FCBF}, the fraction of feasible feature sets changes considerably from $k=5$ to $k=10$, so one cannot directly compare the overall quality between these two settings.
-As Figure~\ref{fig:afs:impact-fs-method-k-metric-diff} also displays, the benefit of larger feature sets is even less clear for prediction performance.
-In particular, all feature-selection methods except \emph{FCBF} show a median difference in test-set MCC close to zero when comparing $k=5$ to $k=10$.
-Thus, Section~\ref{sec:afs:evaluation} focuses on smaller feature sets, i.e., $k=5$.
 
 \renewcommand*{\bibfont}{\small} % use a smaller font for bib than for main text
 \printbibliography
