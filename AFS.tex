@@ -155,7 +155,7 @@ The search method \emph{Greedy Depth Search} (cf.~Appendix~\ref{sec:afs:appendix
 
 There is also a journal version of this article~\cite{bach2024alternative}.
 However, it is outdated in some places since we derived it from the first arXiv version.
-For example, the journal version lacks the heuristics search methods for alternatives (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}), uses an older version of the \emph{Greedy Wrapper} approach (cf.~Algorithm~\ref{al:afs:greedy-wrapper}), and partly differs in notation and formalization, e.g., definitions.
+For example, the journal version lacks the heuristic search methods for alternatives (cf.~Section~\ref{sec:afs:approach:univariate-heuristics}), uses an older version of the \emph{Greedy Wrapper} approach (cf.~Algorithm~\ref{al:afs:greedy-wrapper}), and partly differs in notation and formalization, e.g., definitions.
 
 \section{Fundamentals}
 \label{sec:afs:fundamentals}
@@ -594,7 +594,7 @@ Using a bivariate dependency measure~$q(\cdot)$, the objective is maximizing the
 \end{equation}
 %
 If one knows the feature-set size $\sum_{j=1}^{n} s_j$ to be a constant~$k$, the denominators of both fractions are constant, so the objective leads to a quadratic-programming problem~\cite{nguyen2014effective, rodriguez2010quadratic}.
-If one additionally replaces each product terms $s_{j_1} \cdot s_{j_2}$ according to Equation~\ref{eq:afs:product-linear}, the problem becomes linear.
+If one additionally replaces each product term $s_{j_1} \cdot s_{j_2}$ according to Equation~\ref{eq:afs:product-linear}, the problem becomes linear.
 However, there is a more efficient linearization~\cite{nguyen2009optimizing, nguyen2010towards}, which we use in our experiments:
 %
 \begin{equation}
@@ -1180,7 +1180,7 @@ However, the heuristic can also be worse than exact sequential search and exact 
 \emph{Greedy Balancing} shares several limitations with \emph{Greedy Replacement}, e.g., it may be worse than exact search, assumes univariate feature qualities, and does not work if the number of features~$n$ is too low relative to~$k$, $a$, and $\tau$.
 In the latter case, \emph{Greedy Balancing} yields no solution due to its simultaneous nature, while \emph{Greedy Replacement} yields at least some alternatives.
 However, if running out of features is not an issue, \emph{Greedy Balancing} has the advantage of more balanced feature-set qualities.
-Also, one could easily adapt \emph{Greedy Balancing} to yield the highest feasible number of alternatives in case~$a$ alternatives are infeasible.
+Also, one could easily adapt \emph{Greedy Balancing} to yield the largest feasible number of alternatives in case~$a$ alternatives are infeasible.
 
 \section{Related Work}
 \label{sec:afs:related-work}
@@ -1261,7 +1261,7 @@ Further, most of the approaches are tied to particular constraint types, while o
 \label{sec:afs:related-work:subgroup-discovery}
 
 \cite{leeuwen2012diverse}~presents six strategies to foster diversity in subgroup set discovery, which searches for interesting regions in the data space, i.e., combinations of conditions on feature values, rather than only selecting features.
-Three strategies yield a fixed number of alternatives, and the other three a variable number.
+Three strategies yield a fixed number of alternatives and the other three a variable number.
 The strategies become part of beam search, i.e., a heuristic search procedure, while we mainly consider exact optimization.
 Also, the criteria for alternatives differ from ours.
 The strategy \emph{fixed-size description-based selection} prunes subgroups with the same quality as previously found ones if they differ by at most one feature-value condition.
@@ -1405,7 +1405,7 @@ We search for alternatives under different notions of feature-set quality in the
 We choose five well-known feature-selection methods that are easy to parameterize and cover the different categories from Section~\ref{sec:afs:fundamentals:quality} except \emph{embedded}, as explained in Section~\ref{sec:afs:approach:objectives:embedding}.
 However, we use feature importance from an embedded method as post-hoc importance scores.
 Four feature-selection methods allow a white-box formulation of the optimization problem, while \emph{Greedy Wrapper} is black-box.
-With each feature-selection method, we enforce a fixed feature-set sizes of $k \in \{5,10\}$.
+With each feature-selection method, we enforce fixed feature-set sizes of $k \in \{5,10\}$.
 
 \paragraph{Filter feature selection}
 
@@ -2125,13 +2125,13 @@ In addition, the latter was considerably faster and led to fewer solver timeouts
 Also, sequential search allows users to stop searching after each alternative.
 
 The heuristic search methods \emph{Greedy Replacement} and \emph{Greedy Balancing} for univariate feature qualities achieved a good feature-set quality relative to solver-based search, particularly for a low number of alternatives and on the test set.
-For a high number of alternatives, the training feature-set quality may differ more and the heuristics may stop early despite the existence of further alternatives.
+For a high number of alternatives, the training feature-set quality may differ more, and the heuristics may stop early despite the existence of further alternatives.
 As a positive point, both the heuristics' runtime was negligible.
 Also, \emph{Greedy Balancing} achieved a low variance of training-set objective value between alternatives, similar to solver-based simultaneous search with min-aggregation.
 
 \paragraph{User parameters $a$ and $\tau$ (cf.~Section~\ref{sec:afs:evaluation:parameters})}
 
-Feature-set quality tended to decrease with a higher number of alternatives~$a$ and dissimilarity threshold~$\tau$, so these parameters give users control over alternatives.
+Feature-set quality tended to decrease with a larger number of alternatives~$a$ and dissimilarity threshold~$\tau$, so these parameters give users control over alternatives.
 The decrease was highest from the original feature set to the first alternative but smaller beyond, resulting in multiple alternatives of similar quality.
 Also, the decrease was more prominent on the training set than on the test set.
 Further, the strength of this decrease depended on the feature-selection method;
@@ -2290,7 +2290,7 @@ However, such constraint-based approaches introduce one or several parameters bo
 Third, one could treat balancing qualities as another objective besides maximizing the summed quality.
 One can then optimize two objectives simultaneously, filtering results for Pareto-optimal solutions or optimizing a weighted combination of the two objectives.
 In both cases, users may need to define an acceptable trade-off between the objectives.
-It is an open question if a solution always exists that jointly optimizes min- and sum-aggregation.
+It is an open question if a solution that jointly optimizes min- and sum-aggregation always exists.
 If yes, then optimizing a weighted combination of the two objectives would also optimize each of them on its own, assuming positive weights.
 
 \subsection{Further Objectives for Multivariate Filter Methods}
@@ -2323,7 +2323,7 @@ One can also use Relief scores in CFS to consider feature redundancy~\cite{hall1
 \subsection{Complete Specifications of the Optimization Problem for the Univariate Objective}
 \label{sec:afs:appendix:univariate-complete-optimization-problem}
 
-In this section, we provide complete specifications of the alternative-feature-selection problem for sequential and simultaneous search as integer-linear problem.
+In this section, we provide complete specifications of the alternative-feature-selection problem for sequential and simultaneous search as integer linear problem.
 In particular, we combine all relevant definitions and equations from Section~\ref{sec:afs:approach}.
 We use the objective of univariate filter feature selection (cf.~Equation~\ref{eq:afs:univariate-filter}).
 The corresponding feature qualities $q(\cdot)$ are constants in the optimization problem.
@@ -2492,7 +2492,7 @@ These uniform weights enable the polynomial-runtime result stated in Proposition
 \subsubsection{Proofs}
 \label{sec:afs:appendix:complexity:proofs}
 
-In this Section, we provide proofs for propositions from Section~\ref{sec:afs:approach:complexity:univariate}.
+In this section, we provide proofs for propositions from Section~\ref{sec:afs:approach:complexity:univariate}.
 
 \paragraph{Proof of Proposition~\ref{prop:afs:complexity-incomplete-partitioning-min-constrained-k}}
 %
@@ -2579,7 +2579,7 @@ First, one could establish a complexity result like $\mathcal{NP}$-hardness or m
 In the former case, there might be pseudo-polynomial approaches or (F)PTAS.
 As a first step in that direction, we showed membership in complexity class~$\mathcal{APX}$ under certain conditions (cf.~Proposition~\ref{prop:afs:approximation-apx}), i.e., there are polynomial-time algorithms yielding constant-factor approximations.
 One may attempt to tighten the quality bound we derived.
-Further, there might be efficient exact or approximate algorithms for certain types of problem instances, e.g., satisfying additional assumptions regarding feature-set quality or the parameters~$k$, $a$, and $\tau$.
+Further, there might be efficient exact or approximate algorithms for certain types of problem instances, e.g., satisfying additional assumptions regarding the feature-set quality or the parameters~$k$, $a$, and $\tau$.
 Finally, while we placed alternative feature selection in the parameterized complexity class~$\mathcal{XP}$ (cf.~Proposition~\ref{prop:afs:complexity-simultaneuos-xp}), one might prove membership or hardness for more specific parameterized complexity classes.
 
 \paragraph{Related problem formulations}
