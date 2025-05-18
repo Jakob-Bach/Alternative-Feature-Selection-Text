@@ -1,15 +1,28 @@
-# Text for Paper on Alternative Feature Selection
+# Alternative Feature Selection -- LaTeX Sources
 
-This repository contains the LaTeX source code for the paper
+This repository contains the LaTeX source code for two papers on alternative feature selection:
 
-> Bach, Jakob. "Finding Optimal Diverse Feature Sets with Alternative Feature Selection"
+> Bach, Jakob (2023). "Finding Optimal Diverse Feature Sets with Alternative Feature Selection"
 
-**Links**
+is published on [*arXiv*](https://doi.org/10.48550/arXiv.2307.11607).
+You can find its source code in the folder `paper_arxiv/`.
+There are several versions of this paper (see the tags of this repo).
 
-- paper on [*arXiv*](https://doi.org/10.48550/arXiv.2307.11607)
-- journal version of (v1 of) paper in [*International Journal of Data Science and Analytics*](https://doi.org/10.1007/s41060-024-00527-8)
-- related dissertation (research of this paper constitutes one main chapter) on [*KITopen*](https://doi.org/10.5445/IR/1000178649)
-- code for experiments on [*GitHub*](https://github.com/Jakob-Bach/Alternative-Feature-Selection)
-- experimental data (v1) on [*RADAR4KIT*](https://doi.org/10.35097/1623)
-- experimental data (v2) on [*RADAR4KIT*](https://doi.org/10.35097/1920)
-- experimental data (v3) on [*RADAR4KIT*](https://doi.org/10.35097/4ttgrpx92p30jwww)
+**Additional links:**
+
+- Code for experiments on [*GitHub*](https://github.com/Jakob-Bach/Alternative-Feature-Selection)
+- Experimental data (v1) on [*RADAR4KIT*](https://doi.org/10.35097/1623)
+- Experimental data (v2) on [*RADAR4KIT*](https://doi.org/10.35097/1920)
+- Experimental data (v3) on [*RADAR4KIT*](https://doi.org/10.35097/4ttgrpx92p30jwww)
+
+> Bach, Jakob, and Klemens Böhm (2024): "Alternative feature selection with user control"
+
+is published in the [*International Journal of Data Science and Analytics*](https://doi.org/10.1007/s41060-024-00527-8).
+You can find its source code in the folder `paper_journal/`.
+It is slightly outdated since it bases on the first arXiv version.
+Further, you cannot compile the paper without a `.cls` and a `.bst` file from the publisher *Springer Nature*, which we do not provide here due to copyright reasons.
+
+**Additional links:**
+
+- Code for experiments on [*GitHub*](https://github.com/Jakob-Bach/Alternative-Feature-Selection)
+- Experimental data on [*RADAR4KIT*](https://doi.org/10.35097/1975)
