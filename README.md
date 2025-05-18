@@ -2,11 +2,11 @@
 
 This repository contains the LaTeX source code for two papers on alternative feature selection:
 
-> Bach, Jakob (2023). "Finding Optimal Diverse Feature Sets with Alternative Feature Selection"
+> Bach, Jakob (2023): "Finding Optimal Diverse Feature Sets with Alternative Feature Selection"
 
 is published on [*arXiv*](https://doi.org/10.48550/arXiv.2307.11607).
 You can find its source code in the folder `paper_arxiv/`.
-There are several versions of this paper (see the tags of this repo).
+There are (as of May 2025) three versions of this paper (see the tags of this repo).
 
 **Additional links:**
 
@@ -18,7 +18,7 @@ There are several versions of this paper (see the tags of this repo).
 > Bach, Jakob, and Klemens Böhm (2024): "Alternative feature selection with user control"
 
 is published in the [*International Journal of Data Science and Analytics*](https://doi.org/10.1007/s41060-024-00527-8).
-You can find its source code in the folder `paper_journal/`.
+You can find its (camera-ready) source code in the folder `paper_journal/`.
 It is slightly outdated since it bases on the first arXiv version.
 Further, you cannot compile the paper without a `.cls` and a `.bst` file from the publisher *Springer Nature*, which we do not provide here due to copyright reasons.
 
