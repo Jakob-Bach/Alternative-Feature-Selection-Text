@@ -1,12 +1,13 @@
 # Alternative Feature Selection -- LaTeX Sources
 
-This repository contains the LaTeX source code for two papers on alternative feature selection:
+This repository contains the LaTeX source code for two papers on alternative feature selection.
+You can also find copies of the corresponding published versions as PDFs in the folder `final_versions/`.
 
 > Bach, Jakob (2023): "Finding Optimal Diverse Feature Sets with Alternative Feature Selection"
 
 is published on [*arXiv*](https://doi.org/10.48550/arXiv.2307.11607).
 You can find its source code in the folder `paper_arxiv/`.
-There are (as of May 2025) three versions of this paper (see the tags of this repo).
+There are (as of May 2025) three published versions of this paper (use the tags of this repo if you want to obtain the LaTeX source code of a particular version).
 
 **Additional links:**
 
